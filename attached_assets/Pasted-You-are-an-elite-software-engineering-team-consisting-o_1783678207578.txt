@@ -1,0 +1,804 @@
+You are an elite software engineering team consisting of:
+
+• Senior Product Manager
+• Senior UI/UX Designer
+• Senior Frontend Engineer
+• Senior Backend Engineer
+• Senior Database Architect
+• DevOps Engineer
+• Security Engineer
+• QA Engineer
+
+Your task is to build a COMPLETE production-ready full-stack web application for a startup called
+
+FASHION XPRESS
+
+Tagline:
+
+"The Store Comes To You."
+
+This is NOT an ecommerce website.
+
+It is a premium home fashion consultation and shopping platform.
+
+Customers browse products on the website, choose the clothes they like, book a home visit, and our Fashion Executive visits their home carrying those selected clothes plus additional curated recommendations.
+
+Customers only purchase what they like.
+
+The remaining products return to inventory.
+
+The website should look like it belongs to a ₹100 Crore startup.
+
+The quality should be similar to
+
+• Apple
+• Stripe
+• Shopify
+• Linear
+• Vercel
+• Notion
+
+Absolutely NO beginner UI.
+
+Everything must feel premium.
+
+---------------------------------------------------------
+TECH STACK
+---------------------------------------------------------
+
+Frontend
+
+React 19
+
+TypeScript
+
+TailwindCSS
+
+ShadCN UI
+
+Framer Motion
+
+React Query
+
+React Hook Form
+
+Zod
+
+Backend
+
+Node.js
+
+Express.js
+
+TypeScript
+
+Prisma ORM
+
+PostgreSQL
+
+Authentication
+
+JWT
+
+Refresh Tokens
+
+Role Based Access
+
+Storage
+
+Cloudinary
+
+Maps
+
+Google Maps API
+
+QR Code
+
+Barcode
+
+PDF Invoice Generator
+
+---------------------------------------------------------
+THEME
+---------------------------------------------------------
+
+Luxury Dark Theme
+
+Background
+
+#050505
+
+Cards
+
+#101010
+
+Primary Gold
+
+#D4AF37
+
+Accent Gold
+
+#FFD54F
+
+Text
+
+White
+
+Muted Text
+
+Gray
+
+Rounded corners
+
+Glassmorphism
+
+Premium gradients
+
+Luxury animations
+
+Apple-level transitions
+
+Responsive
+
+Desktop
+
+Tablet
+
+Mobile
+
+---------------------------------------------------------
+LANDING PAGE
+---------------------------------------------------------
+
+Create a stunning landing page.
+
+Include
+
+Luxury Hero Section
+
+Animated Background
+
+Fashion Images
+
+How Fashion Xpress Works
+
+Why Choose Us
+
+Collections
+
+Featured Products
+
+Testimonials
+
+Gallery
+
+Meet Our Fashion Experts
+
+FAQs
+
+Contact
+
+Footer
+
+Floating WhatsApp Button
+
+Book Home Visit CTA
+
+---------------------------------------------------------
+CUSTOMER FEATURES
+---------------------------------------------------------
+
+Customer Registration
+
+Customer Login
+
+Forgot Password
+
+OTP Verification
+
+Profile
+
+Addresses
+
+Measurements
+
+Saved Sizes
+
+Wishlist
+
+Favorite Products
+
+Recently Viewed
+
+Notifications
+
+Booking History
+
+Invoices
+
+---------------------------------------------------------
+SHOPPING
+---------------------------------------------------------
+
+Customers should be able to
+
+Browse Products
+
+Search Products
+
+Filter by
+
+Category
+
+Brand
+
+Color
+
+Size
+
+Price
+
+Fabric
+
+Occasion
+
+Add products to Wishlist
+
+Add products to
+
+"Home Visit Cart"
+
+NOT Shopping Cart.
+
+The customer is NOT buying online.
+
+They are selecting products that they want the Fashion Executive to bring.
+
+Each selected product is linked to the booking.
+
+---------------------------------------------------------
+BOOK HOME VISIT
+---------------------------------------------------------
+
+Beautiful multi-step booking process.
+
+Collect
+
+Name
+
+Phone
+
+Email
+
+Address
+
+Location
+
+Gender
+
+Age
+
+Height
+
+Weight
+
+Top Size
+
+Bottom Size
+
+Preferred Fit
+
+Budget
+
+Occasion
+
+Preferred Date
+
+Preferred Time
+
+Preferred Colors
+
+Preferred Brands
+
+Additional Notes
+
+The products selected by the customer should automatically attach to this booking.
+
+---------------------------------------------------------
+BOOKING FLOW
+---------------------------------------------------------
+
+Customer chooses clothes.
+
+↓
+
+Books Home Visit.
+
+↓
+
+Booking saved to PostgreSQL.
+
+↓
+
+Unique Booking ID generated.
+
+↓
+
+Customer sees confirmation page.
+
+↓
+
+Customer can continue to WhatsApp.
+
+---------------------------------------------------------
+IMPORTANT
+
+WHATSAPP IS NOT THE SHOPPING PLATFORM.
+
+The website handles ALL shopping.
+
+WhatsApp is ONLY for communication after booking.
+
+Use WhatsApp only for
+
+Booking confirmation
+
+Executive assignment
+
+Location confirmation
+
+Nearby landmark
+
+Share live location
+
+Visit reminder
+
+Running late
+
+Executive arrived
+
+Payment confirmation
+
+Invoice sharing
+
+Feedback request
+
+Festival offers
+
+Repeat customer follow-up
+
+Build one-click WhatsApp integration.
+
+Admin clicks
+
+Send WhatsApp
+
+and WhatsApp opens automatically with a pre-written message.
+
+---------------------------------------------------------
+ADMIN PANEL
+---------------------------------------------------------
+
+Beautiful Dashboard
+
+Statistics
+
+Today's Bookings
+
+Upcoming Visits
+
+Revenue
+
+Customers
+
+Executives
+
+Products
+
+Inventory
+
+Conversion Rate
+
+Average Bill
+
+Charts
+
+Graphs
+
+Calendar
+
+Notifications
+
+---------------------------------------------------------
+CUSTOMER MANAGEMENT
+---------------------------------------------------------
+
+Customer CRM
+
+Shopping History
+
+Measurements
+
+Favorite Brands
+
+Favorite Colors
+
+Wishlist
+
+Visit History
+
+Lifetime Spend
+
+Customer Notes
+
+---------------------------------------------------------
+BOOKING MANAGEMENT
+---------------------------------------------------------
+
+Admin can
+
+Approve Booking
+
+Reject Booking
+
+Reschedule
+
+Assign Executive
+
+Assign Inventory
+
+Generate Visit Sheet
+
+Track Visit
+
+Complete Visit
+
+---------------------------------------------------------
+FASHION EXECUTIVE PANEL
+---------------------------------------------------------
+
+Executive Login
+
+Today's Visits
+
+Navigation
+
+Customer Details
+
+Assigned Products
+
+Customer Wishlist
+
+Recommended Products
+
+Mark Product Sold
+
+Mark Product Returned
+
+Visit Notes
+
+Generate Invoice
+
+Collect Payment
+
+---------------------------------------------------------
+INVENTORY
+---------------------------------------------------------
+
+Products
+
+Categories
+
+Brands
+
+SKU
+
+Barcode
+
+QR Code
+
+Stock
+
+Warehouse
+
+Rack
+
+Images
+
+MRP
+
+Selling Price
+
+Purchase Cost
+
+Supplier
+
+Low Stock Alerts
+
+---------------------------------------------------------
+VISIT INVENTORY
+---------------------------------------------------------
+
+Before Visit
+
+Products are reserved.
+
+Executive receives assigned products.
+
+Inventory status
+
+Reserved
+
+During Visit
+
+Executive marks
+
+Sold
+
+Returned
+
+Damaged
+
+After Visit
+
+Inventory automatically updates.
+
+---------------------------------------------------------
+PAYMENTS
+---------------------------------------------------------
+
+Cash
+
+UPI
+
+Card
+
+Wallet
+
+GST Invoice
+
+Download PDF
+
+Email Invoice
+
+---------------------------------------------------------
+ANALYTICS
+---------------------------------------------------------
+
+Revenue
+
+Bookings
+
+Executives
+
+Inventory
+
+Most Selected Products
+
+Most Sold Products
+
+Most Popular Colors
+
+Most Popular Sizes
+
+Average Visit Value
+
+Repeat Customers
+
+Conversion %
+
+---------------------------------------------------------
+NOTIFICATIONS
+---------------------------------------------------------
+
+Email
+
+Dashboard
+
+WhatsApp Templates
+
+---------------------------------------------------------
+SEARCH
+---------------------------------------------------------
+
+Global Search
+
+Customers
+
+Bookings
+
+Products
+
+Executives
+
+Invoices
+
+---------------------------------------------------------
+DATABASE TABLES
+---------------------------------------------------------
+
+Users
+
+Roles
+
+Customers
+
+Products
+
+Categories
+
+Brands
+
+Bookings
+
+BookingProducts
+
+Executives
+
+Visits
+
+Inventory
+
+InventoryHistory
+
+Invoices
+
+Payments
+
+Addresses
+
+Measurements
+
+Wishlist
+
+Notifications
+
+Reviews
+
+Settings
+
+---------------------------------------------------------
+WHATSAPP MESSAGE TEMPLATES
+---------------------------------------------------------
+
+Booking Confirmation
+
+Executive Assigned
+
+Visit Reminder
+
+Executive On The Way
+
+Share Live Location
+
+Share Nearby Landmark
+
+Reached Destination
+
+Payment Confirmation
+
+Invoice Sent
+
+Thank You
+
+Review Request
+
+Festival Offer
+
+Repeat Customer Discount
+
+---------------------------------------------------------
+EXTRAS
+---------------------------------------------------------
+
+Floating WhatsApp Button
+
+Google Maps
+
+Product Zoom
+
+Lazy Loading
+
+Infinite Scroll
+
+Image Optimization
+
+Dark Mode
+
+Loading Skeletons
+
+Animations
+
+SEO
+
+Accessibility
+
+PWA Ready
+
+---------------------------------------------------------
+ADMIN QUICK ACTIONS
+---------------------------------------------------------
+
+Open WhatsApp
+
+Call Customer
+
+Open Google Maps
+
+Assign Executive
+
+Generate Invoice
+
+View Wishlist
+
+View Booking
+
+---------------------------------------------------------
+UI REQUIREMENTS
+---------------------------------------------------------
+
+Luxury
+
+Elegant
+
+Minimal
+
+No Bootstrap look
+
+No ugly tables
+
+Beautiful cards
+
+Smooth animations
+
+Premium typography
+
+Professional spacing
+
+Everything should feel like a premium SaaS application.
+
+---------------------------------------------------------
+CODE QUALITY
+---------------------------------------------------------
+
+Feature-based architecture
+
+Reusable components
+
+REST APIs
+
+Proper validation
+
+Error handling
+
+Reusable hooks
+
+Environment variables
+
+Production-ready folder structure
+
+Seed database
+
+README
+
+Docker support
+
+---------------------------------------------------------
+FINAL GOAL
+---------------------------------------------------------
+
+Generate a COMPLETE production-ready application.
+
+No placeholders.
+
+Every page should work.
+
+Every API should work.
+
+Every database table should work.
+
+Every workflow should work.
+
+The application should be beautiful, scalable, maintainable, and launch-ready for a real business.
+
+Think like you're building the MVP for the next unicorn startup, not a college project.
