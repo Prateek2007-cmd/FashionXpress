@@ -1,35 +1,63 @@
-import React from 'react';
-import { useListWishlist, useRemoveFromWishlist, useAddToHomeVisitCart } from '@workspace/api-client-react';
+import React, { useState } from 'react';
+import { useListWishlist } from '@workspace/api-client-react';
 import { formatPrice } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Link } from 'wouter';
-import { Trash2, ShoppingBag, Loader2 } from 'lucide-react';
+import { Trash2, ShoppingBag, Loader2, Heart } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/components/ui/use-toast';
+import { useAuth } from '@/context/AuthContext';
 
 export function WishlistPage() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { token } = useAuth();
   const { data: wishlist, isLoading } = useListWishlist();
-  const remove = useRemoveFromWishlist();
-  const addToCart = useAddToHomeVisitCart();
+  const [removingId, setRemovingId] = useState<number | null>(null);
+  const [movingId, setMovingId] = useState<number | null>(null);
 
-  const handleRemove = (id: number) => {
-    remove.mutate({ data: { productId: id } } as any, {
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['/api/wishlist'] });
-        toast({ title: "Removed from wishlist" });
-      }
-    });
+  const handleRemove = async (productId: number) => {
+    setRemovingId(productId);
+    try {
+      const res = await fetch(`/api/wishlist/${productId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!res.ok && res.status !== 204) throw new Error('Failed to remove');
+      queryClient.invalidateQueries({ queryKey: ['/wishlist'] });
+      toast({ title: "Removed from wishlist" });
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } finally {
+      setRemovingId(null);
+    }
   };
 
-  const handleMoveToCart = (productId: number, wishlistItemId: number) => {
-    addToCart.mutate({ data: { productId, quantity: 1 } }, {
-      onSuccess: () => {
-        handleRemove(wishlistItemId);
-        toast({ title: "Added to Home Visit", description: "Item moved to your visit selection." });
-      }
-    });
+  const handleMoveToCart = async (productId: number) => {
+    setMovingId(productId);
+    try {
+      // Add to cart
+      const cartRes = await fetch('/api/home-visit-cart', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ productId, quantity: 1, size: 'M' })
+      });
+      if (!cartRes.ok) throw new Error('Failed to add to cart');
+      
+      // Remove from wishlist
+      await fetch(`/api/wishlist/${productId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      
+      queryClient.invalidateQueries({ queryKey: ['/wishlist'] });
+      queryClient.invalidateQueries({ queryKey: ['/home-visit-cart'] });
+      toast({ title: "✅ Moved to Home Visit", description: "Item moved to your visit selection." });
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } finally {
+      setMovingId(null);
+    }
   };
 
   if (isLoading) return <div className="min-h-[60vh] flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
@@ -39,8 +67,9 @@ export function WishlistPage() {
       <h1 className="text-4xl font-serif text-white mb-2">Saved Pieces</h1>
       <p className="text-muted-foreground mb-12">Your personal curation of luxury fashion.</p>
 
-      {wishlist?.length === 0 ? (
+      {!wishlist || wishlist.length === 0 ? (
         <div className="text-center py-24 border border-white/5 rounded-2xl bg-card/30">
+          <Heart className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
           <p className="text-muted-foreground mb-4">Your wishlist is empty.</p>
           <Link href="/products">
             <Button variant="outline" className="tracking-widest uppercase text-xs">Explore Collection</Button>
@@ -48,7 +77,7 @@ export function WishlistPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-          {wishlist?.map(item => (
+          {wishlist.map(item => (
             <div key={item.id} className="group border border-white/5 bg-card/50 rounded-lg overflow-hidden flex flex-col">
               <Link href={`/products/${item.product.id}`} className="block relative aspect-[3/4] overflow-hidden">
                 {item.product.images[0] ? (
@@ -65,18 +94,26 @@ export function WishlistPage() {
                 <div className="flex gap-2 mt-auto pt-4 border-t border-white/5">
                   <Button 
                     className="flex-1 text-xs tracking-widest uppercase h-9" 
-                    onClick={() => handleMoveToCart(item.product.id, item.id)}
-                    disabled={addToCart.isPending}
+                    onClick={() => handleMoveToCart(item.productId)}
+                    disabled={movingId === item.productId}
                   >
-                    <ShoppingBag className="w-4 h-4 mr-2" /> Add to Visit
+                    {movingId === item.productId ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <><ShoppingBag className="w-4 h-4 mr-2" /> Add to Visit</>
+                    )}
                   </Button>
                   <Button 
                     variant="ghost" 
                     className="px-3 text-muted-foreground hover:text-destructive hover:bg-destructive/10 h-9"
-                    onClick={() => handleRemove(item.id)}
-                    disabled={remove.isPending}
+                    onClick={() => handleRemove(item.productId)}
+                    disabled={removingId === item.productId}
                   >
-                    <Trash2 className="w-4 h-4" />
+                    {removingId === item.productId ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Trash2 className="w-4 h-4" />
+                    )}
                   </Button>
                 </div>
               </div>

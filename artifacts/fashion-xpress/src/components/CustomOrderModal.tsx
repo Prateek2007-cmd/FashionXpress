@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
-import { customFetch } from '@workspace/api-client-react';
 import { Loader2, X } from 'lucide-react';
 import { Button } from './ui/button';
+import { useAuth } from '@/context/AuthContext';
 
 export function CustomOrderModal({ product, onClose }: { product: any, onClose: () => void }) {
+  const { token } = useAuth();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     color: product.color,
     size: product.sizes[0] || 'M',
@@ -12,24 +13,31 @@ export function CustomOrderModal({ product, onClose }: { product: any, onClose: 
     specialRequirements: ''
   });
 
-  const createOrder = useMutation({
-    mutationFn: (data: any) => customFetch({ url: '/api/orders', method: 'POST', data }),
-    onSuccess: (order: any) => {
-      // Redirect to WhatsApp with order details
-      const message = `Hello The Fashion Xpress,\n\nI would like to place a custom order.\n\nOrder Number: ${order.orderNumber}\nProduct: ${product.name} (SKU: ${product.sku})\nColor: ${formData.color}\nSize: ${formData.size}\nTotal Amount: ₹${order.totalAmount}\n\nShipping Address: ${formData.shippingAddress}\nSpecial Requirements: ${formData.specialRequirements}\n\nPlease let me know how to proceed with the payment.`;
-      const waUrl = `https://wa.me/919999999999?text=${encodeURIComponent(message)}`;
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    
+    try {
+      const res = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ productId: product.id, quantity: 1, ...formData })
+      });
+      
+      const order = await res.json();
+      const message = `Hello Fashion Xpress,\n\nI would like to place a custom order.\n\nOrder Number: ${order.orderNumber || 'Pending'}\nProduct: ${product.name} (SKU: ${product.sku})\nColor: ${formData.color}\nSize: ${formData.size}\nTotal Amount: ₹${order.totalAmount || product.sellingPrice}\n\nShipping Address: ${formData.shippingAddress}\nSpecial Requirements: ${formData.specialRequirements}\n\nPlease let me know how to proceed with the payment.`;
+      const waUrl = `https://wa.me/916304847223?text=${encodeURIComponent(message)}`;
       window.open(waUrl, '_blank');
       onClose();
+    } catch (err) {
+      // Even if the API fails, still open WhatsApp with basic info
+      const message = `Hello Fashion Xpress,\n\nI would like to place a custom order.\n\nProduct: ${product.name}\nColor: ${formData.color}\nSize: ${formData.size}\nPrice: ₹${product.sellingPrice}\n\nShipping Address: ${formData.shippingAddress}\nSpecial Requirements: ${formData.specialRequirements}`;
+      const waUrl = `https://wa.me/916304847223?text=${encodeURIComponent(message)}`;
+      window.open(waUrl, '_blank');
+      onClose();
+    } finally {
+      setIsSubmitting(false);
     }
-  });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    createOrder.mutate({
-      productId: product.id,
-      quantity: 1,
-      ...formData
-    });
   };
 
   return (
@@ -86,8 +94,8 @@ export function CustomOrderModal({ product, onClose }: { product: any, onClose: 
               />
             </div>
 
-            <Button type="submit" className="w-full h-12 mt-4" disabled={createOrder.isPending}>
-              {createOrder.isPending ? <Loader2 className="w-5 h-5 animate-spin" /> : "Place Order on WhatsApp"}
+            <Button type="submit" className="w-full h-12 mt-4" disabled={isSubmitting}>
+              {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : "Place Order on WhatsApp"}
             </Button>
           </form>
         </div>

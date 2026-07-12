@@ -142,33 +142,51 @@ router.post(
   "/products",
   requireAuth("admin"),
   async (req, res): Promise<void> => {
-    const parsed = CreateProductBody.safeParse(req.body);
-    if (!parsed.success) {
-      res.status(400).json({ error: parsed.error.message });
-      return;
+    try {
+      const body = req.body || {};
+      if (!body.name || !body.sku) {
+        res.status(400).json({ error: "Missing required fields: name, sku" });
+        return;
+      }
+      const [product] = await db
+        .insert(productsTable)
+        .values({
+          name: body.name,
+          description: body.description || '',
+          sku: body.sku,
+          barcode: body.barcode || null,
+          qrCode: body.qrCode || null,
+          categoryId: Number(body.categoryId),
+          brandId: Number(body.brandId),
+          color: body.color || '',
+          sizes: body.sizes || ['S', 'M', 'L'],
+          fabric: body.fabric || '',
+          occasion: body.occasion || '',
+          mrp: (body.mrp || 0).toString(),
+          sellingPrice: (body.sellingPrice || 0).toString(),
+          purchaseCost: body.purchaseCost?.toString() || null,
+          supplier: body.supplier || null,
+          stock: Number(body.stock) || 0,
+          warehouse: body.warehouse || null,
+          rack: body.rack || null,
+          images: body.images || [],
+        })
+        .returning();
+
+      const [category] = await db
+        .select()
+        .from(categoriesTable)
+        .where(eq(categoriesTable.id, product!.categoryId));
+      const [brand] = await db
+        .select()
+        .from(brandsTable)
+        .where(eq(brandsTable.id, product!.brandId));
+
+      res.status(201).json(mapProduct(product!, category, brand));
+    } catch (err: any) {
+      console.error("POST /products error:", err);
+      res.status(500).json({ error: err.message || "Failed to create product" });
     }
-    const [product] = await db
-      .insert(productsTable)
-      .values({
-        ...parsed.data,
-        mrp: parsed.data.mrp.toString(),
-        sellingPrice: parsed.data.sellingPrice.toString(),
-        purchaseCost: parsed.data.purchaseCost?.toString(),
-      })
-      .returning();
-
-    const [category] = await db
-      .select()
-      .from(categoriesTable)
-      .where(eq(categoriesTable.id, product!.categoryId));
-    const [brand] = await db
-      .select()
-      .from(brandsTable)
-      .where(eq(brandsTable.id, product!.brandId));
-
-    res
-      .status(201)
-      .json(CreateProductResponse.parse(mapProduct(product!, category, brand)));
   },
 );
 

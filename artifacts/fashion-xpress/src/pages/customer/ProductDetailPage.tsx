@@ -1,62 +1,71 @@
 import React, { useState } from 'react';
 import { Link, useRoute, useLocation } from 'wouter';
-import { useGetProduct, useAddToWishlist, useAddToHomeVisitCart } from '@workspace/api-client-react';
+import { useGetProduct } from '@workspace/api-client-react';
 import { formatPrice } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
-import { Heart, Loader2, Plus, ArrowLeft, Ruler } from 'lucide-react';
+import { Heart, Loader2, ArrowLeft, Ruler, ShoppingBag, Check } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
-import { CustomOrderModal } from "@/components/CustomOrderModal";
 import { useQueryClient } from '@tanstack/react-query';
 
 export function ProductDetailPage() {
   const [, params] = useRoute('/products/:id');
   const productId = Number(params?.id);
-  const { user, isAuthenticated } = useAuth();
+  const { isAuthenticated, token } = useAuth();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [isCustomOrderOpen, setIsCustomOrderOpen] = useState(false);
   const [selectedSize, setSelectedSize] = useState<string>('');
+  const [addingToCart, setAddingToCart] = useState(false);
+  const [addingToWishlist, setAddingToWishlist] = useState(false);
+  const [addedToCart, setAddedToCart] = useState(false);
   
   const { data: product, isLoading } = useGetProduct(productId, {
     query: { enabled: !!productId, queryKey: ['/products', productId] }
   });
 
-  const addToWishlist = useAddToWishlist();
-  const addToCart = useAddToHomeVisitCart();
-
-  const handleWishlist = () => {
-    if (!isAuthenticated) {
-      setLocation('/login');
-      return;
+  const handleWishlist = async () => {
+    if (!isAuthenticated) { setLocation('/login'); return; }
+    setAddingToWishlist(true);
+    try {
+      const res = await fetch('/api/wishlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ productId })
+      });
+      if (!res.ok) throw new Error(await res.text());
+      queryClient.invalidateQueries({ queryKey: ['/api/wishlist'] });
+      toast({ title: "❤️ Added to Wishlist", description: "Piece saved for later." });
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message || "Failed to add to wishlist.", variant: "destructive" });
+    } finally {
+      setAddingToWishlist(false);
     }
-    addToWishlist.mutate({ data: { productId } }, {
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['/api/wishlist'] });
-        toast({ title: "Added to Wishlist", description: "Piece saved for later." });
-      },
-      onError: () => toast({ title: "Error", description: "Failed to add to wishlist." })
-    });
   };
 
-  const handleCart = () => {
-    if (!isAuthenticated) {
-      setLocation('/login');
-      return;
-    }
+  const handleCart = async () => {
+    if (!isAuthenticated) { setLocation('/login'); return; }
     if (!selectedSize) {
       toast({ title: "Select a size", description: "Please select a size before adding to Home Visit.", variant: "destructive" });
       return;
     }
-    // @ts-ignore: added in schema, ignore until zod is fully regenerated
-    addToCart.mutate({ data: { productId, quantity: 1, size: selectedSize } }, {
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['/api/home-visit-cart'] });
-        toast({ title: "Added to Home Visit", description: "This piece will be brought to your consultation." });
-      },
-      onError: () => toast({ title: "Error", description: "Failed to add to your selection." })
-    });
+    setAddingToCart(true);
+    try {
+      const res = await fetch('/api/home-visit-cart', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ productId, quantity: 1, size: selectedSize })
+      });
+      if (!res.ok) throw new Error(await res.text());
+      queryClient.invalidateQueries({ queryKey: ['/api/home-visit-cart'] });
+      setAddedToCart(true);
+      toast({ title: "✅ Added to Home Visit", description: "This piece will be brought to your consultation." });
+      setTimeout(() => setAddedToCart(false), 3000);
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message || "Failed to add to your selection.", variant: "destructive" });
+    } finally {
+      setAddingToCart(false);
+    }
   };
 
   if (isLoading) return <div className="min-h-[80vh] flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
@@ -136,45 +145,34 @@ export function ProductDetailPage() {
             <div className="flex gap-4">
               <Button 
                 size="lg" 
-                className="flex-1 h-14 text-sm tracking-widest uppercase"
+                className={`flex-1 h-14 text-sm tracking-widest uppercase ${addedToCart ? 'bg-green-600 hover:bg-green-700' : ''}`}
                 onClick={handleCart}
-                disabled={addToCart.isPending}
+                disabled={addingToCart}
               >
-                {addToCart.isPending ? <Loader2 className="w-5 h-5 animate-spin" /> : "Add to Home Visit"}
+                {addingToCart ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : addedToCart ? (
+                  <><Check className="w-5 h-5 mr-2" /> Added!</>
+                ) : (
+                  <><ShoppingBag className="w-5 h-5 mr-2" /> Add to Home Visit</>
+                )}
               </Button>
               <Button 
                 size="lg" 
                 variant="outline" 
                 className="h-14 px-8 border-white/20 text-white hover:bg-white/5 hover:text-white"
                 onClick={handleWishlist}
-                disabled={addToWishlist.isPending}
+                disabled={addingToWishlist}
               >
-                <Heart className="w-5 h-5" />
+                {addingToWishlist ? <Loader2 className="w-5 h-5 animate-spin" /> : <Heart className="w-5 h-5" />}
               </Button>
             </div>
-            <Button
-              size="lg"
-              variant="outline"
-              className="w-full h-14 border-primary text-primary hover:bg-primary/10 tracking-widest uppercase text-sm"
-              onClick={() => {
-                if (!isAuthenticated) {
-                  setLocation('/login');
-                  return;
-                }
-                setIsCustomOrderOpen(true);
-              }}
-            >
-              Direct Custom Order
-            </Button>
+            <p className="text-xs text-muted-foreground text-center mt-4">
+              No payment required until you decide to keep the item after your fitting.
+            </p>
           </div>
-          <p className="text-xs text-muted-foreground text-center mt-4">
-            No payment required until you decide to keep the item after your fitting, or place a direct order.
-          </p>
         </div>
       </div>
-      {isCustomOrderOpen && product && (
-        <CustomOrderModal product={product} onClose={() => setIsCustomOrderOpen(false)} />
-      )}
     </div>
   );
 }

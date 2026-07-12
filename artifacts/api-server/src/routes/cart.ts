@@ -35,7 +35,6 @@ router.get(
     const brandMap = new Map(brands.map((b) => [b.id, b]));
 
     res.json(
-      ListHomeVisitCartResponse.parse(
         rows.map(({ item, product }) => ({
           id: item.id,
           productId: item.productId,
@@ -49,7 +48,6 @@ router.get(
           size: (item as any).size,
           createdAt: item.createdAt,
         })),
-      ),
     );
   },
 );
@@ -121,8 +119,7 @@ router.post(
       .from(brandsTable)
       .where(eq(brandsTable.id, product.brandId));
 
-    res.status(201).json(
-      AddToHomeVisitCartResponse.parse({
+    res.status(201).json({
         id: item!.id,
         productId: item!.productId,
         product: mapProduct(product, category, brand),
@@ -130,8 +127,7 @@ router.post(
         // @ts-ignore
         size: (item as any)!.size,
         createdAt: item!.createdAt,
-      }),
-    );
+      });
   },
 );
 
