@@ -7,6 +7,7 @@ import {
   customersTable,
   executivesTable,
   productsTable,
+  brandsTable,
   invoicesTable,
 } from "@workspace/db";
 import {
@@ -40,8 +41,9 @@ router.get(
       );
 
     const [{ total: totalRevenue }] = await db
-      .select({ total: sql<string>`coalesce(sum(${invoicesTable.total}),0)` })
-      .from(invoicesTable);
+      .select({ total: sql<string>`coalesce(sum(${bookingProductsTable.priceAtSale}),0)` })
+      .from(bookingProductsTable)
+      .where(eq(bookingProductsTable.status, "sold"));
 
     const [{ count: totalCustomers }] = await db
       .select({ count: sql<number>`count(*)::int` })
@@ -164,6 +166,38 @@ router.get(
         popularSizes: popularSizesRows,
         bookingsByStatus: bookingsByStatusRows,
       });
+  },
+);
+
+router.get(
+  "/admin/dashboard/brand-revenue",
+  requireAuth("admin"),
+  async (_req, res): Promise<void> => {
+    try {
+      const rows = await db
+        .select({
+          brandName: brandsTable.name,
+          quantitySold: sql<number>`count(*)::int`,
+          revenue: sql<string>`coalesce(sum(${bookingProductsTable.priceAtSale}), 0)`,
+        })
+        .from(bookingProductsTable)
+        .innerJoin(productsTable, eq(bookingProductsTable.productId, productsTable.id))
+        .innerJoin(brandsTable, eq(productsTable.brandId, brandsTable.id))
+        .where(eq(bookingProductsTable.status, "sold"))
+        .groupBy(brandsTable.name)
+        .orderBy(sql`sum(${bookingProductsTable.priceAtSale}) desc`);
+
+      res.json(
+        rows.map((r) => ({
+          brandName: r.brandName,
+          quantitySold: r.quantitySold,
+          revenue: toNum(r.revenue),
+        })),
+      );
+    } catch (err: any) {
+      console.error("GET /admin/dashboard/brand-revenue error:", err);
+      res.status(500).json({ error: "Failed to fetch brand revenue" });
+    }
   },
 );
 

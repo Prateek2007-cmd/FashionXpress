@@ -11,9 +11,8 @@ export function CustomerNavbar() {
 
   const navLinks = [
     { label: 'Home', href: '/' },
-    { label: 'Collections', href: '/products' },
     { label: 'Book Visit', href: '/book-visit' },
-    { label: 'Direct Booking', href: '/book-visit' },
+    { label: 'Price Drop', href: '/products' },
     { label: 'About Us', href: '/about' },
   ];
 
@@ -21,17 +20,15 @@ export function CustomerNavbar() {
     <nav className="fixed top-0 left-0 right-0 z-50 glass">
       <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
-            <span className="font-serif font-bold text-primary-foreground text-lg leading-none">TFX</span>
-          </div>
-          <span className="font-serif font-bold text-xl tracking-widest uppercase">THE FASHION XPRESS</span>
+        <Link href="/" className="flex items-center gap-3">
+          <img src="/logo.png" alt="TFX" className="h-14 w-auto object-contain" style={{ filter: 'invert(1) grayscale(1)', mixBlendMode: 'screen' }} />
+          <span className="font-serif font-bold text-lg md:text-xl tracking-widest uppercase text-white hover:text-primary transition-colors">THE FASHION XPRESS</span>
         </Link>
 
         {/* Desktop Links */}
         <div className="hidden md:flex items-center gap-8">
           {navLinks.map((link) => (
-            <Link key={link.href} href={link.href} className={`text-sm tracking-widest uppercase font-medium transition-colors hover:text-primary ${location === link.href ? 'text-primary' : 'text-muted-foreground'}`}>
+            <Link key={link.href} href={link.href} className={`text-sm tracking-widest uppercase font-medium transition-colors ${link.label === 'Price Drop' ? 'text-red-500 hover:text-red-400 animate-pulse font-bold' : location === link.href ? 'text-primary' : 'text-muted-foreground hover:text-primary'}`}>
               {link.label}
             </Link>
           ))}
@@ -71,7 +68,7 @@ export function CustomerNavbar() {
       {isMobileMenuOpen && (
         <div className="md:hidden bg-background border-b border-border px-6 py-4 flex flex-col gap-4">
           {navLinks.map((link) => (
-            <Link key={link.href} href={link.href} className="text-sm tracking-widest uppercase font-medium block" onClick={() => setIsMobileMenuOpen(false)}>
+            <Link key={link.href} href={link.href} className={`text-sm tracking-widest uppercase font-medium block ${link.label === 'Price Drop' ? 'text-red-500 animate-pulse font-bold' : ''}`} onClick={() => setIsMobileMenuOpen(false)}>
               {link.label}
             </Link>
           ))}

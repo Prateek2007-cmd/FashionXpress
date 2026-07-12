@@ -180,6 +180,75 @@ router.post(
   },
 );
 
+// Guest booking — no authentication required
+router.post(
+  "/bookings/guest",
+  async (req, res): Promise<void> => {
+    try {
+      const body = req.body || {};
+      const name = body.name;
+      const phone = body.phone;
+      const email = body.email || "not-provided@fashion-xpress.com";
+      const addressText = body.addressText;
+
+      if (!name || !phone || !addressText) {
+        res.status(400).json({ error: "Missing required booking fields: name, phone, addressText" });
+        return;
+      }
+
+      // Create a guest user account
+      const guestEmail = `guest-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@guest.fashion-xpress.com`;
+      const [guestUser] = await db
+        .insert(usersTable)
+        .values({
+          email: guestEmail,
+          passwordHash: "GUEST_NO_PASSWORD",
+          name,
+          phone,
+          role: "customer",
+        })
+        .returning();
+
+      const [customer] = await db
+        .insert(customersTable)
+        .values({ userId: guestUser!.id })
+        .returning();
+
+      const [booking] = await db
+        .insert(bookingsTable)
+        .values({
+          bookingCode: generateBookingCode(),
+          customerId: customer!.id,
+          name,
+          phone,
+          email,
+          addressText,
+          gender: body.gender || "not_specified",
+          preferredDate: body.preferredDate || new Date().toISOString().split("T")[0],
+          preferredTime: body.preferredTime || "As soon as possible",
+          preferredFit: body.preferredFit || null,
+          preferredColors: body.preferredColors || [],
+          preferredBrands: body.preferredBrands || [],
+          topSize: body.topSize || null,
+          bottomSize: body.bottomSize || null,
+          notes: body.notes || null,
+          budget: body.budget?.toString() || null,
+          lat: body.lat?.toString() || null,
+          lng: body.lng?.toString() || null,
+          heightCm: body.heightCm?.toString() || null,
+          weightKg: body.weightKg?.toString() || null,
+        })
+        .returning();
+
+      const [hydrated] = await hydrateBookings([booking!]);
+      res.status(201).json(hydrated);
+    } catch (err: any) {
+      console.error("POST /bookings/guest error:", err);
+      res.status(500).json({ error: "Internal server error creating guest booking" });
+    }
+  },
+);
+
 router.get(
   "/bookings/me",
   requireAuth("customer", "admin"),
@@ -264,6 +333,33 @@ router.patch(
       .set({ status: status as any })
       .where(eq(bookingsTable.id, id))
       .returning();
+
+    // If booking is completed, automatically mark all 'reserved' products as 'sold'
+    if (status === "completed" && booking) {
+      const items = await db
+        .select({
+          bpId: bookingProductsTable.id,
+          sellingPrice: productsTable.sellingPrice,
+        })
+        .from(bookingProductsTable)
+        .innerJoin(productsTable, eq(bookingProductsTable.productId, productsTable.id))
+        .where(
+          and(
+            eq(bookingProductsTable.bookingId, id),
+            eq(bookingProductsTable.status, "reserved")
+          )
+        );
+
+      for (const item of items) {
+        await db
+          .update(bookingProductsTable)
+          .set({
+            status: "sold",
+            priceAtSale: item.sellingPrice,
+          })
+          .where(eq(bookingProductsTable.id, item.bpId));
+      }
+    }
 
     // Trigger email and notification if status is confirmed
     if (status === "confirmed" && booking) {

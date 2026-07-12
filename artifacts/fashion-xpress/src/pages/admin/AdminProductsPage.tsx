@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useListProducts, useListCategories, useListBrands } from '@workspace/api-client-react';
 import { useQueryClient } from '@tanstack/react-query';
-import { Plus, Trash2, Loader2, Upload, X, Image as ImageIcon } from 'lucide-react';
+import { Plus, Trash2, Loader2, Upload, X, Image as ImageIcon, Pencil } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/context/AuthContext';
 
@@ -18,9 +18,17 @@ export function AdminProductsPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [imagePreview, setImagePreview] = useState<string[]>([]);
   const [formData, setFormData] = useState({
-    name: '', sku: '', description: '', categoryId: 0, brandId: 0, 
+    name: '', sku: '', description: '', categoryId: 0, brandName: '', 
     color: '', sizes: 'S,M,L,XL', fabric: '', occasion: '', 
     mrp: 0, sellingPrice: 0, stock: 10, imageUrl: ''
+  });
+
+  // Edit state
+  const [editingProduct, setEditingProduct] = useState<any>(null);
+  const [isEditSaving, setIsEditSaving] = useState(false);
+  const [editForm, setEditForm] = useState({
+    name: '', description: '', color: '', sizes: '', fabric: '', occasion: '',
+    mrp: 0, sellingPrice: 0, stock: 0
   });
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -39,7 +47,6 @@ export function AdminProductsPage() {
       };
       reader.readAsDataURL(file);
     });
-    // Reset input so same file can be selected again
     e.target.value = '';
   };
 
@@ -52,7 +59,6 @@ export function AdminProductsPage() {
     setIsSaving(true);
     
     try {
-      // Combine uploaded images and URL images
       const allImages = [...imagePreview];
       if (formData.imageUrl.trim()) {
         formData.imageUrl.split(',').forEach(url => {
@@ -66,7 +72,7 @@ export function AdminProductsPage() {
         sku: formData.sku,
         description: formData.description,
         categoryId: formData.categoryId || (categories?.[0]?.id || 1),
-        brandId: formData.brandId || (brands?.[0]?.id || 1),
+        brandName: formData.brandName,
         color: formData.color,
         sizes: formData.sizes.split(',').map(s => s.trim()).filter(Boolean),
         fabric: formData.fabric,
@@ -99,7 +105,7 @@ export function AdminProductsPage() {
       queryClient.invalidateQueries({ queryKey: ['/products'] });
       setIsAdding(false);
       setImagePreview([]);
-      setFormData({ name: '', sku: '', description: '', categoryId: 0, brandId: 0, color: '', sizes: 'S,M,L,XL', fabric: '', occasion: '', mrp: 0, sellingPrice: 0, stock: 10, imageUrl: '' });
+      setFormData({ name: '', sku: '', description: '', categoryId: 0, brandName: '', color: '', sizes: 'S,M,L,XL', fabric: '', occasion: '', mrp: 0, sellingPrice: 0, stock: 10, imageUrl: '' });
     } catch (err: any) {
       console.error('Create product error:', err);
       toast({ title: "Failed to create product", description: err.message, variant: "destructive" });
@@ -128,6 +134,64 @@ export function AdminProductsPage() {
     }
   };
 
+  const openEdit = (product: any) => {
+    setEditingProduct(product);
+    setEditForm({
+      name: product.name || '',
+      description: product.description || '',
+      color: product.color || '',
+      sizes: (product.sizes || []).join(', '),
+      fabric: product.fabric || '',
+      occasion: product.occasion || '',
+      mrp: product.mrp || 0,
+      sellingPrice: product.sellingPrice || 0,
+      stock: product.stock || 0,
+    });
+  };
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingProduct) return;
+    setIsEditSaving(true);
+    try {
+      const payload: any = {};
+      if (editForm.name !== editingProduct.name) payload.name = editForm.name;
+      if (editForm.description !== (editingProduct.description || '')) payload.description = editForm.description;
+      if (editForm.color !== (editingProduct.color || '')) payload.color = editForm.color;
+      if (editForm.fabric !== (editingProduct.fabric || '')) payload.fabric = editForm.fabric;
+      if (editForm.occasion !== (editingProduct.occasion || '')) payload.occasion = editForm.occasion;
+      
+      const newSizes = editForm.sizes.split(',').map(s => s.trim()).filter(Boolean);
+      if (JSON.stringify(newSizes) !== JSON.stringify(editingProduct.sizes || [])) payload.sizes = newSizes;
+      
+      if (Number(editForm.mrp) !== Number(editingProduct.mrp)) payload.mrp = Number(editForm.mrp);
+      if (Number(editForm.sellingPrice) !== Number(editingProduct.sellingPrice)) payload.sellingPrice = Number(editForm.sellingPrice);
+      if (Number(editForm.stock) !== Number(editingProduct.stock)) payload.stock = Number(editForm.stock);
+
+      const res = await fetch(`/api/products/${editingProduct.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) {
+        throw new Error(await res.text());
+      }
+
+      toast({ title: "✅ Product updated!", description: `${editForm.name} has been updated.` });
+      queryClient.invalidateQueries({ queryKey: ['/products'] });
+      setEditingProduct(null);
+    } catch (err: any) {
+      console.error('Update product error:', err);
+      toast({ title: "Failed to update product", description: err.message, variant: "destructive" });
+    } finally {
+      setIsEditSaving(false);
+    }
+  };
+
   return (
     <div className="p-8 max-w-7xl mx-auto">
       <div className="flex justify-between items-center mb-8">
@@ -139,28 +203,32 @@ export function AdminProductsPage() {
           onClick={() => setIsAdding(!isAdding)}
           className="bg-primary text-primary-foreground px-5 py-2.5 rounded-md flex items-center gap-2 text-sm font-medium hover:bg-primary/90 transition-colors"
         >
-          <Plus className="w-4 h-4" />
-          {isAdding ? 'Cancel' : 'Add Product'}
+          <Plus className="w-4 h-4" /> Add Product
         </button>
       </div>
 
       {isAdding && (
-        <div className="mb-8 p-6 border border-white/10 rounded-xl bg-card">
-          <h2 className="font-serif text-xl mb-6 text-white">New Product</h2>
+        <div className="bg-card border border-white/5 rounded-xl p-6 mb-8">
+          <h2 className="font-serif text-xl text-white mb-6">New Product</h2>
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {/* Row 1: Name, SKU, Description */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-xs uppercase tracking-widest text-muted-foreground mb-1">Name *</label>
-                <input required type="text" className="w-full bg-background border border-input rounded-md px-3 py-2 text-sm text-white" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="Premium Silk Shirt" />
+                <input required type="text" className="w-full bg-background border border-input rounded-md px-3 py-2 text-sm text-white" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
               </div>
               <div>
                 <label className="block text-xs uppercase tracking-widest text-muted-foreground mb-1">SKU *</label>
-                <input required type="text" className="w-full bg-background border border-input rounded-md px-3 py-2 text-sm text-white" value={formData.sku} onChange={e => setFormData({...formData, sku: e.target.value})} placeholder="FX-001" />
+                <input required type="text" className="w-full bg-background border border-input rounded-md px-3 py-2 text-sm text-white" value={formData.sku} onChange={e => setFormData({...formData, sku: e.target.value})} />
               </div>
               <div>
                 <label className="block text-xs uppercase tracking-widest text-muted-foreground mb-1">Description</label>
-                <input type="text" className="w-full bg-background border border-input rounded-md px-3 py-2 text-sm text-white" value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} placeholder="Brief product description" />
+                <input type="text" className="w-full bg-background border border-input rounded-md px-3 py-2 text-sm text-white" value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} />
               </div>
+            </div>
+
+            {/* Row 2: Category, Brand, Color */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-xs uppercase tracking-widest text-muted-foreground mb-1">Category</label>
                 <select className="w-full bg-background border border-input rounded-md px-3 py-2 text-sm text-white" value={formData.categoryId} onChange={e => setFormData({...formData, categoryId: Number(e.target.value)})}>
@@ -169,77 +237,74 @@ export function AdminProductsPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-xs uppercase tracking-widest text-muted-foreground mb-1">Brand</label>
-                <select className="w-full bg-background border border-input rounded-md px-3 py-2 text-sm text-white" value={formData.brandId} onChange={e => setFormData({...formData, brandId: Number(e.target.value)})}>
-                  <option value={0}>Select brand</option>
-                  {brands?.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
-                </select>
+                <label className="block text-xs uppercase tracking-widest text-muted-foreground mb-1">Brand Name *</label>
+                <input required type="text" className="w-full bg-background border border-input rounded-md px-3 py-2 text-sm text-white" value={formData.brandName} onChange={e => setFormData({...formData, brandName: e.target.value})} placeholder="e.g. Gucci, Zara" />
               </div>
               <div>
                 <label className="block text-xs uppercase tracking-widest text-muted-foreground mb-1">Color</label>
-                <input required type="text" className="w-full bg-background border border-input rounded-md px-3 py-2 text-sm text-white" value={formData.color} onChange={e => setFormData({...formData, color: e.target.value})} placeholder="Navy Blue" />
+                <input type="text" className="w-full bg-background border border-input rounded-md px-3 py-2 text-sm text-white" value={formData.color} onChange={e => setFormData({...formData, color: e.target.value})} />
               </div>
+            </div>
+
+            {/* Row 3: Sizes, Fabric, Occasion */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-xs uppercase tracking-widest text-muted-foreground mb-1">Sizes (comma-separated)</label>
                 <input type="text" className="w-full bg-background border border-input rounded-md px-3 py-2 text-sm text-white" value={formData.sizes} onChange={e => setFormData({...formData, sizes: e.target.value})} placeholder="S,M,L,XL" />
               </div>
               <div>
                 <label className="block text-xs uppercase tracking-widest text-muted-foreground mb-1">Fabric</label>
-                <input required type="text" className="w-full bg-background border border-input rounded-md px-3 py-2 text-sm text-white" value={formData.fabric} onChange={e => setFormData({...formData, fabric: e.target.value})} placeholder="Cotton, Silk, etc." />
+                <input type="text" className="w-full bg-background border border-input rounded-md px-3 py-2 text-sm text-white" value={formData.fabric} onChange={e => setFormData({...formData, fabric: e.target.value})} />
               </div>
               <div>
                 <label className="block text-xs uppercase tracking-widest text-muted-foreground mb-1">Occasion</label>
-                <input required type="text" className="w-full bg-background border border-input rounded-md px-3 py-2 text-sm text-white" value={formData.occasion} onChange={e => setFormData({...formData, occasion: e.target.value})} placeholder="Casual, Formal, etc." />
-              </div>
-              <div>
-                <label className="block text-xs uppercase tracking-widest text-muted-foreground mb-1">MRP (₹)</label>
-                <input required type="number" min="0" className="w-full bg-background border border-input rounded-md px-3 py-2 text-sm text-white" value={formData.mrp} onChange={e => setFormData({...formData, mrp: Number(e.target.value)})} />
-              </div>
-              <div>
-                <label className="block text-xs uppercase tracking-widest text-muted-foreground mb-1">Selling Price (₹)</label>
-                <input required type="number" min="0" className="w-full bg-background border border-input rounded-md px-3 py-2 text-sm text-white" value={formData.sellingPrice} onChange={e => setFormData({...formData, sellingPrice: Number(e.target.value)})} />
-              </div>
-              <div>
-                <label className="block text-xs uppercase tracking-widest text-muted-foreground mb-1">Stock</label>
-                <input required type="number" min="0" className="w-full bg-background border border-input rounded-md px-3 py-2 text-sm text-white" value={formData.stock} onChange={e => setFormData({...formData, stock: Number(e.target.value)})} />
+                <input type="text" className="w-full bg-background border border-input rounded-md px-3 py-2 text-sm text-white" value={formData.occasion} onChange={e => setFormData({...formData, occasion: e.target.value})} />
               </div>
             </div>
 
-            {/* Image Upload Section */}
-            <div className="border border-white/10 rounded-lg p-4 bg-white/[0.02]">
-              <label className="block text-xs uppercase tracking-widest text-muted-foreground mb-3">Product Images</label>
-              
-              {/* Upload button and URL input */}
-              <div className="flex flex-col sm:flex-row gap-3 mb-4">
-                <button 
+            {/* Row 4: MRP, Selling Price, Stock */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-xs uppercase tracking-widest text-muted-foreground mb-1">MRP (₹)</label>
+                <input type="number" className="w-full bg-background border border-input rounded-md px-3 py-2 text-sm text-white" value={formData.mrp} onChange={e => setFormData({...formData, mrp: Number(e.target.value)})} />
+              </div>
+              <div>
+                <label className="block text-xs uppercase tracking-widest text-muted-foreground mb-1">Selling Price (₹)</label>
+                <input type="number" className="w-full bg-background border border-input rounded-md px-3 py-2 text-sm text-white" value={formData.sellingPrice} onChange={e => setFormData({...formData, sellingPrice: Number(e.target.value)})} />
+              </div>
+              <div>
+                <label className="block text-xs uppercase tracking-widest text-muted-foreground mb-1">Stock</label>
+                <input type="number" className="w-full bg-background border border-input rounded-md px-3 py-2 text-sm text-white" value={formData.stock} onChange={e => setFormData({...formData, stock: Number(e.target.value)})} />
+              </div>
+            </div>
+
+            {/* Image Upload */}
+            <div className="space-y-3">
+              <label className="block text-xs uppercase tracking-widest text-muted-foreground">Images</label>
+              <div className="flex gap-3 flex-wrap items-start">
+                <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="flex items-center gap-2 px-4 py-2.5 bg-primary/10 border border-primary/30 rounded-md text-primary text-sm hover:bg-primary/20 transition-colors"
+                  className="w-20 h-24 rounded-md border-2 border-dashed border-white/10 flex flex-col items-center justify-center gap-1 hover:border-primary/50 transition-colors text-muted-foreground hover:text-primary"
                 >
-                  <Upload className="w-4 h-4" /> Upload Image
+                  <Upload className="w-5 h-5" />
+                  <span className="text-[10px] uppercase tracking-widest">Upload</span>
                 </button>
-                <input 
+                <input
                   ref={fileInputRef}
-                  type="file" 
-                  accept="image/*" 
-                  multiple 
-                  className="hidden" 
-                  onChange={handleFileUpload} 
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleFileUpload}
+                  className="hidden"
                 />
                 <div className="flex-1">
-                  <input 
-                    type="text" 
-                    className="w-full bg-background border border-input rounded-md px-3 py-2 text-sm text-white" 
-                    value={formData.imageUrl} 
-                    onChange={e => setFormData({...formData, imageUrl: e.target.value})} 
-                    placeholder="Or paste image URLs (comma-separated)" 
-                  />
+                  <input type="text" className="w-full bg-background border border-input rounded-md px-3 py-2 text-sm text-white" value={formData.imageUrl} onChange={e => setFormData({...formData, imageUrl: e.target.value})} placeholder="Or paste image URLs (comma-separated)" />
                 </div>
               </div>
-              
-              {/* Image previews */}
+
               {imagePreview.length > 0 && (
-                <div className="flex flex-wrap gap-3">
+                <div className="flex gap-2 flex-wrap">
                   {imagePreview.map((img, i) => (
                     <div key={i} className="relative w-20 h-24 rounded-md overflow-hidden border border-white/10 group">
                       <img src={img} alt={`Preview ${i+1}`} className="w-full h-full object-cover" />
@@ -320,17 +385,91 @@ export function AdminProductsPage() {
                     <span className={`${product.stock < 5 ? 'text-red-400' : 'text-white'}`}>{product.stock}</span>
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <button
-                      onClick={() => handleDelete(product.id, product.name)}
-                      className="text-muted-foreground hover:text-destructive transition-colors p-2 rounded hover:bg-destructive/10"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                    <div className="flex items-center justify-end gap-1">
+                      <button
+                        onClick={() => openEdit(product)}
+                        className="text-muted-foreground hover:text-primary transition-colors p-2 rounded hover:bg-primary/10"
+                        title="Edit product"
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(product.id, product.name)}
+                        className="text-muted-foreground hover:text-destructive transition-colors p-2 rounded hover:bg-destructive/10"
+                        title="Delete product"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {/* Edit Product Modal */}
+      {editingProduct && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setEditingProduct(null)}>
+          <div className="bg-card border border-white/10 rounded-xl p-6 w-full max-w-lg mx-4 shadow-2xl" onClick={e => e.stopPropagation()}>
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="font-serif text-xl text-white">Edit Product</h2>
+              <button onClick={() => setEditingProduct(null)} className="text-muted-foreground hover:text-white transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <form onSubmit={handleEditSubmit} className="space-y-4">
+              <div>
+                <label className="block text-xs uppercase tracking-widest text-muted-foreground mb-1">Name</label>
+                <input type="text" className="w-full bg-background border border-input rounded-md px-3 py-2 text-sm text-white" value={editForm.name} onChange={e => setEditForm({...editForm, name: e.target.value})} />
+              </div>
+              <div>
+                <label className="block text-xs uppercase tracking-widest text-muted-foreground mb-1">Description</label>
+                <input type="text" className="w-full bg-background border border-input rounded-md px-3 py-2 text-sm text-white" value={editForm.description} onChange={e => setEditForm({...editForm, description: e.target.value})} />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs uppercase tracking-widest text-muted-foreground mb-1">Color</label>
+                  <input type="text" className="w-full bg-background border border-input rounded-md px-3 py-2 text-sm text-white" value={editForm.color} onChange={e => setEditForm({...editForm, color: e.target.value})} />
+                </div>
+                <div>
+                  <label className="block text-xs uppercase tracking-widest text-muted-foreground mb-1">Sizes (comma-separated)</label>
+                  <input type="text" className="w-full bg-background border border-input rounded-md px-3 py-2 text-sm text-white" value={editForm.sizes} onChange={e => setEditForm({...editForm, sizes: e.target.value})} />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs uppercase tracking-widest text-muted-foreground mb-1">Fabric</label>
+                  <input type="text" className="w-full bg-background border border-input rounded-md px-3 py-2 text-sm text-white" value={editForm.fabric} onChange={e => setEditForm({...editForm, fabric: e.target.value})} />
+                </div>
+                <div>
+                  <label className="block text-xs uppercase tracking-widest text-muted-foreground mb-1">Occasion</label>
+                  <input type="text" className="w-full bg-background border border-input rounded-md px-3 py-2 text-sm text-white" value={editForm.occasion} onChange={e => setEditForm({...editForm, occasion: e.target.value})} />
+                </div>
+              </div>
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-xs uppercase tracking-widest text-muted-foreground mb-1">MRP (₹)</label>
+                  <input type="number" className="w-full bg-background border border-input rounded-md px-3 py-2 text-sm text-white" value={editForm.mrp} onChange={e => setEditForm({...editForm, mrp: Number(e.target.value)})} />
+                </div>
+                <div>
+                  <label className="block text-xs uppercase tracking-widest text-muted-foreground mb-1">Selling Price (₹)</label>
+                  <input type="number" className="w-full bg-background border border-input rounded-md px-3 py-2 text-sm text-white" value={editForm.sellingPrice} onChange={e => setEditForm({...editForm, sellingPrice: Number(e.target.value)})} />
+                </div>
+                <div>
+                  <label className="block text-xs uppercase tracking-widest text-muted-foreground mb-1">Stock</label>
+                  <input type="number" className="w-full bg-background border border-input rounded-md px-3 py-2 text-sm text-white" value={editForm.stock} onChange={e => setEditForm({...editForm, stock: Number(e.target.value)})} />
+                </div>
+              </div>
+              <div className="flex justify-end gap-3 pt-4 border-t border-white/5">
+                <button type="button" onClick={() => setEditingProduct(null)} className="px-4 py-2 text-sm text-muted-foreground hover:text-white transition-colors">Cancel</button>
+                <button type="submit" disabled={isEditSaving} className="bg-primary text-primary-foreground px-6 py-2.5 rounded-md text-sm font-medium hover:bg-primary/90 disabled:opacity-50 flex items-center gap-2">
+                  {isEditSaving ? <><Loader2 className="w-4 h-4 animate-spin" /> Saving...</> : '✓ Update Product'}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
     </div>

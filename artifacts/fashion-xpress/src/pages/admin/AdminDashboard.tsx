@@ -7,12 +7,22 @@ import {
 import { formatPrice } from '@/lib/utils';
 import { Loader2, TrendingUp, Users, ShoppingBag, Calendar, AlertCircle } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import { useQuery } from '@tanstack/react-query';
 
 export function AdminDashboard() {
   const { toast } = useToast();
   const { data: summary, isLoading: loadingSummary } = useGetDashboardSummary();
   const { data: recentBookings, isLoading: loadingBookings, refetch } = useListBookings({ status: 'pending' });
   const updateStatus = useUpdateBookingStatus();
+
+  const { data: brandRevenue, isLoading: loadingBrandRevenue } = useQuery<{ brandName: string; quantitySold: number; revenue: number }[]>({
+    queryKey: ['brand-revenue'],
+    queryFn: async () => {
+      const res = await fetch('/api/admin/dashboard/brand-revenue');
+      if (!res.ok) throw new Error('Failed to fetch brand revenue');
+      return res.json();
+    }
+  });
 
   const handleApprove = (id: number) => {
     updateStatus.mutate({ id, data: { status: 'confirmed' } }, {
@@ -120,13 +130,48 @@ export function AdminDashboard() {
                     <td className="px-6 py-4 text-white">{b.products.length} pcs</td>
                     <td className="px-6 py-4 text-right">
                       <button 
-                        onClick={() => handleApprove(b.id)}
+                         onClick={() => handleApprove(b.id)}
                         disabled={updateStatus.isPending}
                         className="text-xs bg-primary text-primary-foreground px-4 py-2 rounded font-medium hover:bg-primary/90 transition-colors uppercase tracking-widest disabled:opacity-50"
                       >
                         Approve
                       </button>
                     </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* Brand Sales & Commission */}
+      <div className="mt-12">
+        <h2 className="text-xl font-serif text-white mb-6">Brand Sales & Commission</h2>
+        {loadingBrandRevenue ? (
+          <div className="py-8 flex justify-center"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>
+        ) : !brandRevenue || brandRevenue.length === 0 ? (
+          <div className="border border-white/5 border-dashed rounded-xl p-12 text-center bg-card/20">
+            <p className="text-muted-foreground">No brand sales recorded yet.</p>
+          </div>
+        ) : (
+          <div className="bg-card border border-white/5 rounded-xl overflow-hidden">
+            <table className="w-full text-left text-sm">
+              <thead className="border-b border-white/5 bg-white/[0.02]">
+                <tr>
+                  <th className="px-6 py-4 font-medium text-muted-foreground uppercase tracking-widest text-xs">Brand Name</th>
+                  <th className="px-6 py-4 font-medium text-muted-foreground uppercase tracking-widest text-xs">Quantity Sold</th>
+                  <th className="px-6 py-4 font-medium text-muted-foreground uppercase tracking-widest text-xs">Revenue</th>
+                  <th className="px-6 py-4 font-medium text-muted-foreground uppercase tracking-widest text-xs">Estimated Commission (10%)</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {brandRevenue.map((br, index) => (
+                  <tr key={index} className="hover:bg-white/[0.02] transition-colors">
+                    <td className="px-6 py-4 text-white font-medium">{br.brandName}</td>
+                    <td className="px-6 py-4 text-white">{br.quantitySold} pcs</td>
+                    <td className="px-6 py-4 text-white">{formatPrice(br.revenue)}</td>
+                    <td className="px-6 py-4 text-primary font-medium">{formatPrice(br.revenue * 0.1)}</td>
                   </tr>
                 ))}
               </tbody>

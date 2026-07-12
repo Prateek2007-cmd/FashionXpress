@@ -148,6 +148,33 @@ router.post(
         res.status(400).json({ error: "Missing required fields: name, sku" });
         return;
       }
+
+      let brandId = Number(body.brandId);
+      if (body.brandName) {
+        const trimmedBrandName = body.brandName.trim();
+        const slug = trimmedBrandName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+        
+        // Find existing brand by name case-insensitively
+        const [existingBrand] = await db
+          .select()
+          .from(brandsTable)
+          .where(ilike(brandsTable.name, trimmedBrandName));
+        
+        if (existingBrand) {
+          brandId = existingBrand.id;
+        } else {
+          // Auto create brand
+          const [newBrand] = await db
+            .insert(brandsTable)
+            .values({
+              name: trimmedBrandName,
+              slug: slug || `brand-${Date.now()}`,
+            })
+            .returning();
+          brandId = newBrand!.id;
+        }
+      }
+
       const [product] = await db
         .insert(productsTable)
         .values({
@@ -157,7 +184,7 @@ router.post(
           barcode: body.barcode || null,
           qrCode: body.qrCode || null,
           categoryId: Number(body.categoryId),
-          brandId: Number(body.brandId),
+          brandId: brandId,
           color: body.color || '',
           sizes: body.sizes || ['S', 'M', 'L'],
           fabric: body.fabric || '',

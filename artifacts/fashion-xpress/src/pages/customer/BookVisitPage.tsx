@@ -5,9 +5,8 @@ import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
-import { Loader2, CheckCircle2, LogIn } from 'lucide-react';
+import { Loader2, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
-import { Link } from 'wouter';
 
 const bookingSchema = z.object({
   name: z.string().min(2, "Name is required"),
@@ -18,7 +17,7 @@ const bookingSchema = z.object({
 type BookingFormValues = z.infer<typeof bookingSchema>;
 
 export function BookVisitPage() {
-  const { isAuthenticated, isLoading: authLoading, token } = useAuth();
+  const { isAuthenticated, token } = useAuth();
   const [successCode, setSuccessCode] = useState<string | null>(null);
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -41,11 +40,6 @@ export function BookVisitPage() {
   };
 
   const onSubmit = async (data: BookingFormValues) => {
-    if (!isAuthenticated || !token) {
-      toast({ title: "Please log in first", description: "You need to be logged in to book a visit.", variant: "destructive" });
-      return;
-    }
-
     setIsSubmitting(true);
 
     const payload = {
@@ -64,15 +58,21 @@ export function BookVisitPage() {
       notes: ''
     };
 
+    // Use guest endpoint if not authenticated, otherwise use authenticated endpoint
+    const endpoint = isAuthenticated ? '/api/bookings' : '/api/bookings/guest';
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    if (isAuthenticated && token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
     try {
       console.log('[BookVisitPage] Sending booking request...');
       
-      const response = await fetch('/api/bookings', {
+      const response = await fetch(endpoint, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
+        headers,
         body: JSON.stringify(payload)
       });
 
@@ -101,37 +101,6 @@ export function BookVisitPage() {
       setIsSubmitting(false);
     }
   };
-
-  if (authLoading) {
-    return (
-      <div className="min-h-[80vh] flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
-  }
-  
-  // Show login prompt instead of redirect
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-[80vh] flex items-center justify-center px-6">
-        <div className="max-w-md w-full text-center bg-card p-10 rounded-2xl border border-white/5">
-          <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
-            <LogIn className="w-10 h-10 text-primary" />
-          </div>
-          <h2 className="text-3xl font-serif text-white mb-2">Sign In Required</h2>
-          <p className="text-muted-foreground mb-8">Please log in to your account to book a home visit.</p>
-          <Link href="/login">
-            <Button size="lg" className="w-full h-14 tracking-widest uppercase">
-              Sign In to Continue
-            </Button>
-          </Link>
-          <p className="text-sm text-muted-foreground mt-4">
-            Don't have an account? <Link href="/register" className="text-primary hover:underline">Create one</Link>
-          </p>
-        </div>
-      </div>
-    );
-  }
 
   // SUCCESS SCREEN - Show after booking is confirmed
   if (successCode) {

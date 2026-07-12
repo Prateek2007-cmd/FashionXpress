@@ -27,9 +27,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       <aside className="w-64 border-r border-white/5 bg-card/30 flex flex-col">
         <div className="h-20 flex items-center px-6 border-b border-white/5">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-sm bg-primary flex items-center justify-center">
-              <span className="font-serif font-bold text-primary-foreground text-xs leading-none">TFX</span>
-            </div>
+            <img src="/logo.png" alt="TFX Logo" className="h-8 w-auto object-contain" style={{ filter: 'invert(1) grayscale(1)', mixBlendMode: 'screen' }} />
             <span className="font-serif font-bold text-sm tracking-widest uppercase text-primary">ADMIN</span>
           </div>
         </div>

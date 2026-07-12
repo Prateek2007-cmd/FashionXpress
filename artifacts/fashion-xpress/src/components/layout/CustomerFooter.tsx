@@ -9,11 +9,9 @@ export function CustomerFooter() {
       
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
         <div className="md:col-span-1">
-          <Link href="/" className="flex items-center gap-2 mb-6">
-            <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
-              <span className="font-serif font-bold text-primary-foreground text-lg leading-none">TFX</span>
-            </div>
-            <span className="font-serif font-bold text-xl tracking-widest uppercase text-white">THE FASHION XPRESS</span>
+          <Link href="/" className="flex items-center gap-3 mb-6">
+            <img src="/logo.png" alt="TFX" className="h-14 w-auto object-contain" style={{ filter: 'invert(1) grayscale(1)', mixBlendMode: 'screen' }} />
+            <span className="font-serif font-bold text-lg md:text-xl tracking-widest uppercase text-white">THE FASHION XPRESS</span>
           </Link>
           <p className="text-muted-foreground text-sm leading-relaxed mb-6">
             The store comes to you. Experience premium luxury fashion consultations in the comfort of your own home.
