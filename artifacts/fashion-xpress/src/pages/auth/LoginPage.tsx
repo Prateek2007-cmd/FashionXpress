@@ -52,7 +52,7 @@ export function LoginPage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-10">
           <h1 className="text-3xl font-serif text-white mb-2">Welcome Back</h1>
-          <p className="text-muted-foreground">Sign in to your Fashion Xpress account</p>
+          <p className="text-muted-foreground">Sign in to your The Fashion Xpress account</p>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 bg-card p-8 rounded-2xl border border-white/5 shadow-2xl">

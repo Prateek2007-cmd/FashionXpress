@@ -11,9 +11,9 @@ export function CustomerFooter() {
         <div className="md:col-span-1">
           <Link href="/" className="flex items-center gap-2 mb-6">
             <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
-              <span className="font-serif font-bold text-primary-foreground text-lg leading-none">F</span>
+              <span className="font-serif font-bold text-primary-foreground text-lg leading-none">TFX</span>
             </div>
-            <span className="font-serif font-bold text-xl tracking-widest uppercase text-white">FASHION XPRESS</span>
+            <span className="font-serif font-bold text-xl tracking-widest uppercase text-white">THE FASHION XPRESS</span>
           </Link>
           <p className="text-muted-foreground text-sm leading-relaxed mb-6">
             The store comes to you. Experience premium luxury fashion consultations in the comfort of your own home.
@@ -63,7 +63,7 @@ export function CustomerFooter() {
       </div>
 
       <div className="max-w-7xl mx-auto mt-16 pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between text-xs text-muted-foreground">
-        <p>&copy; {new Date().getFullYear()} Fashion Xpress. All rights reserved.</p>
+        <p>&copy; {new Date().getFullYear()} The Fashion Xpress. All rights reserved.</p>
         <div className="flex gap-6 mt-4 md:mt-0">
           <Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
           <Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link>

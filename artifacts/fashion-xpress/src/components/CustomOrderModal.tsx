@@ -16,7 +16,7 @@ export function CustomOrderModal({ product, onClose }: { product: any, onClose: 
     mutationFn: (data: any) => customFetch({ url: '/api/orders', method: 'POST', data }),
     onSuccess: (order: any) => {
       // Redirect to WhatsApp with order details
-      const message = `Hello Fashion Xpress,\n\nI would like to place a custom order.\n\nOrder Number: ${order.orderNumber}\nProduct: ${product.name} (SKU: ${product.sku})\nColor: ${formData.color}\nSize: ${formData.size}\nTotal Amount: ₹${order.totalAmount}\n\nShipping Address: ${formData.shippingAddress}\nSpecial Requirements: ${formData.specialRequirements}\n\nPlease let me know how to proceed with the payment.`;
+      const message = `Hello The Fashion Xpress,\n\nI would like to place a custom order.\n\nOrder Number: ${order.orderNumber}\nProduct: ${product.name} (SKU: ${product.sku})\nColor: ${formData.color}\nSize: ${formData.size}\nTotal Amount: ₹${order.totalAmount}\n\nShipping Address: ${formData.shippingAddress}\nSpecial Requirements: ${formData.specialRequirements}\n\nPlease let me know how to proceed with the payment.`;
       const waUrl = `https://wa.me/919999999999?text=${encodeURIComponent(message)}`;
       window.open(waUrl, '_blank');
       onClose();

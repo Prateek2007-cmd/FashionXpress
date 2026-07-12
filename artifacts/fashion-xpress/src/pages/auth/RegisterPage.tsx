@@ -32,7 +32,7 @@ export function RegisterPage() {
     registerMutation.mutate({ data }, {
       onSuccess: (res) => {
         login(res.token, res.user);
-        toast({ title: "Welcome to Fashion Xpress", description: "Your account has been created." });
+        toast({ title: "Welcome to The Fashion Xpress", description: "Your account has been created." });
         setLocation('/');
       },
       onError: (err: any) => {
@@ -50,7 +50,7 @@ export function RegisterPage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-10">
           <h1 className="text-3xl font-serif text-white mb-2">Join the Elite</h1>
-          <p className="text-muted-foreground">Create your Fashion Xpress profile</p>
+          <p className="text-muted-foreground">Create your The Fashion Xpress profile</p>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 bg-card p-8 rounded-2xl border border-white/5 shadow-2xl">

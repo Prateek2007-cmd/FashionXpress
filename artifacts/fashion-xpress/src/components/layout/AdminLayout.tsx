@@ -28,7 +28,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
         <div className="h-20 flex items-center px-6 border-b border-white/5">
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 rounded-sm bg-primary flex items-center justify-center">
-              <span className="font-serif font-bold text-primary-foreground text-xs leading-none">F</span>
+              <span className="font-serif font-bold text-primary-foreground text-xs leading-none">TFX</span>
             </div>
             <span className="font-serif font-bold text-sm tracking-widest uppercase text-primary">ADMIN</span>
           </div>

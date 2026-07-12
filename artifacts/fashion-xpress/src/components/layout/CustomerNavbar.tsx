@@ -23,9 +23,9 @@ export function CustomerNavbar() {
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
-            <span className="font-serif font-bold text-primary-foreground text-lg leading-none">F</span>
+            <span className="font-serif font-bold text-primary-foreground text-lg leading-none">TFX</span>
           </div>
-          <span className="font-serif font-bold text-xl tracking-widest uppercase">FASHION XPRESS</span>
+          <span className="font-serif font-bold text-xl tracking-widest uppercase">THE FASHION XPRESS</span>
         </Link>
 
         {/* Desktop Links */}

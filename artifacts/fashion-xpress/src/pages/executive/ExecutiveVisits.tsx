@@ -93,7 +93,7 @@ function VisitDetail({ visitId }: { visitId: number }) {
   if (isLoading || !visit) return <div className="p-8 flex justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
 
   const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(visit.addressText)}`;
-  const waUrl = `https://wa.me/${visit.phone.replace(/\D/g,'')}?text=Hi ${visit.name}, I am your Fashion Executive from Fashion Xpress.`;
+  const waUrl = `https://wa.me/${visit.phone.replace(/\D/g,'')}?text=Hi ${visit.name}, I am your Fashion Executive from The Fashion Xpress.`;
 
   const allProcessed = visit.products.every(p => p.status === 'sold' || p.status === 'returned' || p.status === 'damaged');
   const soldTotal = visit.products.filter(p => p.status === 'sold').reduce((sum, p) => sum + (p.priceAtSale || p.product.sellingPrice), 0);
