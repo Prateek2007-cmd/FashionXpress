@@ -22,6 +22,8 @@ export function CustomOrderModal({ product, onClose }: { product: any, onClose: 
       "https://fashionxpress.onrender.com";
 
     try {
+      console.log("API_BASE:", API_BASE);
+      console.log("Request URL:", `${API_BASE}/api/orders`);
       const res = await fetch(`${API_BASE}/api/orders`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },

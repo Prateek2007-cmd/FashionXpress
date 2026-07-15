@@ -23,6 +23,8 @@ export function CartPage() {
   const handleRemove = async (productId: number) => {
     setRemovingId(productId);
     try {
+      console.log("API_BASE:", API_BASE);
+      console.log("Request URL:", `${API_BASE}/api/home-visit-cart/${productId}`);
       const res = await fetch(`${API_BASE}/api/home-visit-cart/${productId}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }

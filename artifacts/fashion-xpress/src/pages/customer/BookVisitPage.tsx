@@ -81,8 +81,8 @@ export function BookVisitPage() {
 
     try {
       console.log('[BookVisitPage] Sending booking request...');
-      console.log("API_BASE =", API_BASE);
-      console.log("Endpoint =", endpoint);
+      console.log("API_BASE:", API_BASE);
+      console.log("Request URL:", endpoint);
       const response = await fetch(endpoint, {
         method: 'POST',
         headers,

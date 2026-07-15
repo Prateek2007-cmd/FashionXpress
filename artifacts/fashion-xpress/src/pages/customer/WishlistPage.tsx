@@ -23,6 +23,8 @@ export function WishlistPage() {
   const handleRemove = async (productId: number) => {
     setRemovingId(productId);
     try {
+      console.log("API_BASE:", API_BASE);
+      console.log("Request URL:", `${API_BASE}/api/wishlist/${productId}`);
       const res = await fetch(`${API_BASE}/api/wishlist/${productId}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
@@ -41,6 +43,8 @@ export function WishlistPage() {
     setMovingId(productId);
     try {
       // Add to cart
+      console.log("API_BASE:", API_BASE);
+      console.log("Request URL:", `${API_BASE}/api/home-visit-cart`);
       const cartRes = await fetch(`${API_BASE}/api/home-visit-cart`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
@@ -49,6 +53,8 @@ export function WishlistPage() {
       if (!cartRes.ok) throw new Error('Failed to add to cart');
       
       // Remove from wishlist
+      console.log("API_BASE:", API_BASE);
+      console.log("Request URL:", `${API_BASE}/api/wishlist/${productId}`);
       await fetch(`${API_BASE}/api/wishlist/${productId}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }

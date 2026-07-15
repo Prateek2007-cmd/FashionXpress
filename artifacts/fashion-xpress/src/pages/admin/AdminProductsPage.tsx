@@ -88,6 +88,8 @@ export function AdminProductsPage() {
       };
 
       console.log('[AdminProducts] Creating product:', payload.name);
+      console.log("API_BASE:", API_BASE);
+      console.log("Request URL:", `${API_BASE}/api/products`);
 
       const res = await fetch(`${API_BASE}/api/products`, {
         method: 'POST',
@@ -122,6 +124,8 @@ export function AdminProductsPage() {
     if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
     
     try {
+      console.log("API_BASE:", API_BASE);
+      console.log("Request URL:", `${API_BASE}/api/products/${id}`);
       const res = await fetch(`${API_BASE}/api/products/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
@@ -172,6 +176,8 @@ export function AdminProductsPage() {
       if (Number(editForm.sellingPrice) !== Number(editingProduct.sellingPrice)) payload.sellingPrice = Number(editForm.sellingPrice);
       if (Number(editForm.stock) !== Number(editingProduct.stock)) payload.stock = Number(editForm.stock);
 
+      console.log("API_BASE:", API_BASE);
+      console.log("Request URL:", `${API_BASE}/api/products/${editingProduct.id}`);
       const res = await fetch(`${API_BASE}/api/products/${editingProduct.id}`, {
         method: 'PATCH',
         headers: {

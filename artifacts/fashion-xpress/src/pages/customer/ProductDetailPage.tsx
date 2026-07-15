@@ -35,6 +35,8 @@ export function ProductDetailPage() {
     if (!isAuthenticated) { setLocation('/login'); return; }
     setAddingToWishlist(true);
     try {
+      console.log("API_BASE:", API_BASE);
+      console.log("Request URL:", `${API_BASE}/api/wishlist`);
       const res = await fetch(`${API_BASE}/api/wishlist`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
@@ -58,6 +60,8 @@ export function ProductDetailPage() {
     }
     setAddingToCart(true);
     try {
+      console.log("API_BASE:", API_BASE);
+      console.log("Request URL:", `${API_BASE}/api/home-visit-cart`);
       const res = await fetch(`${API_BASE}/api/home-visit-cart`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },

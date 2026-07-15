@@ -87,6 +87,8 @@ export function AdminAnalyticsPage() {
   const { data: summary, isLoading: sl } = useQuery<any>({
     queryKey: ['/api/admin/dashboard/summary'],
     queryFn: async () => {
+      console.log("API_BASE:", API_BASE);
+      console.log("Request URL:", `${API_BASE}/api/admin/dashboard/summary`);
       const res = await fetch(`${API_BASE}/api/admin/dashboard/summary`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -98,6 +100,8 @@ export function AdminAnalyticsPage() {
   const { data: analytics, isLoading: al } = useQuery<any>({
     queryKey: ['/api/admin/dashboard/analytics'],
     queryFn: async () => {
+      console.log("API_BASE:", API_BASE);
+      console.log("Request URL:", `${API_BASE}/api/admin/dashboard/analytics`);
       const res = await fetch(`${API_BASE}/api/admin/dashboard/analytics`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -109,6 +113,8 @@ export function AdminAnalyticsPage() {
   const { data: brandRevenue, isLoading: bl } = useQuery<any[]>({
     queryKey: ['/api/admin/dashboard/brand-revenue'],
     queryFn: async () => {
+      console.log("API_BASE:", API_BASE);
+      console.log("Request URL:", `${API_BASE}/api/admin/dashboard/brand-revenue`);
       const res = await fetch(`${API_BASE}/api/admin/dashboard/brand-revenue`, {
         headers: { Authorization: `Bearer ${token}` },
       });

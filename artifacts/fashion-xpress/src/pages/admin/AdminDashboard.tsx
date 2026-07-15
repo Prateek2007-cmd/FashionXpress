@@ -22,6 +22,8 @@ export function AdminDashboard() {
   const { data: brandRevenue, isLoading: loadingBrandRevenue } = useQuery<{ brandName: string; quantitySold: number; revenue: number }[]>({
     queryKey: ['brand-revenue'],
     queryFn: async () => {
+      console.log("API_BASE:", API_BASE);
+      console.log("Request URL:", `${API_BASE}/api/admin/dashboard/brand-revenue`);
       const res = await fetch(`${API_BASE}/api/admin/dashboard/brand-revenue`);
       if (!res.ok) throw new Error('Failed to fetch brand revenue');
       return res.json();

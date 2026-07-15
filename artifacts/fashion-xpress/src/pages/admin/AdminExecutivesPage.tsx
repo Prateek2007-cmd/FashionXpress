@@ -37,6 +37,8 @@ export function AdminExecutivesPage() {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number; data: Partial<ExecEditState> }) => {
+      console.log("API_BASE:", API_BASE);
+      console.log("Request URL:", `${API_BASE}/api/executives/${id}`);
       const res = await fetch(`${API_BASE}/api/executives/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
@@ -57,6 +59,8 @@ export function AdminExecutivesPage() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
+      console.log("API_BASE:", API_BASE);
+      console.log("Request URL:", `${API_BASE}/api/executives/${id}`);
       const res = await fetch(`${API_BASE}/api/executives/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` },

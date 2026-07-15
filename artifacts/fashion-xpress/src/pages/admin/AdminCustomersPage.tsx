@@ -26,6 +26,8 @@ export function AdminCustomersPage() {
   const { data: customers, isLoading } = useQuery<Customer[]>({
     queryKey: ['/api/admin/customers'],
     queryFn: async () => {
+      console.log("API_BASE:", API_BASE);
+      console.log("Request URL:", `${API_BASE}/api/admin/customers`);
       const res = await fetch(`${API_BASE}/api/admin/customers`, {
         headers: { Authorization: `Bearer ${token}` },
       });

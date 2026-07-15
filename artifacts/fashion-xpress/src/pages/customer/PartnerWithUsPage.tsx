@@ -22,6 +22,8 @@ export function PartnerWithUsPage() {
   const { data: content } = useQuery({
     queryKey: ['/api/content/partner_page'],
     queryFn: async () => {
+      console.log("API_BASE:", API_BASE);
+      console.log("Request URL:", `${API_BASE}/api/content/partner_page`);
       const res = await fetch(`${API_BASE}/api/content/partner_page`);
       if (!res.ok) return null;
       return res.json();
@@ -30,6 +32,8 @@ export function PartnerWithUsPage() {
 
   const submitMutation = useMutation({
     mutationFn: async (data: typeof formData) => {
+      console.log("API_BASE:", API_BASE);
+      console.log("Request URL:", `${API_BASE}/api/partners`);
       const res = await fetch(`${API_BASE}/api/partners`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

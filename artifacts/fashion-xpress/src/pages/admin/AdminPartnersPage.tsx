@@ -26,6 +26,8 @@ export function AdminPartnersPage() {
   const { data: requests, isLoading } = useQuery<PartnerRequest[]>({
     queryKey: ['/api/partners'],
     queryFn: async () => {
+      console.log("API_BASE:", API_BASE);
+      console.log("Request URL:", `${API_BASE}/api/partners`);
       const res = await fetch(`${API_BASE}/api/partners`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -36,6 +38,8 @@ export function AdminPartnersPage() {
 
   const updateStatusMutation = useMutation({
     mutationFn: async ({ id, status }: { id: number, status: string }) => {
+      console.log("API_BASE:", API_BASE);
+      console.log("Request URL:", `${API_BASE}/api/partners/${id}`);
       const res = await fetch(`${API_BASE}/api/partners/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },

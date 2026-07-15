@@ -360,6 +360,9 @@ export async function customFetch<T = unknown>(
 
   const requestInfo = { method, url: resolveUrl(input) };
 
+  console.log("API_BASE:", _baseUrl || "https://fashionxpress.onrender.com");
+  console.log("Request URL:", requestInfo.url);
+
   const response = await fetch(input, { ...init, method, headers });
 
   if (!response.ok) {

@@ -26,6 +26,8 @@ export function AdminContentPage() {
   const { data: content, isLoading } = useQuery({
     queryKey: ['/api/content/partner_page'],
     queryFn: async () => {
+      console.log("API_BASE:", API_BASE);
+      console.log("Request URL:", `${API_BASE}/api/content/partner_page`);
       const res = await fetch(`${API_BASE}/api/content/partner_page`);
       if (!res.ok) {
         if (res.status === 404) return null;
@@ -53,6 +55,8 @@ export function AdminContentPage() {
     try {
       const fd = new FormData();
       fd.append('file', file);
+      console.log("API_BASE:", API_BASE);
+      console.log("Request URL:", `${API_BASE}/api/upload`);
       const res = await fetch(`${API_BASE}/api/upload`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
@@ -85,6 +89,8 @@ export function AdminContentPage() {
 
   const saveMutation = useMutation({
     mutationFn: async () => {
+      console.log("API_BASE:", API_BASE);
+      console.log("Request URL:", `${API_BASE}/api/content/partner_page`);
       const res = await fetch(`${API_BASE}/api/content/partner_page`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
