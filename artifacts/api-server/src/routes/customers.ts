@@ -307,7 +307,6 @@ router.put(
 );
 
 export default router;
-export { getOrCreateCustomer };
 
 // ── Admin: list all customers ───────────────────────────────────────────────
 import { requireAuth as _requireAuth } from "../middlewares/auth";
