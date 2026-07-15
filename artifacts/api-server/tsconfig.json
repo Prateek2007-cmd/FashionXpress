@@ -11,7 +11,7 @@
     "module": "esnext",
     "moduleResolution": "bundler"
   },
-  "include": ["src"],
+  "include": ["src", "api"],
   "references": [
     {
       "path": "../../lib/db"
