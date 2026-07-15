@@ -5,7 +5,8 @@
  * Fashion Xpress API specification
  * OpenAPI spec version: 0.1.0
  */
-import * as zod from 'zod';
+import { z } from 'zod';
+const zod = z;
 
 
 /**

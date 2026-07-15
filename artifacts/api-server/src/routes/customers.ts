@@ -1,4 +1,4 @@
-import { Router, type IRouter } from "express";
+import { Router, type IRouter, type Request, type Response } from "express";
 import { eq } from "drizzle-orm";
 import {
   db,
@@ -25,7 +25,7 @@ import { toNullableNum } from "../lib/mappers";
 
 const router: IRouter = Router();
 
-async function getOrCreateCustomer(userId: number) {
+export async function getOrCreateCustomer(userId: number) {
   const [existing] = await db
     .select()
     .from(customersTable)
@@ -41,7 +41,7 @@ async function getOrCreateCustomer(userId: number) {
 router.get(
   "/customers/me",
   requireAuth(),
-  async (req: AuthedRequest, res): Promise<void> => {
+  async (req: AuthedRequest, res: Response): Promise<void> => {
     const customer = await getOrCreateCustomer(req.auth!.userId);
     const [user] = await db
       .select()
@@ -67,7 +67,7 @@ router.get(
 router.patch(
   "/customers/me",
   requireAuth(),
-  async (req: AuthedRequest, res): Promise<void> => {
+  async (req: AuthedRequest, res: Response): Promise<void> => {
     const parsed = UpdateMyCustomerProfileBody.safeParse(req.body);
     if (!parsed.success) {
       res.status(400).json({ error: parsed.error.message });
@@ -136,7 +136,7 @@ function mapAddress(a: typeof addressesTable.$inferSelect) {
 router.get(
   "/customers/me/addresses",
   requireAuth(),
-  async (req: AuthedRequest, res): Promise<void> => {
+  async (req: AuthedRequest, res: Response): Promise<void> => {
     const customer = await getOrCreateCustomer(req.auth!.userId);
     const addresses = await db
       .select()
@@ -149,7 +149,7 @@ router.get(
 router.post(
   "/customers/me/addresses",
   requireAuth(),
-  async (req: AuthedRequest, res): Promise<void> => {
+  async (req: AuthedRequest, res: Response): Promise<void> => {
     const parsed = CreateMyAddressBody.safeParse(req.body);
     if (!parsed.success) {
       res.status(400).json({ error: parsed.error.message });
@@ -174,7 +174,7 @@ router.post(
 router.patch(
   "/customers/me/addresses/:id",
   requireAuth(),
-  async (req: AuthedRequest, res): Promise<void> => {
+  async (req: AuthedRequest, res: Response): Promise<void> => {
     const id = parseInt(
       Array.isArray(req.params.id) ? req.params.id[0]! : req.params.id!,
       10,
@@ -213,7 +213,7 @@ router.patch(
 router.delete(
   "/customers/me/addresses/:id",
   requireAuth(),
-  async (req: AuthedRequest, res): Promise<void> => {
+  async (req: AuthedRequest, res: Response): Promise<void> => {
     const id = parseInt(
       Array.isArray(req.params.id) ? req.params.id[0]! : req.params.id!,
       10,
@@ -251,7 +251,7 @@ function mapMeasurement(m: typeof measurementsTable.$inferSelect) {
 router.get(
   "/customers/me/measurements",
   requireAuth(),
-  async (req: AuthedRequest, res): Promise<void> => {
+  async (req: AuthedRequest, res: Response): Promise<void> => {
     const customer = await getOrCreateCustomer(req.auth!.userId);
     const [measurement] = await db
       .select()
@@ -269,7 +269,7 @@ router.get(
 router.put(
   "/customers/me/measurements",
   requireAuth(),
-  async (req: AuthedRequest, res): Promise<void> => {
+  async (req: AuthedRequest, res: Response): Promise<void> => {
     const parsed = SetMyMeasurementsBody.safeParse(req.body);
     if (!parsed.success) {
       res.status(400).json({ error: parsed.error.message });
@@ -315,7 +315,7 @@ import { requireAuth as _requireAuth } from "../middlewares/auth";
 router.get(
   "/admin/customers",
   _requireAuth("admin"),
-  async (_req, res): Promise<void> => {
+  async (_req: Request, res: Response): Promise<void> => {
     const rows = await db
       .select({
         customer: customersTable,

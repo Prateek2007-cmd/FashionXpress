@@ -1,4 +1,4 @@
-import { Router, type IRouter } from "express";
+import { Router, type IRouter, type Response } from "express";
 import { and, eq } from "drizzle-orm";
 import {
   db,
@@ -6,6 +6,7 @@ import {
   productsTable,
   categoriesTable,
   brandsTable,
+  type CartItemRow,
 } from "@workspace/db";
 import {
   ListHomeVisitCartResponse,
@@ -21,7 +22,7 @@ const router: IRouter = Router();
 router.get(
   "/home-visit-cart",
   requireAuth("customer", "admin"),
-  async (req: AuthedRequest, res): Promise<void> => {
+  async (req: AuthedRequest, res: Response): Promise<void> => {
     const customer = await getOrCreateCustomer(req.auth!.userId);
     const rows = await db
       .select({ item: cartItemsTable, product: productsTable })
@@ -44,8 +45,7 @@ router.get(
             brandMap.get(product.brandId),
           ),
           quantity: item.quantity,
-          // @ts-ignore
-          size: (item as any).size,
+          size: item.size,
           createdAt: item.createdAt,
         })),
     );
@@ -55,19 +55,15 @@ router.get(
 router.post(
   "/home-visit-cart",
   requireAuth("customer", "admin"),
-  async (req: AuthedRequest, res): Promise<void> => {
+  async (req: AuthedRequest, res: Response): Promise<void> => {
     const body = (req.body && req.body.data) ? req.body.data : (req.body || {});
     
-    if (!body.productId) {
-      res.status(400).json({ error: "Missing productId" });
+    if (!body.productId || !body.size) {
+      res.status(400).json({ error: "Missing productId or size" });
       return;
     }
 
-    const parsedData = {
-      productId: Number(body.productId),
-      quantity: body.quantity !== undefined ? Number(body.quantity) : 1,
-      size: body.size !== undefined ? String(body.size) : ""
-    };
+    const parsedData = AddToHomeVisitCartBody.parse(body);
     const customer = await getOrCreateCustomer(req.auth!.userId);
     const [product] = await db
       .select()
@@ -85,12 +81,11 @@ router.post(
         and(
           eq(cartItemsTable.customerId, customer.id),
           eq(cartItemsTable.productId, parsedData.productId),
-          // @ts-ignore: added in schema, ignore until zod is fully regenerated
           eq(cartItemsTable.size, parsedData.size),
         ),
       );
 
-    let item;
+    let item: CartItemRow;
     if (existing) {
       [item] = await db
         .update(cartItemsTable)
@@ -104,7 +99,6 @@ router.post(
           customerId: customer.id,
           productId: parsedData.productId,
           quantity: parsedData.quantity ?? 1,
-          // @ts-ignore
           size: parsedData.size,
         })
         .returning();
@@ -124,8 +118,7 @@ router.post(
         productId: item!.productId,
         product: mapProduct(product, category, brand),
         quantity: item!.quantity,
-        // @ts-ignore
-        size: (item as any)!.size,
+        size: item!.size,
         createdAt: item!.createdAt,
       });
   },
@@ -134,7 +127,7 @@ router.post(
 router.delete(
   "/home-visit-cart",
   requireAuth("customer", "admin"),
-  async (req: AuthedRequest, res): Promise<void> => {
+  async (req: AuthedRequest, res: Response): Promise<void> => {
     const customer = await getOrCreateCustomer(req.auth!.userId);
     await db.delete(cartItemsTable).where(eq(cartItemsTable.customerId, customer.id));
     res.sendStatus(204);
@@ -144,7 +137,7 @@ router.delete(
 router.delete(
   "/home-visit-cart/:productId",
   requireAuth("customer", "admin"),
-  async (req: AuthedRequest, res): Promise<void> => {
+  async (req: AuthedRequest, res: Response): Promise<void> => {
     const productId = parseInt(
       Array.isArray(req.params.productId)
         ? req.params.productId[0]!

@@ -1,16 +1,21 @@
-import { Router, type IRouter } from "express";
+import { Router, type IRouter, type Request, type Response } from "express";
 import { eq } from "drizzle-orm";
-import { db, pageContentTable } from "@workspace/db";
+import { db, pageContentTable, type PageContentRow } from "@workspace/db";
 import { requireAuth, type AuthedRequest } from "../middlewares/auth";
 
 const router: IRouter = Router();
 
+function paramString(value: string | string[] | undefined): string {
+  if (Array.isArray(value)) return value[0] ?? "";
+  return value ?? "";
+}
+
 // Get content by key (public)
 router.get(
   "/content/:key",
-  async (req, res): Promise<void> => {
-    const { key } = req.params;
-    
+  async (req: Request, res: Response): Promise<void> => {
+    const key = paramString(req.params.key);
+
     const [content] = await db
       .select()
       .from(pageContentTable)
@@ -29,8 +34,8 @@ router.get(
 router.put(
   "/content/:key",
   requireAuth("admin"),
-  async (req: AuthedRequest, res): Promise<void> => {
-    const { key } = req.params;
+  async (req: AuthedRequest, res: Response): Promise<void> => {
+    const key = paramString(req.params.key);
     const { title, description, imageUrl } = req.body;
 
     const [existing] = await db
@@ -38,7 +43,7 @@ router.put(
       .from(pageContentTable)
       .where(eq(pageContentTable.pageKey, key));
 
-    let content;
+    let content: PageContentRow | undefined;
     if (existing) {
       [content] = await db
         .update(pageContentTable)
