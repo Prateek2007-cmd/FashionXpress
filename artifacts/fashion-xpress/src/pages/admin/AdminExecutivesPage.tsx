@@ -31,9 +31,13 @@ export function AdminExecutivesPage() {
     name: '', email: '', phone: '', password: '', photoUrl: ''
   });
 
+  const API_BASE =
+    import.meta.env.VITE_API_URL ||
+    "https://fashionxpress.onrender.com";
+
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number; data: Partial<ExecEditState> }) => {
-      const res = await fetch(`/api/executives/${id}`, {
+      const res = await fetch(`${API_BASE}/api/executives/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify(data),
@@ -53,7 +57,7 @@ export function AdminExecutivesPage() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
-      const res = await fetch(`/api/executives/${id}`, {
+      const res = await fetch(`${API_BASE}/api/executives/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` },
       });

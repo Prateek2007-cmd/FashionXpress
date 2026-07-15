@@ -28,13 +28,17 @@ export function ProductsPage() {
     return wishlistData?.some(w => w.productId === productId) || false;
   };
 
+  const API_BASE =
+    import.meta.env.VITE_API_URL ||
+    "https://fashionxpress.onrender.com";
+
   const handleAddToCart = async (e: React.MouseEvent, productId: number, productName: string) => {
     e.preventDefault(); // prevent Link navigation
     e.stopPropagation();
     if (!isAuthenticated) { setLocation('/login'); return; }
     
     try {
-      const res = await fetch('/api/home-visit-cart', {
+      const res = await fetch(`${API_BASE}/api/home-visit-cart`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({ productId, quantity: 1, size: 'M' })
@@ -53,7 +57,7 @@ export function ProductsPage() {
     if (!isAuthenticated) { setLocation('/login'); return; }
     
     try {
-      const res = await fetch('/api/wishlist', {
+      const res = await fetch(`${API_BASE}/api/wishlist`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({ productId })

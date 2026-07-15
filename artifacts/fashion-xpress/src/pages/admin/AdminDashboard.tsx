@@ -15,10 +15,14 @@ export function AdminDashboard() {
   const { data: recentBookings, isLoading: loadingBookings, refetch } = useListBookings({ status: 'pending' });
   const updateStatus = useUpdateBookingStatus();
 
+  const API_BASE =
+    import.meta.env.VITE_API_URL ||
+    "https://fashionxpress.onrender.com";
+
   const { data: brandRevenue, isLoading: loadingBrandRevenue } = useQuery<{ brandName: string; quantitySold: number; revenue: number }[]>({
     queryKey: ['brand-revenue'],
     queryFn: async () => {
-      const res = await fetch('/api/admin/dashboard/brand-revenue');
+      const res = await fetch(`${API_BASE}/api/admin/dashboard/brand-revenue`);
       if (!res.ok) throw new Error('Failed to fetch brand revenue');
       return res.json();
     }

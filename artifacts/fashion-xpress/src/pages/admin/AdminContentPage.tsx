@@ -19,10 +19,14 @@ export function AdminContentPage() {
   const [imageUrl, setImageUrl] = useState('');
   const [uploading, setUploading] = useState(false);
 
+  const API_BASE =
+    import.meta.env.VITE_API_URL ||
+    "https://fashionxpress.onrender.com";
+
   const { data: content, isLoading } = useQuery({
     queryKey: ['/api/content/partner_page'],
     queryFn: async () => {
-      const res = await fetch('/api/content/partner_page');
+      const res = await fetch(`${API_BASE}/api/content/partner_page`);
       if (!res.ok) {
         if (res.status === 404) return null;
         throw new Error('Failed to fetch content');
@@ -44,11 +48,12 @@ export function AdminContentPage() {
       toast({ title: 'Invalid file', description: 'Please select an image file.', variant: 'destructive' });
       return;
     }
+    setDragging(true);
     setUploading(true);
     try {
       const fd = new FormData();
       fd.append('file', file);
-      const res = await fetch('/api/upload', {
+      const res = await fetch(`${API_BASE}/api/upload`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
         body: fd,
@@ -62,6 +67,7 @@ export function AdminContentPage() {
       toast({ title: 'Upload error', description: err.message, variant: 'destructive' });
     } finally {
       setUploading(false);
+      setDragging(false);
     }
   };
 
@@ -79,7 +85,7 @@ export function AdminContentPage() {
 
   const saveMutation = useMutation({
     mutationFn: async () => {
-      const res = await fetch('/api/content/partner_page', {
+      const res = await fetch(`${API_BASE}/api/content/partner_page`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ title, description, imageUrl }),

@@ -54,6 +54,10 @@ export function AdminProductsPage() {
     setImagePreview(prev => prev.filter((_, i) => i !== index));
   };
 
+  const API_BASE =
+    import.meta.env.VITE_API_URL ||
+    "https://fashionxpress.onrender.com";
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
@@ -85,7 +89,7 @@ export function AdminProductsPage() {
 
       console.log('[AdminProducts] Creating product:', payload.name);
 
-      const res = await fetch('/api/products', {
+      const res = await fetch(`${API_BASE}/api/products`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -118,7 +122,7 @@ export function AdminProductsPage() {
     if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
     
     try {
-      const res = await fetch(`/api/products/${id}`, {
+      const res = await fetch(`${API_BASE}/api/products/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -168,7 +172,7 @@ export function AdminProductsPage() {
       if (Number(editForm.sellingPrice) !== Number(editingProduct.sellingPrice)) payload.sellingPrice = Number(editForm.sellingPrice);
       if (Number(editForm.stock) !== Number(editingProduct.stock)) payload.stock = Number(editForm.stock);
 
-      const res = await fetch(`/api/products/${editingProduct.id}`, {
+      const res = await fetch(`${API_BASE}/api/products/${editingProduct.id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

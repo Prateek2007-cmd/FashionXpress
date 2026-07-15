@@ -80,10 +80,14 @@ const STATUS_COLORS: Record<string, string> = {
 export function AdminAnalyticsPage() {
   const { token } = useAuth();
 
+  const API_BASE =
+    import.meta.env.VITE_API_URL ||
+    "https://fashionxpress.onrender.com";
+
   const { data: summary, isLoading: sl } = useQuery<any>({
     queryKey: ['/api/admin/dashboard/summary'],
     queryFn: async () => {
-      const res = await fetch('/api/admin/dashboard/summary', {
+      const res = await fetch(`${API_BASE}/api/admin/dashboard/summary`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error('Failed');
@@ -94,7 +98,7 @@ export function AdminAnalyticsPage() {
   const { data: analytics, isLoading: al } = useQuery<any>({
     queryKey: ['/api/admin/dashboard/analytics'],
     queryFn: async () => {
-      const res = await fetch('/api/admin/dashboard/analytics', {
+      const res = await fetch(`${API_BASE}/api/admin/dashboard/analytics`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error('Failed');
@@ -105,7 +109,7 @@ export function AdminAnalyticsPage() {
   const { data: brandRevenue, isLoading: bl } = useQuery<any[]>({
     queryKey: ['/api/admin/dashboard/brand-revenue'],
     queryFn: async () => {
-      const res = await fetch('/api/admin/dashboard/brand-revenue', {
+      const res = await fetch(`${API_BASE}/api/admin/dashboard/brand-revenue`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error('Failed');

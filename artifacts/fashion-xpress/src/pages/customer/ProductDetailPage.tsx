@@ -27,11 +27,15 @@ export function ProductDetailPage() {
 
   const isWishlisted = wishlistData?.some(w => w.productId === productId) || false;
 
+  const API_BASE =
+    import.meta.env.VITE_API_URL ||
+    "https://fashionxpress.onrender.com";
+
   const handleWishlist = async () => {
     if (!isAuthenticated) { setLocation('/login'); return; }
     setAddingToWishlist(true);
     try {
-      const res = await fetch('/api/wishlist', {
+      const res = await fetch(`${API_BASE}/api/wishlist`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({ productId })
@@ -54,7 +58,7 @@ export function ProductDetailPage() {
     }
     setAddingToCart(true);
     try {
-      const res = await fetch('/api/home-visit-cart', {
+      const res = await fetch(`${API_BASE}/api/home-visit-cart`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({ productId, quantity: 1, size: selectedSize })

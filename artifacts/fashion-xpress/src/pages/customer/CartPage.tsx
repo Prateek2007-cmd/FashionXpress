@@ -16,10 +16,14 @@ export function CartPage() {
   const { data: cartItems, isLoading } = useListHomeVisitCart();
   const [removingId, setRemovingId] = useState<number | null>(null);
 
+  const API_BASE =
+    import.meta.env.VITE_API_URL ||
+    "https://fashionxpress.onrender.com";
+
   const handleRemove = async (productId: number) => {
     setRemovingId(productId);
     try {
-      const res = await fetch(`/api/home-visit-cart/${productId}`, {
+      const res = await fetch(`${API_BASE}/api/home-visit-cart/${productId}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });

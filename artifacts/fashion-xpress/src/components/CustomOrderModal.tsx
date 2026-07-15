@@ -17,8 +17,12 @@ export function CustomOrderModal({ product, onClose }: { product: any, onClose: 
     e.preventDefault();
     setIsSubmitting(true);
     
+    const API_BASE =
+      import.meta.env.VITE_API_URL ||
+      "https://fashionxpress.onrender.com";
+
     try {
-      const res = await fetch('/api/orders', {
+      const res = await fetch(`${API_BASE}/api/orders`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({ productId: product.id, quantity: 1, ...formData })

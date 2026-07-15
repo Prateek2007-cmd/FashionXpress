@@ -19,10 +19,14 @@ export function AdminPartnersPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  const API_BASE =
+    import.meta.env.VITE_API_URL ||
+    "https://fashionxpress.onrender.com";
+
   const { data: requests, isLoading } = useQuery<PartnerRequest[]>({
     queryKey: ['/api/partners'],
     queryFn: async () => {
-      const res = await fetch('/api/partners', {
+      const res = await fetch(`${API_BASE}/api/partners`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (!res.ok) throw new Error('Failed to fetch requests');
@@ -32,7 +36,7 @@ export function AdminPartnersPage() {
 
   const updateStatusMutation = useMutation({
     mutationFn: async ({ id, status }: { id: number, status: string }) => {
-      const res = await fetch(`/api/partners/${id}`, {
+      const res = await fetch(`${API_BASE}/api/partners/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({ status })

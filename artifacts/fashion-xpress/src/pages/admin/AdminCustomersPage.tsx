@@ -19,10 +19,14 @@ export function AdminCustomersPage() {
   const { token } = useAuth();
   const [search, setSearch] = useState('');
 
+  const API_BASE =
+    import.meta.env.VITE_API_URL ||
+    "https://fashionxpress.onrender.com";
+
   const { data: customers, isLoading } = useQuery<Customer[]>({
     queryKey: ['/api/admin/customers'],
     queryFn: async () => {
-      const res = await fetch('/api/admin/customers', {
+      const res = await fetch(`${API_BASE}/api/admin/customers`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error('Failed to fetch customers');

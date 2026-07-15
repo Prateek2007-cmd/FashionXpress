@@ -15,10 +15,14 @@ export function PartnerWithUsPage() {
     productsSold: ''
   });
 
+  const API_BASE =
+    import.meta.env.VITE_API_URL ||
+    "https://fashionxpress.onrender.com";
+
   const { data: content } = useQuery({
     queryKey: ['/api/content/partner_page'],
     queryFn: async () => {
-      const res = await fetch('/api/content/partner_page');
+      const res = await fetch(`${API_BASE}/api/content/partner_page`);
       if (!res.ok) return null;
       return res.json();
     }
@@ -26,7 +30,7 @@ export function PartnerWithUsPage() {
 
   const submitMutation = useMutation({
     mutationFn: async (data: typeof formData) => {
-      const res = await fetch('/api/partners', {
+      const res = await fetch(`${API_BASE}/api/partners`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)

@@ -16,10 +16,14 @@ export function WishlistPage() {
   const [removingId, setRemovingId] = useState<number | null>(null);
   const [movingId, setMovingId] = useState<number | null>(null);
 
+  const API_BASE =
+    import.meta.env.VITE_API_URL ||
+    "https://fashionxpress.onrender.com";
+
   const handleRemove = async (productId: number) => {
     setRemovingId(productId);
     try {
-      const res = await fetch(`/api/wishlist/${productId}`, {
+      const res = await fetch(`${API_BASE}/api/wishlist/${productId}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -37,7 +41,7 @@ export function WishlistPage() {
     setMovingId(productId);
     try {
       // Add to cart
-      const cartRes = await fetch('/api/home-visit-cart', {
+      const cartRes = await fetch(`${API_BASE}/api/home-visit-cart`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({ productId, quantity: 1, size: 'M' })
@@ -45,7 +49,7 @@ export function WishlistPage() {
       if (!cartRes.ok) throw new Error('Failed to add to cart');
       
       // Remove from wishlist
-      await fetch(`/api/wishlist/${productId}`, {
+      await fetch(`${API_BASE}/api/wishlist/${productId}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
