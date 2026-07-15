@@ -1,4 +1,4 @@
-import { Router, type IRouter } from "express";
+import { Router, type IRouter, type Response } from "express";
 import { and, desc, eq } from "drizzle-orm";
 import { db, notificationsTable } from "@workspace/db";
 import {
@@ -12,7 +12,7 @@ const router: IRouter = Router();
 router.get(
   "/notifications/me",
   requireAuth(),
-  async (req: AuthedRequest, res): Promise<void> => {
+  async (req: AuthedRequest, res: Response): Promise<void> => {
     const rows = await db
       .select()
       .from(notificationsTable)
@@ -25,7 +25,7 @@ router.get(
 router.patch(
   "/notifications/:id/read",
   requireAuth(),
-  async (req: AuthedRequest, res): Promise<void> => {
+  async (req: AuthedRequest, res: Response): Promise<void> => {
     const id = parseInt(
       Array.isArray(req.params.id) ? req.params.id[0]! : req.params.id!,
       10,

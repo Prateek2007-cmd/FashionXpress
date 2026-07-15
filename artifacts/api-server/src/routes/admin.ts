@@ -1,4 +1,4 @@
-import { Router, type IRouter } from "express";
+import { Router, type IRouter, type Request, type Response } from "express";
 import { and, eq, gte, sql } from "drizzle-orm";
 import {
   db,
@@ -22,7 +22,7 @@ const router: IRouter = Router();
 router.get(
   "/admin/dashboard/summary",
   requireAuth("admin"),
-  async (_req, res): Promise<void> => {
+  async (_req: Request, res: Response): Promise<void> => {
     const today = new Date().toISOString().slice(0, 10);
 
     const [{ count: todaysBookings }] = await db
@@ -88,7 +88,7 @@ router.get(
 router.get(
   "/admin/dashboard/analytics",
   requireAuth("admin"),
-  async (_req, res): Promise<void> => {
+  async (_req: Request, res: Response): Promise<void> => {
     const revenueByDayRows = await db
       .select({
         date: sql<string>`to_char(${invoicesTable.createdAt}, 'YYYY-MM-DD')`,
@@ -172,7 +172,7 @@ router.get(
 router.get(
   "/admin/dashboard/brand-revenue",
   requireAuth("admin"),
-  async (_req, res): Promise<void> => {
+  async (_req: Request, res: Response): Promise<void> => {
     try {
       const rows = await db
         .select({

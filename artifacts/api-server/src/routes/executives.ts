@@ -1,4 +1,4 @@
-import { Router, type IRouter } from "express";
+import { Router, type IRouter, type Request, type Response } from "express";
 import { and, eq, inArray } from "drizzle-orm";
 import {
   db,
@@ -27,7 +27,7 @@ const router: IRouter = Router();
 router.get(
   "/executives",
   requireAuth("admin"),
-  async (_req, res): Promise<void> => {
+  async (_req: Request, res: Response): Promise<void> => {
     const rows = await db
       .select({ executive: executivesTable, user: usersTable })
       .from(executivesTable)
@@ -70,7 +70,7 @@ router.get(
 router.post(
   "/executives",
   requireAuth("admin"),
-  async (req, res): Promise<void> => {
+  async (req: Request, res: Response): Promise<void> => {
     const parsed = CreateExecutiveBody.safeParse(req.body);
     if (!parsed.success) {
       res.status(400).json({ error: parsed.error.message });
@@ -123,7 +123,7 @@ router.post(
 router.get(
   "/executives/me/visits",
   requireAuth("executive"),
-  async (req: AuthedRequest, res): Promise<void> => {
+  async (req: AuthedRequest, res: Response): Promise<void> => {
     const parsed = ListMyVisitsQueryParams.safeParse(req.query);
     if (!parsed.success) {
       res.status(400).json({ error: parsed.error.message });
@@ -188,7 +188,7 @@ router.get(
 router.patch(
   "/executives/:id",
   requireAuth("admin"),
-  async (req, res): Promise<void> => {
+  async (req: Request, res: Response): Promise<void> => {
     const id = Number(req.params.id);
     const { name, email, phone, photoUrl } = req.body;
 
@@ -230,7 +230,7 @@ router.patch(
 router.delete(
   "/executives/:id",
   requireAuth("admin"),
-  async (req, res): Promise<void> => {
+  async (req: Request, res: Response): Promise<void> => {
     const id = Number(req.params.id);
 
     const [executive] = await db

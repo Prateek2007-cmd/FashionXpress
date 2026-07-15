@@ -1,4 +1,4 @@
-import { Router, type IRouter } from "express";
+import { Router, type IRouter, type Response } from "express";
 import { and, eq } from "drizzle-orm";
 import {
   db,
@@ -21,7 +21,7 @@ const router: IRouter = Router();
 router.get(
   "/wishlist",
   requireAuth("customer", "admin"),
-  async (req: AuthedRequest, res): Promise<void> => {
+  async (req: AuthedRequest, res: Response): Promise<void> => {
     const customer = await getOrCreateCustomer(req.auth!.userId);
     const rows = await db
       .select({ item: wishlistTable, product: productsTable })
@@ -52,7 +52,7 @@ router.get(
 router.post(
   "/wishlist",
   requireAuth("customer", "admin"),
-  async (req: AuthedRequest, res): Promise<void> => {
+  async (req: AuthedRequest, res: Response): Promise<void> => {
     const body = (req.body && req.body.data) ? req.body.data : (req.body || {});
     
     if (!body.productId) {
@@ -113,7 +113,7 @@ router.post(
 router.delete(
   "/wishlist/:productId",
   requireAuth("customer", "admin"),
-  async (req: AuthedRequest, res): Promise<void> => {
+  async (req: AuthedRequest, res: Response): Promise<void> => {
     const productId = parseInt(
       Array.isArray(req.params.productId)
         ? req.params.productId[0]!

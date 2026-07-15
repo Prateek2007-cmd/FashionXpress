@@ -1,4 +1,4 @@
-import { Router, type IRouter } from "express";
+import { Router, type IRouter, type Request, type Response } from "express";
 import { eq } from "drizzle-orm";
 import { db, usersTable, customersTable } from "@workspace/db";
 import {
@@ -13,7 +13,7 @@ import { requireAuth, type AuthedRequest } from "../middlewares/auth";
 
 const router: IRouter = Router();
 
-router.post("/auth/register", async (req, res): Promise<void> => {
+router.post("/auth/register", async (req: Request, res: Response): Promise<void> => {
   const parsed = RegisterCustomerBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
@@ -65,7 +65,7 @@ router.post("/auth/register", async (req, res): Promise<void> => {
   );
 });
 
-router.post("/auth/login", async (req, res): Promise<void> => {
+router.post("/auth/login", async (req: Request, res: Response): Promise<void> => {
   const parsed = LoginBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
@@ -102,7 +102,7 @@ router.post("/auth/login", async (req, res): Promise<void> => {
 router.get(
   "/auth/me",
   requireAuth(),
-  async (req: AuthedRequest, res): Promise<void> => {
+  async (req: AuthedRequest, res: Response): Promise<void> => {
     const [user] = await db
       .select()
       .from(usersTable)

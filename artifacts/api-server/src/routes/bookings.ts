@@ -1,4 +1,4 @@
-import { Router, type IRouter } from "express";
+import { Router, type IRouter, type Request, type Response } from "express";
 import { and, eq, inArray, desc } from "drizzle-orm";
 import {
   db,
@@ -88,7 +88,7 @@ async function hydrateBookings(bookings: (typeof bookingsTable.$inferSelect)[]) 
 router.get(
   "/bookings",
   requireAuth("admin"),
-  async (req, res): Promise<void> => {
+  async (req: Request, res: Response): Promise<void> => {
     try {
       const status = req.query.status as string | undefined;
       const where = status
@@ -109,7 +109,7 @@ router.get(
 router.post(
   "/bookings",
   requireAuth("customer", "admin"),
-  async (req: AuthedRequest, res): Promise<void> => {
+  async (req: AuthedRequest, res: Response): Promise<void> => {
     try {
       const body = req.body || {};
       const name = body.name;
@@ -183,7 +183,7 @@ router.post(
 // Guest booking — no authentication required
 router.post(
   "/bookings/guest",
-  async (req, res): Promise<void> => {
+  async (req: Request, res: Response): Promise<void> => {
     try {
       const body = req.body || {};
       const name = body.name;
@@ -263,7 +263,7 @@ router.post(
 router.get(
   "/bookings/me",
   requireAuth("customer", "admin"),
-  async (req: AuthedRequest, res): Promise<void> => {
+  async (req: AuthedRequest, res: Response): Promise<void> => {
     const customer = await getOrCreateCustomer(req.auth!.userId);
     const bookings = await db
       .select()
@@ -291,7 +291,7 @@ async function executiveIsAssigned(userId: number, booking: typeof bookingsTable
 router.get(
   "/bookings/:id",
   requireAuth(),
-  async (req: AuthedRequest, res): Promise<void> => {
+  async (req: AuthedRequest, res: Response): Promise<void> => {
     const id = parseInt(
       Array.isArray(req.params.id) ? req.params.id[0]! : req.params.id!,
       10,
@@ -318,7 +318,7 @@ router.get(
 router.patch(
   "/bookings/:id/status",
   requireAuth("admin", "executive"),
-  async (req: AuthedRequest, res): Promise<void> => {
+  async (req: AuthedRequest, res: Response): Promise<void> => {
     const id = parseInt(
       Array.isArray(req.params.id) ? req.params.id[0]! : req.params.id!,
       10,
@@ -404,7 +404,7 @@ router.patch(
 router.patch(
   "/bookings/:id/reschedule",
   requireAuth("admin"),
-  async (req, res): Promise<void> => {
+  async (req: Request, res: Response): Promise<void> => {
     const id = parseInt(
       Array.isArray(req.params.id) ? req.params.id[0]! : req.params.id!,
       10,
@@ -435,7 +435,7 @@ router.patch(
 router.patch(
   "/bookings/:id/assign-executive",
   requireAuth("admin"),
-  async (req, res): Promise<void> => {
+  async (req: Request, res: Response): Promise<void> => {
     const id = parseInt(
       Array.isArray(req.params.id) ? req.params.id[0]! : req.params.id!,
       10,
@@ -475,7 +475,7 @@ router.patch(
 router.post(
   "/bookings/:id/products",
   requireAuth("admin", "executive"),
-  async (req: AuthedRequest, res): Promise<void> => {
+  async (req: AuthedRequest, res: Response): Promise<void> => {
     const id = parseInt(
       Array.isArray(req.params.id) ? req.params.id[0]! : req.params.id!,
       10,
@@ -530,7 +530,7 @@ router.post(
 router.patch(
   "/bookings/:id/products/:productId/status",
   requireAuth("admin", "executive"),
-  async (req: AuthedRequest, res): Promise<void> => {
+  async (req: AuthedRequest, res: Response): Promise<void> => {
     const bookingId = parseInt(
       Array.isArray(req.params.id) ? req.params.id[0]! : req.params.id!,
       10,
@@ -648,7 +648,7 @@ router.patch(
 router.get(
   "/bookings/:id/invoice",
   requireAuth(),
-  async (req: AuthedRequest, res): Promise<void> => {
+  async (req: AuthedRequest, res: Response): Promise<void> => {
     const id = parseInt(
       Array.isArray(req.params.id) ? req.params.id[0]! : req.params.id!,
       10,
@@ -696,7 +696,7 @@ router.get(
 router.post(
   "/bookings/:id/invoice",
   requireAuth("admin", "executive"),
-  async (req, res): Promise<void> => {
+  async (req: Request, res: Response): Promise<void> => {
     const id = parseInt(
       Array.isArray(req.params.id) ? req.params.id[0]! : req.params.id!,
       10,

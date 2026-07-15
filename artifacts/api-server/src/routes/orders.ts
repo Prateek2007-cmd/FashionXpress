@@ -1,4 +1,4 @@
-import { Router, type IRouter } from "express";
+import { Router, type IRouter, type Request, type Response } from "express";
 import { eq } from "drizzle-orm";
 import { db, ordersTable, orderItemsTable, productsTable } from "@workspace/db";
 import { requireAuth, type AuthedRequest } from "../middlewares/auth";
@@ -14,7 +14,7 @@ function generateOrderNumber(): string {
 router.post(
   "/orders",
   requireAuth("customer", "admin"),
-  async (req: AuthedRequest, res): Promise<void> => {
+  async (req: AuthedRequest, res: Response): Promise<void> => {
     try {
       const customer = await getOrCreateCustomer(req.auth!.userId);
       const { productId, quantity, color, size, shippingAddress, specialRequirements } = req.body;
@@ -67,7 +67,7 @@ router.post(
 router.get(
   "/orders/me",
   requireAuth("customer", "admin"),
-  async (req: AuthedRequest, res): Promise<void> => {
+  async (req: AuthedRequest, res: Response): Promise<void> => {
     try {
       const customer = await getOrCreateCustomer(req.auth!.userId);
       const orders = await db
@@ -98,7 +98,7 @@ router.get(
 router.get(
   "/orders",
   requireAuth("admin"),
-  async (req, res): Promise<void> => {
+  async (req: Request, res: Response): Promise<void> => {
     try {
       const orders = await db.select().from(ordersTable);
       const items = await db.select().from(orderItemsTable);

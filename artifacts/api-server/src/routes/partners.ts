@@ -1,4 +1,4 @@
-import { Router, type IRouter } from "express";
+import { Router, type IRouter, type Request, type Response } from "express";
 import { eq, desc } from "drizzle-orm";
 import { db, partnerRequestsTable } from "@workspace/db";
 import { requireAuth, type AuthedRequest } from "../middlewares/auth";
@@ -8,7 +8,7 @@ const router: IRouter = Router();
 // Submit a new partner request
 router.post(
   "/partners",
-  async (req, res): Promise<void> => {
+  async (req: Request, res: Response): Promise<void> => {
     const { shopName, productsSold } = req.body;
     if (!shopName || !productsSold) {
       res.status(400).json({ error: "shopName and productsSold are required" });
@@ -28,7 +28,7 @@ router.post(
 router.get(
   "/partners",
   requireAuth("admin"),
-  async (req: AuthedRequest, res): Promise<void> => {
+  async (req: AuthedRequest, res: Response): Promise<void> => {
     const requests = await db
       .select()
       .from(partnerRequestsTable)
@@ -41,7 +41,7 @@ router.get(
 router.patch(
   "/partners/:id",
   requireAuth("admin"),
-  async (req: AuthedRequest, res): Promise<void> => {
+  async (req: AuthedRequest, res: Response): Promise<void> => {
     const { status } = req.body;
     const { id } = req.params;
     

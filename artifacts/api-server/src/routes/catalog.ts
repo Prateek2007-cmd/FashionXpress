@@ -1,4 +1,4 @@
-import { Router, type IRouter } from "express";
+import { Router, type IRouter, type Request, type Response } from "express";
 import { and, asc, eq, gte, ilike, lte, sql } from "drizzle-orm";
 import {
   db,
@@ -29,7 +29,7 @@ import { getOrCreateCustomer } from "./customers";
 
 const router: IRouter = Router();
 
-router.get("/categories", async (_req, res): Promise<void> => {
+router.get("/categories", async (_req: Request, res: Response): Promise<void> => {
   const categories = await db.select().from(categoriesTable);
   res.json(ListCategoriesResponse.parse(categories));
 });
@@ -37,7 +37,7 @@ router.get("/categories", async (_req, res): Promise<void> => {
 router.post(
   "/categories",
   requireAuth("admin"),
-  async (req: AuthedRequest, res): Promise<void> => {
+  async (req: AuthedRequest, res: Response): Promise<void> => {
     try {
       const [category] = await db
         .insert(categoriesTable)
@@ -53,7 +53,7 @@ router.post(
 router.delete(
   "/categories/:id",
   requireAuth("admin"),
-  async (req: AuthedRequest, res): Promise<void> => {
+  async (req: AuthedRequest, res: Response): Promise<void> => {
     try {
       const id = parseInt(
         Array.isArray(req.params.id) ? req.params.id[0]! : req.params.id!,
@@ -67,12 +67,12 @@ router.delete(
   }
 );
 
-router.get("/brands", async (_req, res): Promise<void> => {
+router.get("/brands", async (_req: Request, res: Response): Promise<void> => {
   const brands = await db.select().from(brandsTable);
   res.json(ListBrandsResponse.parse(brands));
 });
 
-router.get("/products", async (req, res): Promise<void> => {
+router.get("/products", async (req: Request, res: Response): Promise<void> => {
   const parsed = ListProductsQueryParams.safeParse(req.query);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
@@ -141,7 +141,7 @@ router.get("/products", async (req, res): Promise<void> => {
 router.post(
   "/products",
   requireAuth("admin"),
-  async (req, res): Promise<void> => {
+  async (req: Request, res: Response): Promise<void> => {
     try {
       const body = req.body || {};
       if (!body.name || !body.sku) {
@@ -217,7 +217,7 @@ router.post(
   },
 );
 
-router.get("/products/:id", async (req, res): Promise<void> => {
+router.get("/products/:id", async (req: Request, res: Response): Promise<void> => {
   const id = parseInt(
     Array.isArray(req.params.id) ? req.params.id[0]! : req.params.id!,
     10,
@@ -244,7 +244,7 @@ router.get("/products/:id", async (req, res): Promise<void> => {
 router.patch(
   "/products/:id",
   requireAuth("admin"),
-  async (req, res): Promise<void> => {
+  async (req: Request, res: Response): Promise<void> => {
     const id = parseInt(
       Array.isArray(req.params.id) ? req.params.id[0]! : req.params.id!,
       10,
@@ -291,7 +291,7 @@ router.patch(
 router.delete(
   "/products/:id",
   requireAuth("admin"),
-  async (req, res): Promise<void> => {
+  async (req: Request, res: Response): Promise<void> => {
     const id = parseInt(
       Array.isArray(req.params.id) ? req.params.id[0]! : req.params.id!,
       10,
@@ -308,7 +308,7 @@ router.delete(
   },
 );
 
-router.get("/products/:id/reviews", async (req, res): Promise<void> => {
+router.get("/products/:id/reviews", async (req: Request, res: Response): Promise<void> => {
   const id = parseInt(
     Array.isArray(req.params.id) ? req.params.id[0]! : req.params.id!,
     10,
@@ -341,7 +341,7 @@ router.get("/products/:id/reviews", async (req, res): Promise<void> => {
 router.post(
   "/products/:id/reviews",
   requireAuth("customer"),
-  async (req: AuthedRequest, res): Promise<void> => {
+  async (req: AuthedRequest, res: Response): Promise<void> => {
     const id = parseInt(
       Array.isArray(req.params.id) ? req.params.id[0]! : req.params.id!,
       10,
