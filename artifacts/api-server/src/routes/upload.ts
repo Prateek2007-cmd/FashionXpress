@@ -1,25 +1,10 @@
-import { Router, type IRouter } from "express";
+import { Router, type IRouter, type Request, type Response } from "express";
 import multer from "multer";
-import path from "path";
-import fs from "fs";
 import { requireAuth } from "../middlewares/auth";
 
 const router: IRouter = Router();
 
-// Always resolve relative to where the process was started (project root of api-server)
-const uploadsDir = path.join(process.cwd(), "public", "uploads");
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
-
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => cb(null, uploadsDir),
-  filename: (_req, file, cb) => {
-    const unique = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-    const ext = path.extname(file.originalname);
-    cb(null, `${unique}${ext}`);
-  },
-});
+const storage = multer.memoryStorage();
 
 const upload = multer({
   storage,
@@ -37,12 +22,13 @@ router.post(
   "/upload",
   requireAuth("admin"),
   upload.single("file"),
-  (req, res): void => {
+  (req: Request, res: Response): void => {
     if (!req.file) {
       res.status(400).json({ error: "No file uploaded" });
       return;
     }
-    const url = `/uploads/${req.file.filename}`;
+    const base64 = req.file.buffer.toString("base64");
+    const url = `data:${req.file.mimetype};base64,${base64}`;
     res.json({ url });
   }
 );
