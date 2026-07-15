@@ -92,7 +92,7 @@ export function ProductDetailPage() {
         {/* Images */}
         <div className="space-y-4">
           <div className="aspect-[3/4] bg-card/50 rounded-lg overflow-hidden border border-white/5">
-            {product.images[0] ? (
+          {product.images[0] ? (
               <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-muted-foreground">No Image</div>

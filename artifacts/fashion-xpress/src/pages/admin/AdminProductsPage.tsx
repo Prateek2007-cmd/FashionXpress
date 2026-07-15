@@ -5,6 +5,10 @@ import { Plus, Trash2, Loader2, Upload, X, Image as ImageIcon, Pencil } from 'lu
 import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/context/AuthContext';
 
+const API_BASE =
+  import.meta.env.VITE_API_URL ||
+  'https://fashionxpress.onrender.com';
+
 export function AdminProductsPage() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -13,57 +17,111 @@ export function AdminProductsPage() {
   const { data: categories } = useListCategories();
   const { data: brands } = useListBrands();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const editFileInputRef = useRef<HTMLInputElement>(null);
 
   const [isAdding, setIsAdding] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [imagePreview, setImagePreview] = useState<string[]>([]);
+  // uploadedImageUrls stores the final URLs (returned from /api/upload)
+  const [uploadedImageUrls, setUploadedImageUrls] = useState<string[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
   const [formData, setFormData] = useState({
-    name: '', sku: '', description: '', categoryId: 0, brandName: '', 
-    color: '', sizes: 'S,M,L,XL', fabric: '', occasion: '', 
+    name: '', sku: '', description: '', categoryId: 0, brandName: '',
+    color: '', sizes: 'S,M,L,XL', fabric: '', occasion: '',
     mrp: 0, sellingPrice: 0, stock: 10, imageUrl: ''
   });
 
   // Edit state
   const [editingProduct, setEditingProduct] = useState<any>(null);
   const [isEditSaving, setIsEditSaving] = useState(false);
+  const [isEditUploading, setIsEditUploading] = useState(false);
   const [editForm, setEditForm] = useState({
     name: '', description: '', color: '', sizes: '', fabric: '', occasion: '',
-    mrp: 0, sellingPrice: 0, stock: 0
+    mrp: 0, sellingPrice: 0, stock: 0, images: [] as string[], imageUrl: ''
   });
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files) return;
-    
-    Array.from(files).forEach(file => {
-      if (file.size > 5 * 1024 * 1024) {
-        toast({ title: "File too large", description: "Max 5MB per image", variant: "destructive" });
-        return;
-      }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const result = reader.result as string;
-        setImagePreview(prev => [...prev, result]);
-      };
-      reader.readAsDataURL(file);
+  /** Upload a file to /api/upload and return the URL */
+  const uploadFile = async (file: File): Promise<string> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const res = await fetch(`${API_BASE}/api/upload`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}` },
+      body: formData
     });
-    e.target.value = '';
+    if (!res.ok) throw new Error(`Upload failed: ${await res.text()}`);
+    const data = await res.json();
+    return data.url as string;
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    setIsUploading(true);
+    try {
+      const urls: string[] = [];
+      for (const file of Array.from(files)) {
+        if (file.size > 5 * 1024 * 1024) {
+          toast({ title: 'File too large', description: `${file.name} exceeds 5MB`, variant: 'destructive' });
+          continue;
+        }
+        const url = await uploadFile(file);
+        urls.push(url);
+      }
+      setUploadedImageUrls(prev => [...prev, ...urls]);
+      if (urls.length > 0) {
+        toast({ title: `✅ ${urls.length} image(s) uploaded` });
+      }
+    } catch (err: any) {
+      toast({ title: 'Upload failed', description: err.message, variant: 'destructive' });
+    } finally {
+      setIsUploading(false);
+      e.target.value = '';
+    }
+  };
+
+  const handleEditFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    setIsEditUploading(true);
+    try {
+      const urls: string[] = [];
+      for (const file of Array.from(files)) {
+        if (file.size > 5 * 1024 * 1024) {
+          toast({ title: 'File too large', description: `${file.name} exceeds 5MB`, variant: 'destructive' });
+          continue;
+        }
+        const url = await uploadFile(file);
+        urls.push(url);
+      }
+      setEditForm(prev => ({ ...prev, images: [...prev.images, ...urls] }));
+      if (urls.length > 0) {
+        toast({ title: `✅ ${urls.length} image(s) uploaded` });
+      }
+    } catch (err: any) {
+      toast({ title: 'Upload failed', description: err.message, variant: 'destructive' });
+    } finally {
+      setIsEditUploading(false);
+      e.target.value = '';
+    }
   };
 
   const removeImage = (index: number) => {
-    setImagePreview(prev => prev.filter((_, i) => i !== index));
+    setUploadedImageUrls(prev => prev.filter((_, i) => i !== index));
   };
 
-  const API_BASE =
-    import.meta.env.VITE_API_URL ||
-    "https://fashionxpress.onrender.com";
+  const removeEditImage = (index: number) => {
+    setEditForm(prev => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== index)
+    }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
-    
+
     try {
-      const allImages = [...imagePreview];
+      const allImages = [...uploadedImageUrls];
       if (formData.imageUrl.trim()) {
         formData.imageUrl.split(',').forEach(url => {
           const trimmed = url.trim();
@@ -87,10 +145,6 @@ export function AdminProductsPage() {
         images: allImages,
       };
 
-      console.log('[AdminProducts] Creating product:', payload.name);
-      console.log("API_BASE:", API_BASE);
-      console.log("Request URL:", `${API_BASE}/api/products`);
-
       const res = await fetch(`${API_BASE}/api/products`, {
         method: 'POST',
         headers: {
@@ -101,20 +155,15 @@ export function AdminProductsPage() {
       });
 
       const responseText = await res.text();
-      console.log('[AdminProducts] Response:', res.status, responseText);
+      if (!res.ok) throw new Error(responseText || `Error ${res.status}`);
 
-      if (!res.ok) {
-        throw new Error(responseText || `Error ${res.status}`);
-      }
-
-      toast({ title: "✅ Product created!", description: `${formData.name} has been added to the catalog.` });
-      queryClient.invalidateQueries({ queryKey: ['/products'] });
+      toast({ title: '✅ Product created!', description: `${formData.name} has been added to the catalog.` });
+      queryClient.invalidateQueries({ queryKey: ['/api/products'] });
       setIsAdding(false);
-      setImagePreview([]);
+      setUploadedImageUrls([]);
       setFormData({ name: '', sku: '', description: '', categoryId: 0, brandName: '', color: '', sizes: 'S,M,L,XL', fabric: '', occasion: '', mrp: 0, sellingPrice: 0, stock: 10, imageUrl: '' });
     } catch (err: any) {
-      console.error('Create product error:', err);
-      toast({ title: "Failed to create product", description: err.message, variant: "destructive" });
+      toast({ title: 'Failed to create product', description: err.message, variant: 'destructive' });
     } finally {
       setIsSaving(false);
     }
@@ -122,23 +171,17 @@ export function AdminProductsPage() {
 
   const handleDelete = async (id: number, name: string) => {
     if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
-    
+
     try {
-      console.log("API_BASE:", API_BASE);
-      console.log("Request URL:", `${API_BASE}/api/products/${id}`);
       const res = await fetch(`${API_BASE}/api/products/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
-
-      if (!res.ok && res.status !== 204) {
-        throw new Error(await res.text());
-      }
-
-      toast({ title: "Product deleted" });
-      queryClient.invalidateQueries({ queryKey: ['/products'] });
+      if (!res.ok && res.status !== 204) throw new Error(await res.text());
+      toast({ title: 'Product deleted' });
+      queryClient.invalidateQueries({ queryKey: ['/api/products'] });
     } catch (err: any) {
-      toast({ title: "Failed to delete", description: err.message, variant: "destructive" });
+      toast({ title: 'Failed to delete', description: err.message, variant: 'destructive' });
     }
   };
 
@@ -154,6 +197,8 @@ export function AdminProductsPage() {
       mrp: product.mrp || 0,
       sellingPrice: product.sellingPrice || 0,
       stock: product.stock || 0,
+      images: product.images || [],
+      imageUrl: '',
     });
   };
 
@@ -162,22 +207,27 @@ export function AdminProductsPage() {
     if (!editingProduct) return;
     setIsEditSaving(true);
     try {
-      const payload: any = {};
-      if (editForm.name !== editingProduct.name) payload.name = editForm.name;
-      if (editForm.description !== (editingProduct.description || '')) payload.description = editForm.description;
-      if (editForm.color !== (editingProduct.color || '')) payload.color = editForm.color;
-      if (editForm.fabric !== (editingProduct.fabric || '')) payload.fabric = editForm.fabric;
-      if (editForm.occasion !== (editingProduct.occasion || '')) payload.occasion = editForm.occasion;
-      
-      const newSizes = editForm.sizes.split(',').map(s => s.trim()).filter(Boolean);
-      if (JSON.stringify(newSizes) !== JSON.stringify(editingProduct.sizes || [])) payload.sizes = newSizes;
-      
-      if (Number(editForm.mrp) !== Number(editingProduct.mrp)) payload.mrp = Number(editForm.mrp);
-      if (Number(editForm.sellingPrice) !== Number(editingProduct.sellingPrice)) payload.sellingPrice = Number(editForm.sellingPrice);
-      if (Number(editForm.stock) !== Number(editingProduct.stock)) payload.stock = Number(editForm.stock);
+      const allImages = [...editForm.images];
+      if (editForm.imageUrl.trim()) {
+        editForm.imageUrl.split(',').forEach(url => {
+          const trimmed = url.trim();
+          if (trimmed) allImages.push(trimmed);
+        });
+      }
 
-      console.log("API_BASE:", API_BASE);
-      console.log("Request URL:", `${API_BASE}/api/products/${editingProduct.id}`);
+      const payload: any = {
+        name: editForm.name,
+        description: editForm.description,
+        color: editForm.color,
+        fabric: editForm.fabric,
+        occasion: editForm.occasion,
+        sizes: editForm.sizes.split(',').map(s => s.trim()).filter(Boolean),
+        mrp: Number(editForm.mrp),
+        sellingPrice: Number(editForm.sellingPrice),
+        stock: Number(editForm.stock),
+        images: allImages,
+      };
+
       const res = await fetch(`${API_BASE}/api/products/${editingProduct.id}`, {
         method: 'PATCH',
         headers: {
@@ -188,15 +238,15 @@ export function AdminProductsPage() {
       });
 
       if (!res.ok) {
-        throw new Error(await res.text());
+        const errText = await res.text();
+        throw new Error(errText || `Error ${res.status}`);
       }
 
-      toast({ title: "✅ Product updated!", description: `${editForm.name} has been updated.` });
-      queryClient.invalidateQueries({ queryKey: ['/products'] });
+      toast({ title: '✅ Product updated!', description: `${editForm.name} has been updated.` });
+      queryClient.invalidateQueries({ queryKey: ['/api/products'] });
       setEditingProduct(null);
     } catch (err: any) {
-      console.error('Update product error:', err);
-      toast({ title: "Failed to update product", description: err.message, variant: "destructive" });
+      toast({ title: 'Failed to update product', description: err.message, variant: 'destructive' });
     } finally {
       setIsEditSaving(false);
     }
@@ -294,11 +344,12 @@ export function AdminProductsPage() {
               <div className="flex gap-3 flex-wrap items-start">
                 <button
                   type="button"
+                  disabled={isUploading}
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-20 h-24 rounded-md border-2 border-dashed border-white/10 flex flex-col items-center justify-center gap-1 hover:border-primary/50 transition-colors text-muted-foreground hover:text-primary"
+                  className="w-20 h-24 rounded-md border-2 border-dashed border-white/10 flex flex-col items-center justify-center gap-1 hover:border-primary/50 transition-colors text-muted-foreground hover:text-primary disabled:opacity-50"
                 >
-                  <Upload className="w-5 h-5" />
-                  <span className="text-[10px] uppercase tracking-widest">Upload</span>
+                  {isUploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Upload className="w-5 h-5" />}
+                  <span className="text-[10px] uppercase tracking-widest">{isUploading ? 'Uploading' : 'Upload'}</span>
                 </button>
                 <input
                   ref={fileInputRef}
@@ -313,12 +364,12 @@ export function AdminProductsPage() {
                 </div>
               </div>
 
-              {imagePreview.length > 0 && (
+              {uploadedImageUrls.length > 0 && (
                 <div className="flex gap-2 flex-wrap">
-                  {imagePreview.map((img, i) => (
+                  {uploadedImageUrls.map((img, i) => (
                     <div key={i} className="relative w-20 h-24 rounded-md overflow-hidden border border-white/10 group">
                       <img src={img} alt={`Preview ${i+1}`} className="w-full h-full object-cover" />
-                      <button 
+                      <button
                         type="button"
                         onClick={() => removeImage(i)}
                         className="absolute top-1 right-1 w-5 h-5 bg-black/70 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
@@ -329,8 +380,8 @@ export function AdminProductsPage() {
                   ))}
                 </div>
               )}
-              
-              {imagePreview.length === 0 && !formData.imageUrl && (
+
+              {uploadedImageUrls.length === 0 && !formData.imageUrl && (
                 <div className="text-xs text-muted-foreground flex items-center gap-1">
                   <ImageIcon className="w-3 h-3" /> Upload images or paste URLs. Products without images will show "No Image".
                 </div>
@@ -338,8 +389,8 @@ export function AdminProductsPage() {
             </div>
 
             <div className="flex justify-end gap-3 pt-4 border-t border-white/5">
-              <button type="button" onClick={() => { setIsAdding(false); setImagePreview([]); }} className="px-4 py-2 text-sm text-muted-foreground hover:text-white transition-colors">Cancel</button>
-              <button type="submit" disabled={isSaving} className="bg-primary text-primary-foreground px-6 py-2.5 rounded-md text-sm font-medium hover:bg-primary/90 disabled:opacity-50 flex items-center gap-2">
+              <button type="button" onClick={() => { setIsAdding(false); setUploadedImageUrls([]); }} className="px-4 py-2 text-sm text-muted-foreground hover:text-white transition-colors">Cancel</button>
+              <button type="submit" disabled={isSaving || isUploading} className="bg-primary text-primary-foreground px-6 py-2.5 rounded-md text-sm font-medium hover:bg-primary/90 disabled:opacity-50 flex items-center gap-2">
                 {isSaving ? <><Loader2 className="w-4 h-4 animate-spin" /> Saving...</> : '✓ Save Product'}
               </button>
             </div>
@@ -422,7 +473,7 @@ export function AdminProductsPage() {
       {/* Edit Product Modal */}
       {editingProduct && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setEditingProduct(null)}>
-          <div className="bg-card border border-white/10 rounded-xl p-6 w-full max-w-lg mx-4 shadow-2xl" onClick={e => e.stopPropagation()}>
+          <div className="bg-card border border-white/10 rounded-xl p-6 w-full max-w-lg mx-4 shadow-2xl max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
             <div className="flex justify-between items-center mb-6">
               <h2 className="font-serif text-xl text-white">Edit Product</h2>
               <button onClick={() => setEditingProduct(null)} className="text-muted-foreground hover:text-white transition-colors">
@@ -472,9 +523,63 @@ export function AdminProductsPage() {
                   <input type="number" className="w-full bg-background border border-input rounded-md px-3 py-2 text-sm text-white" value={editForm.stock} onChange={e => setEditForm({...editForm, stock: Number(e.target.value)})} />
                 </div>
               </div>
+
+              {/* Image Upload for Edit */}
+              <div className="space-y-3">
+                <label className="block text-xs uppercase tracking-widest text-muted-foreground">Images</label>
+                <div className="flex gap-3 flex-wrap items-start">
+                  <button
+                    type="button"
+                    disabled={isEditUploading}
+                    onClick={() => editFileInputRef.current?.click()}
+                    className="w-20 h-24 rounded-md border-2 border-dashed border-white/10 flex flex-col items-center justify-center gap-1 hover:border-primary/50 transition-colors text-muted-foreground hover:text-primary disabled:opacity-50"
+                  >
+                    {isEditUploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Upload className="w-5 h-5" />}
+                    <span className="text-[10px] uppercase tracking-widest">{isEditUploading ? 'Uploading' : 'Upload'}</span>
+                  </button>
+                  <input
+                    ref={editFileInputRef}
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleEditFileUpload}
+                    className="hidden"
+                  />
+                  <div className="flex-1">
+                    <input
+                      type="text"
+                      className="w-full bg-background border border-input rounded-md px-3 py-2 text-sm text-white"
+                      value={editForm.imageUrl}
+                      onChange={e => setEditForm({...editForm, imageUrl: e.target.value})}
+                      placeholder="Or paste image URLs (comma-separated)"
+                    />
+                  </div>
+                </div>
+
+                {editForm.images.length > 0 && (
+                  <div className="flex gap-2 flex-wrap">
+                    {editForm.images.map((img, i) => (
+                      <div key={i} className="relative w-20 h-24 rounded-md overflow-hidden border border-white/10 group">
+                        <img src={img} alt={`Preview ${i+1}`} className="w-full h-full object-cover" onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                        <button
+                          type="button"
+                          onClick={() => removeEditImage(i)}
+                          className="absolute top-1 right-1 w-5 h-5 bg-black/70 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X className="w-3 h-3 text-white" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <p className="text-xs text-muted-foreground">
+                  Existing images shown above. Upload new images to add them. Remove images by clicking ✕.
+                </p>
+              </div>
+
               <div className="flex justify-end gap-3 pt-4 border-t border-white/5">
                 <button type="button" onClick={() => setEditingProduct(null)} className="px-4 py-2 text-sm text-muted-foreground hover:text-white transition-colors">Cancel</button>
-                <button type="submit" disabled={isEditSaving} className="bg-primary text-primary-foreground px-6 py-2.5 rounded-md text-sm font-medium hover:bg-primary/90 disabled:opacity-50 flex items-center gap-2">
+                <button type="submit" disabled={isEditSaving || isEditUploading} className="bg-primary text-primary-foreground px-6 py-2.5 rounded-md text-sm font-medium hover:bg-primary/90 disabled:opacity-50 flex items-center gap-2">
                   {isEditSaving ? <><Loader2 className="w-4 h-4 animate-spin" /> Saving...</> : '✓ Update Product'}
                 </button>
               </div>

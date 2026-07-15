@@ -150,7 +150,7 @@ export function AccountPage() {
 function OrdersList() {
   const { data: orders, isLoading } = useQuery({
     queryKey: ['/orders/me'],
-    queryFn: () => customFetch({ url: '/api/orders/me' }).then((res: any) => res.data)
+    queryFn: () => customFetch('/api/orders/me').then((res: any) => res.data)
   });
 
   if (isLoading) return <div className="py-12 flex justify-center"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>;
