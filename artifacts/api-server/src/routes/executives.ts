@@ -185,4 +185,71 @@ router.get(
   },
 );
 
+router.patch(
+  "/executives/:id",
+  requireAuth("admin"),
+  async (req, res): Promise<void> => {
+    const id = Number(req.params.id);
+    const { name, email, phone, photoUrl } = req.body;
+
+    // find the executive to get the userId
+    const [executive] = await db
+      .select()
+      .from(executivesTable)
+      .where(eq(executivesTable.id, id));
+
+    if (!executive) {
+      res.status(404).json({ error: "Executive not found" });
+      return;
+    }
+
+    // update the user fields
+    if (name || email || phone) {
+      await db
+        .update(usersTable)
+        .set({
+          ...(name && { name }),
+          ...(email && { email: email.toLowerCase() }),
+          ...(phone && { phone }),
+        })
+        .where(eq(usersTable.id, executive.userId));
+    }
+
+    // update photo url
+    if (photoUrl !== undefined) {
+      await db
+        .update(executivesTable)
+        .set({ photoUrl })
+        .where(eq(executivesTable.id, id));
+    }
+
+    res.json({ success: true });
+  },
+);
+
+router.delete(
+  "/executives/:id",
+  requireAuth("admin"),
+  async (req, res): Promise<void> => {
+    const id = Number(req.params.id);
+
+    const [executive] = await db
+      .select()
+      .from(executivesTable)
+      .where(eq(executivesTable.id, id));
+
+    if (!executive) {
+      res.status(404).json({ error: "Executive not found" });
+      return;
+    }
+
+    // delete executive record first (FK constraint)
+    await db.delete(executivesTable).where(eq(executivesTable.id, id));
+    // delete the user account
+    await db.delete(usersTable).where(eq(usersTable.id, executive.userId));
+
+    res.json({ success: true });
+  },
+);
+
 export default router;

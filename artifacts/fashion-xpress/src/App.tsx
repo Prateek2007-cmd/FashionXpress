@@ -21,6 +21,7 @@ import { BookVisitPage } from "./pages/customer/BookVisitPage";
 import { AccountPage } from "./pages/customer/AccountPage";
 import { WishlistPage } from "./pages/customer/WishlistPage";
 import { CartPage } from "./pages/customer/CartPage";
+import { PartnerWithUsPage } from "./pages/customer/PartnerWithUsPage";
 
 // Admin Pages
 import { AdminDashboard } from "./pages/admin/AdminDashboard";
@@ -30,6 +31,8 @@ import { AdminBookingsPage } from "./pages/admin/AdminBookingsPage";
 import { AdminCustomersPage } from "./pages/admin/AdminCustomersPage";
 import { AdminExecutivesPage } from "./pages/admin/AdminExecutivesPage";
 import { AdminAnalyticsPage } from "./pages/admin/AdminAnalyticsPage";
+import { AdminPartnersPage } from "./pages/admin/AdminPartnersPage";
+import { AdminContentPage } from "./pages/admin/AdminContentPage";
 
 // Executive Pages
 import { ExecutiveVisits } from "./pages/executive/ExecutiveVisits";
@@ -56,6 +59,7 @@ function CustomerRoutes() {
         <Route path="/account" component={AccountPage} />
         <Route path="/wishlist" component={WishlistPage} />
         <Route path="/home-visit-cart" component={CartPage} />
+        <Route path="/partner" component={PartnerWithUsPage} />
         <Route component={NotFound} />
       </Switch>
     </CustomerLayout>
@@ -71,6 +75,8 @@ function AdminRoutes() {
         <Route path="/admin/customers" component={AdminCustomersPage} />
         <Route path="/admin/executives" component={AdminExecutivesPage} />
         <Route path="/admin/analytics" component={AdminAnalyticsPage} />
+        <Route path="/admin/partners" component={AdminPartnersPage} />
+        <Route path="/admin/content" component={AdminContentPage} />
         <Route path="/admin/categories" component={AdminCategoriesPage} />
         <Route path="/admin/products" component={AdminProductsPage} />
         <Route component={NotFound} />

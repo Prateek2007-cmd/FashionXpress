@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useRoute, useLocation } from 'wouter';
-import { useGetProduct } from '@workspace/api-client-react';
+import { useGetProduct, useListWishlist } from '@workspace/api-client-react';
 import { formatPrice } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
@@ -23,6 +23,9 @@ export function ProductDetailPage() {
   const { data: product, isLoading } = useGetProduct(productId, {
     query: { enabled: !!productId, queryKey: ['/products', productId] }
   });
+  const { data: wishlistData } = useListWishlist();
+
+  const isWishlisted = wishlistData?.some(w => w.productId === productId) || false;
 
   const handleWishlist = async () => {
     if (!isAuthenticated) { setLocation('/login'); return; }
@@ -164,7 +167,7 @@ export function ProductDetailPage() {
                 onClick={handleWishlist}
                 disabled={addingToWishlist}
               >
-                {addingToWishlist ? <Loader2 className="w-5 h-5 animate-spin" /> : <Heart className="w-5 h-5" />}
+                {addingToWishlist ? <Loader2 className="w-5 h-5 animate-spin" /> : <Heart className={`w-5 h-5 ${isWishlisted ? 'fill-red-500 text-red-500' : ''}`} />}
               </Button>
             </div>
             <p className="text-xs text-muted-foreground text-center mt-4">

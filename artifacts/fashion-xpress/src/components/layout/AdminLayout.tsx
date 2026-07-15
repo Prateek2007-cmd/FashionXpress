@@ -19,6 +19,8 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     { label: 'Products', href: '/admin/products', icon: Package },
     { label: 'Executives', href: '/admin/executives', icon: UserCheck },
     { label: 'Analytics', href: '/admin/analytics', icon: Settings },
+    { label: 'Partners', href: '/admin/partners', icon: Users },
+    { label: 'Page Content', href: '/admin/content', icon: Settings },
   ];
 
   return (

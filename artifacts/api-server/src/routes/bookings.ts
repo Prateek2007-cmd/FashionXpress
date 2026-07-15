@@ -240,6 +240,17 @@ router.post(
         })
         .returning();
 
+      // Link selected products to this guest booking if provided
+      if (body.products && Array.isArray(body.products) && body.products.length > 0) {
+        await db.insert(bookingProductsTable).values(
+          body.products.map((item: any) => ({
+            bookingId: booking!.id,
+            productId: Number(item.productId),
+            isRecommended: false,
+          })),
+        );
+      }
+
       const [hydrated] = await hydrateBookings([booking!]);
       res.status(201).json(hydrated);
     } catch (err: any) {

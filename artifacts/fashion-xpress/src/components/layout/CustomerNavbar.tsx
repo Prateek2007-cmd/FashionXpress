@@ -13,7 +13,7 @@ export function CustomerNavbar() {
     { label: 'Home', href: '/' },
     { label: 'Book Visit', href: '/book-visit' },
     { label: 'Price Drop', href: '/products' },
-    { label: 'About Us', href: '/about' },
+    { label: 'Partner With Us', href: '/partner' },
   ];
 
   return (

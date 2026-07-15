@@ -42,6 +42,13 @@ export function BookVisitPage() {
   const onSubmit = async (data: BookingFormValues) => {
     setIsSubmitting(true);
 
+    const guestCart = JSON.parse(localStorage.getItem('guest_cart') || '[]');
+    const products = guestCart.map((item: any) => ({
+      productId: item.productId,
+      quantity: item.quantity,
+      size: item.size
+    }));
+
     const payload = {
       name: data.name,
       phone: data.phone,
@@ -55,7 +62,8 @@ export function BookVisitPage() {
       preferredColors: [],
       topSize: '',
       bottomSize: '',
-      notes: ''
+      notes: '',
+      products
     };
 
     // Use guest endpoint if not authenticated, otherwise use authenticated endpoint
@@ -89,6 +97,9 @@ export function BookVisitPage() {
       setSuccessCode(result.bookingCode || result.id?.toString() || 'CONFIRMED');
       window.scrollTo(0, 0);
       toast({ title: "✅ Booking Confirmed!", description: `Your booking reference: ${result.bookingCode}` });
+
+      // Clear guest cart on successful booking
+      localStorage.removeItem('guest_cart');
 
     } catch (err: any) {
       console.error('[BookVisitPage] Booking error:', err);
@@ -143,7 +154,7 @@ export function BookVisitPage() {
         <h1 className="text-4xl font-serif text-white mb-2">Schedule Your Visit</h1>
         <p className="text-muted-foreground mb-6">Book a personal fashion consultation at your doorstep.</p>
         <div className="inline-block px-4 py-2 bg-primary/10 border border-primary/20 rounded-full text-primary text-sm">
-          <span className="font-semibold">Our Promise:</span> Services delivered within 3-6 hours of your scheduled time.
+          <span className="font-semibold">Our Promise:</span> Services Executive will visit your location within 45-60 minutes of your scheduled time.
         </div>
       </div>
 

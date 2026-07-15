@@ -308,3 +308,32 @@ router.put(
 
 export default router;
 export { getOrCreateCustomer };
+
+// ── Admin: list all customers ───────────────────────────────────────────────
+import { requireAuth as _requireAuth } from "../middlewares/auth";
+
+router.get(
+  "/admin/customers",
+  _requireAuth("admin"),
+  async (_req, res): Promise<void> => {
+    const rows = await db
+      .select({
+        customer: customersTable,
+        user: usersTable,
+      })
+      .from(customersTable)
+      .innerJoin(usersTable, eq(customersTable.userId, usersTable.id));
+
+    res.json(
+      rows.map(({ customer, user }) => ({
+        id: customer.id,
+        userId: customer.userId,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        lifetimeSpend: parseFloat(customer.lifetimeSpend),
+        createdAt: customer.createdAt,
+      })),
+    );
+  },
+);

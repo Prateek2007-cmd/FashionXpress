@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'wouter';
-import { useListProducts, useListCategories } from '@workspace/api-client-react';
+import { useListProducts, useListCategories, useListWishlist } from '@workspace/api-client-react';
 import { formatPrice } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,6 +22,11 @@ export function ProductsPage() {
     search: search || undefined,
     categoryId,
   });
+  const { data: wishlistData } = useListWishlist();
+
+  const isWishlisted = (productId: number) => {
+    return wishlistData?.some(w => w.productId === productId) || false;
+  };
 
   const handleAddToCart = async (e: React.MouseEvent, productId: number, productName: string) => {
     e.preventDefault(); // prevent Link navigation
@@ -132,7 +137,7 @@ export function ProductsPage() {
                       onClick={(e) => handleAddToWishlist(e, product.id, product.name)}
                       className="flex items-center justify-center bg-white/10 backdrop-blur text-white rounded-md px-3 py-2 hover:bg-white/20 transition-colors"
                     >
-                      <Heart className="w-4 h-4" />
+                      <Heart className={`w-4 h-4 ${isWishlisted(product.id) ? 'fill-red-500 text-red-500' : ''}`} />
                     </button>
                   </div>
                 </div>

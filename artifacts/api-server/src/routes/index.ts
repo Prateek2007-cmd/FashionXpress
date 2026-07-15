@@ -10,6 +10,9 @@ import executivesRouter from "./executives";
 import notificationsRouter from "./notifications";
 import adminRouter from "./admin";
 import ordersRouter from "./orders";
+import partnersRouter from "./partners";
+import contentRouter from "./content";
+import uploadRouter from "./upload";
 
 const router: IRouter = Router();
 
@@ -24,5 +27,8 @@ router.use(executivesRouter);
 router.use(notificationsRouter);
 router.use(adminRouter);
 router.use(ordersRouter);
+router.use(partnersRouter);
+router.use(contentRouter);
+router.use(uploadRouter);
 
 export default router;

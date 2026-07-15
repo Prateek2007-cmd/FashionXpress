@@ -38,10 +38,10 @@ export function LandingPage() {
   return (
     <div className="flex flex-col">
       {/* Top Banner Marquee */}
-      <div className="bg-primary/20 text-primary py-2 text-xs tracking-widest font-semibold uppercase border-b border-primary/30 overflow-hidden relative">
-        <marquee scrollamount="5" behavior="scroll" direction="left">
+      <div className="bg-primary/20 text-primary py-2 text-xs tracking-widest font-semibold uppercase border-b border-primary/30 overflow-hidden relative flex whitespace-nowrap">
+        <div className="animate-[marquee_20s_linear_infinite]">
           COMING SOON: XPRESS STITCHING SERVICES AT YOUR DOOR STEP &nbsp;&nbsp;&bull;&nbsp;&nbsp; <span className="text-red-500 font-bold">PRICE DROP: 30-60% OFF SALE IS ON LIVE</span> &nbsp;&nbsp;&bull;&nbsp;&nbsp; COMING SOON: XPRESS STITCHING SERVICES AT YOUR DOOR STEP &nbsp;&nbsp;&bull;&nbsp;&nbsp; <span className="text-red-500 font-bold">PRICE DROP: 30-60% OFF SALE IS ON LIVE</span>
-        </marquee>
+        </div>
       </div>
 
       {/* HERO SECTION */}
@@ -70,7 +70,7 @@ export function LandingPage() {
                 </Button>
               </Link>
               <div className="text-sm text-primary font-medium tracking-wide bg-primary/10 border border-primary/20 rounded-lg px-6 py-2">
-                ✨ <strong>Our Promise:</strong> Services delivered within 3-6 hours of your scheduled time.
+                ✨ <strong>Our Promise:</strong> Services Executive will visit your location within 45-60 minutes of your scheduled time.
               </div>
             </div>
           </motion.div>

@@ -6,3 +6,5 @@ export * from "./executives";
 export * from "./bookings";
 export * from "./notifications";
 export * from "./orders";
+export * from "./cms";
+export * from "./partners";
