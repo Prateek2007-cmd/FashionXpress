@@ -55,7 +55,7 @@ export function ProductDetailPage() {
   const handleCart = async () => {
     if (!isAuthenticated) { setLocation('/login'); return; }
     if (!selectedSize) {
-      toast({ title: "Select a size", description: "Please select a size before adding to Home Visit.", variant: "destructive" });
+      toast({ title: "Select a size", description: "Please select a size before adding to cart.", variant: "destructive" });
       return;
     }
     setAddingToCart(true);
@@ -70,7 +70,7 @@ export function ProductDetailPage() {
       if (!res.ok) throw new Error(await res.text());
       queryClient.invalidateQueries({ queryKey: ['/api/home-visit-cart'] });
       setAddedToCart(true);
-      toast({ title: "✅ Added to Home Visit", description: "This piece will be brought to your consultation." });
+      toast({ title: "✅ Added to Cart", description: "This piece has been added to your cart." });
       setTimeout(() => setAddedToCart(false), 3000);
     } catch (err: any) {
       toast({ title: "Error", description: err.message || "Failed to add to your selection.", variant: "destructive" });
@@ -165,7 +165,7 @@ export function ProductDetailPage() {
                 ) : addedToCart ? (
                   <><Check className="w-5 h-5 mr-2" /> Added!</>
                 ) : (
-                  <><ShoppingBag className="w-5 h-5 mr-2" /> Add to Home Visit</>
+                  <><ShoppingBag className="w-5 h-5 mr-2" /> Add to Cart</>
                 )}
               </Button>
               <Button 

@@ -6,8 +6,10 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface CartItemInput {
-  productId: number;
-  quantity?: number;
-  size?: string;
+export interface Merchant {
+  id: number;
+  name: string;
+  phone: string;
+  email: string;
+  createdAt: Date;
 }

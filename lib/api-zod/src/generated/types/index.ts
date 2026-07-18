@@ -43,6 +43,8 @@ export * from './listProductsParams';
 export * from './loginInput';
 export * from './measurement';
 export * from './measurementInput';
+export * from './merchant';
+export * from './merchantInput';
 export * from './namedCount';
 export * from './notification';
 export * from './order';

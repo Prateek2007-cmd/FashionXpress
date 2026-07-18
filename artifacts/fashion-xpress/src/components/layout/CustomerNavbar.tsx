@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'wouter';
 import { useAuth } from '@/context/AuthContext';
+import { useListWishlist, useListHomeVisitCart } from '@workspace/api-client-react';
 import { User, LogOut, Heart, ShoppingBag, Menu, X } from 'lucide-react';
 import { Button } from '../ui/button';
 
@@ -9,9 +10,13 @@ export function CustomerNavbar() {
   const [location] = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  const { data: wishlist } = useListWishlist({ query: { enabled: !!user } as any });
+  const { data: cartItems } = useListHomeVisitCart({ query: { enabled: !!user } as any });
+
   const navLinks = [
     { label: 'Home', href: '/' },
-    { label: 'Book Visit', href: '/book-visit' },
+    { label: 'Home Visit', href: '/book-visit' },
+    { label: 'Store Pickup', href: '/products' },
     { label: 'Price Drop', href: '/products' },
     { label: 'Partner With Us', href: '/partner' },
   ];
@@ -38,11 +43,21 @@ export function CustomerNavbar() {
         <div className="hidden md:flex items-center gap-4">
           {user ? (
             <>
-              <Link href="/wishlist" className="text-muted-foreground hover:text-primary transition-colors">
+              <Link href="/wishlist" className="text-muted-foreground hover:text-primary transition-colors relative">
                 <Heart className="w-5 h-5" />
+                {wishlist && wishlist.length > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-primary text-black font-bold text-[9px] flex items-center justify-center rounded-full">
+                    {wishlist.length}
+                  </span>
+                )}
               </Link>
-              <Link href="/home-visit-cart" className="text-muted-foreground hover:text-primary transition-colors">
+              <Link href="/home-visit-cart" className="text-muted-foreground hover:text-primary transition-colors relative">
                 <ShoppingBag className="w-5 h-5" />
+                {cartItems && cartItems.length > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-primary text-black font-bold text-[9px] flex items-center justify-center rounded-full">
+                    {cartItems.length}
+                  </span>
+                )}
               </Link>
               <Link href="/account" className="text-muted-foreground hover:text-primary transition-colors">
                 <User className="w-5 h-5" />
@@ -74,8 +89,22 @@ export function CustomerNavbar() {
           ))}
           {user ? (
             <div className="flex gap-6 mt-4 pt-4 border-t border-border">
-              <Link href="/wishlist" onClick={() => setIsMobileMenuOpen(false)}><Heart className="w-5 h-5" /></Link>
-              <Link href="/home-visit-cart" onClick={() => setIsMobileMenuOpen(false)}><ShoppingBag className="w-5 h-5" /></Link>
+              <Link href="/wishlist" onClick={() => setIsMobileMenuOpen(false)} className="relative">
+                <Heart className="w-5 h-5" />
+                {wishlist && wishlist.length > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-primary text-black font-bold text-[9px] flex items-center justify-center rounded-full">
+                    {wishlist.length}
+                  </span>
+                )}
+              </Link>
+              <Link href="/home-visit-cart" onClick={() => setIsMobileMenuOpen(false)} className="relative">
+                <ShoppingBag className="w-5 h-5" />
+                {cartItems && cartItems.length > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-primary text-black font-bold text-[9px] flex items-center justify-center rounded-full">
+                    {cartItems.length}
+                  </span>
+                )}
+              </Link>
               <Link href="/account" onClick={() => setIsMobileMenuOpen(false)}><User className="w-5 h-5" /></Link>
               <button onClick={logout}><LogOut className="w-5 h-5 text-destructive" /></button>
             </div>
@@ -89,3 +118,4 @@ export function CustomerNavbar() {
     </nav>
   );
 }
+

@@ -12,5 +12,6 @@ export interface CartItem {
   productId: number;
   product: Product;
   quantity: number;
+  size?: string;
   createdAt: Date;
 }

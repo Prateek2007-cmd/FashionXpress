@@ -18,4 +18,5 @@ minPrice?: number;
 maxPrice?: number;
 page?: number;
 limit?: number;
+merchantId?: number;
 };

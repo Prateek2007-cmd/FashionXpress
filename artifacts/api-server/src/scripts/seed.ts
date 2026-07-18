@@ -13,7 +13,7 @@ import { eq } from "drizzle-orm";
 async function upsertUser(
   email: string,
   name: string,
-  role: "customer" | "admin" | "executive",
+  role: "customer" | "admin" | "executive" | "merchant",
   password: string,
   phone: string,
 ) {
@@ -80,6 +80,14 @@ async function main() {
       favoriteBrands: [],
     });
   }
+
+  const merchantUser = await upsertUser(
+    "merchant@fashionxpress.in",
+    "Zara Boutique",
+    "merchant",
+    "merchant123",
+    "+91 98765 99999",
+  );
 
   const categoryDefs = [
     { name: "Men's Ethnic Wear", slug: "mens-ethnic" },

@@ -9,6 +9,7 @@ import {
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 import { customersTable } from "./customers";
+import { usersTable } from "./users";
 
 export const categoriesTable = pgTable("categories", {
   id: serial("id").primaryKey(),
@@ -60,6 +61,7 @@ export const productsTable = pgTable("products", {
   rack: text("rack"),
   images: text("images").array().notNull().default([]),
   rating: numeric("rating", { precision: 3, scale: 2 }).notNull().default("0"),
+  merchantId: integer("merchant_id").references(() => usersTable.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),

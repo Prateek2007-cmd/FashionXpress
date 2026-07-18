@@ -16,6 +16,7 @@ export const UserRole = {
   customer: 'customer',
   admin: 'admin',
   executive: 'executive',
+  merchant: 'merchant',
 } as const;
 
 export interface User {
@@ -176,6 +177,8 @@ export interface Product {
   rack?: string | null;
   images: string[];
   rating: number;
+  /** @nullable */
+  merchantId?: number | null;
   createdAt: string;
 }
 
@@ -263,14 +266,14 @@ export interface CartItem {
   productId: number;
   product: Product;
   quantity: number;
-  size: string;
+  size?: string;
   createdAt: string;
 }
 
 export interface CartItemInput {
   productId: number;
   quantity?: number;
-  size: string;
+  size?: string;
 }
 
 export type BookingProductStatus = typeof BookingProductStatus[keyof typeof BookingProductStatus];
@@ -444,6 +447,22 @@ export interface ExecutiveInput {
   photoUrl?: string;
 }
 
+export interface Merchant {
+  id: number;
+  name: string;
+  phone: string;
+  email: string;
+  createdAt: string;
+}
+
+export interface MerchantInput {
+  name: string;
+  phone: string;
+  email: string;
+  /** @minLength 6 */
+  password: string;
+}
+
 export type InvoicePaymentMethod = typeof InvoicePaymentMethod[keyof typeof InvoicePaymentMethod];
 
 
@@ -590,6 +609,7 @@ minPrice?: number;
 maxPrice?: number;
 page?: number;
 limit?: number;
+merchantId?: number;
 };
 
 export type ListBookingsParams = {

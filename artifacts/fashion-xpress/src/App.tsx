@@ -10,6 +10,7 @@ import './setup-fetch';
 import { CustomerLayout } from "./components/layout/CustomerLayout";
 import { AdminLayout } from "./components/layout/AdminLayout";
 import { ExecutiveLayout } from "./components/layout/ExecutiveLayout";
+import { MerchantLayout } from "./components/layout/MerchantLayout";
 
 // Customer Pages
 import { LandingPage } from "./pages/LandingPage";
@@ -30,12 +31,18 @@ import { AdminProductsPage } from "./pages/admin/AdminProductsPage";
 import { AdminBookingsPage } from "./pages/admin/AdminBookingsPage";
 import { AdminCustomersPage } from "./pages/admin/AdminCustomersPage";
 import { AdminExecutivesPage } from "./pages/admin/AdminExecutivesPage";
+import { AdminMerchantsPage } from "./pages/admin/AdminMerchantsPage";
 import { AdminAnalyticsPage } from "./pages/admin/AdminAnalyticsPage";
 import { AdminPartnersPage } from "./pages/admin/AdminPartnersPage";
 import { AdminContentPage } from "./pages/admin/AdminContentPage";
+import { AdminOrdersPage } from "./pages/admin/AdminOrdersPage";
 
 // Executive Pages
 import { ExecutiveVisits } from "./pages/executive/ExecutiveVisits";
+
+// Merchant Pages
+import { MerchantProductsPage } from "./pages/merchant/MerchantProductsPage";
+import { MerchantOrdersPage } from "./pages/merchant/MerchantOrdersPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -74,14 +81,28 @@ function AdminRoutes() {
         <Route path="/admin/bookings" component={AdminBookingsPage} />
         <Route path="/admin/customers" component={AdminCustomersPage} />
         <Route path="/admin/executives" component={AdminExecutivesPage} />
+        <Route path="/admin/merchants" component={AdminMerchantsPage} />
         <Route path="/admin/analytics" component={AdminAnalyticsPage} />
         <Route path="/admin/partners" component={AdminPartnersPage} />
         <Route path="/admin/content" component={AdminContentPage} />
         <Route path="/admin/categories" component={AdminCategoriesPage} />
         <Route path="/admin/products" component={AdminProductsPage} />
+        <Route path="/admin/orders" component={AdminOrdersPage} />
         <Route component={NotFound} />
       </Switch>
     </AdminLayout>
+  );
+}
+
+function MerchantRoutes() {
+  return (
+    <MerchantLayout>
+      <Switch>
+        <Route path="/merchant" component={MerchantProductsPage} />
+        <Route path="/merchant/orders" component={MerchantOrdersPage} />
+        <Route component={NotFound} />
+      </Switch>
+    </MerchantLayout>
   );
 }
 
@@ -104,6 +125,8 @@ function AppRouter() {
       <Route path="/admin/*" component={AdminRoutes} />
       <Route path="/executive" component={ExecutiveRoutes} />
       <Route path="/executive/*" component={ExecutiveRoutes} />
+      <Route path="/merchant" component={MerchantRoutes} />
+      <Route path="/merchant/*" component={MerchantRoutes} />
       {/* Customer routes handle the base path and everything else not caught above */}
       <Route component={CustomerRoutes} />
     </Switch>

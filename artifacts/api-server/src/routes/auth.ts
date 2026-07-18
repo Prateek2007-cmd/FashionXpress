@@ -83,7 +83,7 @@ router.post("/auth/login", async (req: Request, res: Response): Promise<void> =>
     return;
   }
 
-  const token = signToken({ userId: user.id, role: user.role as "customer" | "admin" | "executive" });
+  const token = signToken({ userId: user.id, role: user.role as "customer" | "admin" | "executive" | "merchant" });
   res.json(
     LoginResponse.parse({
       token,

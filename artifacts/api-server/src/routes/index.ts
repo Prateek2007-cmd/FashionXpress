@@ -13,6 +13,7 @@ import ordersRouter from "./orders";
 import partnersRouter from "./partners";
 import contentRouter from "./content";
 import uploadRouter from "./upload";
+import merchantsRouter from "./merchants";
 
 const router: IRouter = Router();
 
@@ -30,5 +31,6 @@ router.use(ordersRouter);
 router.use(partnersRouter);
 router.use(contentRouter);
 router.use(uploadRouter);
+router.use(merchantsRouter);
 
 export default router;

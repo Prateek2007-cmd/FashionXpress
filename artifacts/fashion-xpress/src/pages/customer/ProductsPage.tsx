@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'wouter';
-import { useListProducts, useListCategories, useListWishlist } from '@workspace/api-client-react';
+import { useListProducts, useListCategories, useListWishlist, useListBrands } from '@workspace/api-client-react';
 import { formatPrice } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,18 +9,29 @@ import { useAuth } from '@/context/AuthContext';
 import { Search, Loader2, Heart, ShoppingBag } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 
+const COLOR_OPTIONS = ['Red', 'Pink', 'Blue', 'Green', 'Yellow', 'Orange', 'Purple', 'White', 'Black', 'Gold', 'Silver', 'Maroon', 'Navy Blue', 'Peach', 'Lavender', 'Turquoise', 'Mint', 'Coral', 'Beige', 'Ivory'];
+const OCCASION_OPTIONS = ['Wedding', 'Party', 'Festive', 'Casual', 'Formal', 'Engagement', 'Baby Shower', 'Cocktail', 'Office', 'Traditional', 'Sangeet', 'Mehndi', 'Reception', 'College', 'Date Night'];
+
 export function ProductsPage() {
   const [search, setSearch] = useState('');
   const [categoryId, setCategoryId] = useState<number | undefined>(undefined);
+  const [brandId, setBrandId] = useState<number | undefined>(undefined);
+  const [color, setColor] = useState<string | undefined>(undefined);
+  const [occasion, setOccasion] = useState<string | undefined>(undefined);
+  
   const { isAuthenticated, token } = useAuth();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
   const { data: categories } = useListCategories();
+  const { data: brands } = useListBrands();
   const { data: productsData, isLoading } = useListProducts({
     search: search || undefined,
     categoryId,
+    brandId,
+    color,
+    occasion,
   });
   const { data: wishlistData } = useListWishlist();
 
@@ -46,7 +57,7 @@ export function ProductsPage() {
         body: JSON.stringify({ productId, quantity: 1, size: 'M' })
       });
       if (!res.ok) throw new Error(await res.text());
-      toast({ title: "✅ Added to Home Visit", description: `${productName} will be brought to your consultation.` });
+      toast({ title: "✅ Added to Cart", description: `${productName} has been added to your cart.` });
       queryClient.invalidateQueries({ queryKey: ['/api/home-visit-cart'] });
     } catch (err: any) {
       toast({ title: "Failed", description: err.message, variant: "destructive" });
@@ -102,6 +113,42 @@ export function ProductsPage() {
               <option key={c.id} value={c.id}>{c.name}</option>
             ))}
           </select>
+
+          {/* Brand/Merchant Filter */}
+          <select 
+            className="h-10 rounded-md border border-white/10 bg-card px-3 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-primary"
+            value={brandId || ''}
+            onChange={(e) => setBrandId(e.target.value ? Number(e.target.value) : undefined)}
+          >
+            <option value="">All Brands/Merchants</option>
+            {Array.isArray(brands) && brands.map(b => (
+              <option key={b.id} value={b.id}>{b.name}</option>
+            ))}
+          </select>
+
+          {/* Colour Filter */}
+          <select 
+            className="h-10 rounded-md border border-white/10 bg-card px-3 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-primary"
+            value={color || ''}
+            onChange={(e) => setColor(e.target.value || undefined)}
+          >
+            <option value="">All Colours</option>
+            {COLOR_OPTIONS.map(c => (
+              <option key={c} value={c}>{c}</option>
+            ))}
+          </select>
+
+          {/* Occasion Filter */}
+          <select 
+            className="h-10 rounded-md border border-white/10 bg-card px-3 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-primary"
+            value={occasion || ''}
+            onChange={(e) => setOccasion(e.target.value || undefined)}
+          >
+            <option value="">All Occasions</option>
+            {OCCASION_OPTIONS.map(o => (
+              <option key={o} value={o}>{o}</option>
+            ))}
+          </select>
         </div>
       </div>
 
@@ -112,7 +159,7 @@ export function ProductsPage() {
       ) : !productsData?.items?.length ? (
         <div className="text-center py-24 border border-white/5 rounded-2xl bg-card/30">
           <p className="text-muted-foreground">No pieces found matching your criteria.</p>
-          <Button variant="link" onClick={() => { setSearch(''); setCategoryId(undefined); }} className="text-primary mt-2">
+          <Button variant="link" onClick={() => { setSearch(''); setCategoryId(undefined); setBrandId(undefined); setColor(undefined); setOccasion(undefined); }} className="text-primary mt-2">
             Clear filters
           </Button>
         </div>
@@ -139,7 +186,7 @@ export function ProductsPage() {
                       onClick={(e) => handleAddToCart(e, product.id, product.name)}
                       className="flex-1 flex items-center justify-center gap-1.5 bg-primary text-primary-foreground rounded-md py-2 text-xs font-medium tracking-wider uppercase hover:bg-primary/90 transition-colors"
                     >
-                      <ShoppingBag className="w-3.5 h-3.5" /> Add to Visit
+                      <ShoppingBag className="w-3.5 h-3.5" /> Add to Cart
                     </button>
                     <button 
                       onClick={(e) => handleAddToWishlist(e, product.id, product.name)}

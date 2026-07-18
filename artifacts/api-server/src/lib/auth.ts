@@ -8,7 +8,7 @@ if (!JWT_SECRET) {
   throw new Error("SESSION_SECRET must be set to sign auth tokens.");
 }
 
-export type Role = "customer" | "admin" | "executive";
+export type Role = "customer" | "admin" | "executive" | "merchant";
 
 export interface TokenPayload {
   userId: number;

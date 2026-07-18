@@ -30,7 +30,7 @@ export function WishlistPage() {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (!res.ok && res.status !== 204) throw new Error('Failed to remove');
-      queryClient.invalidateQueries({ queryKey: ['/wishlist'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/wishlist'] });
       toast({ title: "Removed from wishlist" });
     } catch (err: any) {
       toast({ title: "Error", description: err.message, variant: "destructive" });
@@ -60,9 +60,9 @@ export function WishlistPage() {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       
-      queryClient.invalidateQueries({ queryKey: ['/wishlist'] });
-      queryClient.invalidateQueries({ queryKey: ['/home-visit-cart'] });
-      toast({ title: "✅ Moved to Home Visit", description: "Item moved to your visit selection." });
+      queryClient.invalidateQueries({ queryKey: ['/api/wishlist'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/home-visit-cart'] });
+      toast({ title: "✅ Moved to Cart", description: "Item moved to your cart." });
     } catch (err: any) {
       toast({ title: "Error", description: err.message, variant: "destructive" });
     } finally {
@@ -110,7 +110,7 @@ export function WishlistPage() {
                     {movingId === item.productId ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
                     ) : (
-                      <><ShoppingBag className="w-4 h-4 mr-2" /> Add to Visit</>
+                      <><ShoppingBag className="w-4 h-4 mr-2" /> Add to Cart</>
                     )}
                   </Button>
                   <Button 

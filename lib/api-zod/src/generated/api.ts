@@ -5,8 +5,7 @@
  * Fashion Xpress API specification
  * OpenAPI spec version: 0.1.0
  */
-import { z } from 'zod';
-const zod = z;
+import * as zod from 'zod';
 
 
 /**
@@ -41,7 +40,7 @@ export const RegisterCustomerResponse = zod.object({
   "email": zod.string(),
   "name": zod.string(),
   "phone": zod.string().nullish(),
-  "role": zod.enum(['customer', 'admin', 'executive']),
+  "role": zod.enum(['customer', 'admin', 'executive', 'merchant']),
   "createdAt": zod.coerce.date()
 })
 })
@@ -62,7 +61,7 @@ export const LoginResponse = zod.object({
   "email": zod.string(),
   "name": zod.string(),
   "phone": zod.string().nullish(),
-  "role": zod.enum(['customer', 'admin', 'executive']),
+  "role": zod.enum(['customer', 'admin', 'executive', 'merchant']),
   "createdAt": zod.coerce.date()
 })
 })
@@ -76,7 +75,7 @@ export const GetCurrentUserResponse = zod.object({
   "email": zod.string(),
   "name": zod.string(),
   "phone": zod.string().nullish(),
-  "role": zod.enum(['customer', 'admin', 'executive']),
+  "role": zod.enum(['customer', 'admin', 'executive', 'merchant']),
   "createdAt": zod.coerce.date()
 })
 
@@ -289,7 +288,8 @@ export const ListProductsQueryParams = zod.object({
   "minPrice": zod.coerce.number().optional(),
   "maxPrice": zod.coerce.number().optional(),
   "page": zod.coerce.number().default(listProductsQueryPageDefault),
-  "limit": zod.coerce.number().default(listProductsQueryLimitDefault)
+  "limit": zod.coerce.number().default(listProductsQueryLimitDefault),
+  "merchantId": zod.coerce.number().optional()
 })
 
 export const ListProductsResponse = zod.object({
@@ -317,6 +317,7 @@ export const ListProductsResponse = zod.object({
   "rack": zod.string().nullish(),
   "images": zod.array(zod.string()),
   "rating": zod.number(),
+  "merchantId": zod.number().nullish(),
   "createdAt": zod.coerce.date()
 })),
   "total": zod.number(),
@@ -371,6 +372,7 @@ export const CreateProductResponse = zod.object({
   "rack": zod.string().nullish(),
   "images": zod.array(zod.string()),
   "rating": zod.number(),
+  "merchantId": zod.number().nullish(),
   "createdAt": zod.coerce.date()
 })
 
@@ -403,6 +405,7 @@ export const GetProductResponse = zod.object({
   "rack": zod.string().nullish(),
   "images": zod.array(zod.string()),
   "rating": zod.number(),
+  "merchantId": zod.number().nullish(),
   "createdAt": zod.coerce.date()
 })
 
@@ -454,6 +457,7 @@ export const UpdateProductResponse = zod.object({
   "rack": zod.string().nullish(),
   "images": zod.array(zod.string()),
   "rating": zod.number(),
+  "merchantId": zod.number().nullish(),
   "createdAt": zod.coerce.date()
 })
 
@@ -532,6 +536,7 @@ export const ListWishlistResponseItem = zod.object({
   "rack": zod.string().nullish(),
   "images": zod.array(zod.string()),
   "rating": zod.number(),
+  "merchantId": zod.number().nullish(),
   "createdAt": zod.coerce.date()
 }),
   "createdAt": zod.coerce.date()
@@ -570,6 +575,7 @@ export const AddToWishlistResponse = zod.object({
   "rack": zod.string().nullish(),
   "images": zod.array(zod.string()),
   "rating": zod.number(),
+  "merchantId": zod.number().nullish(),
   "createdAt": zod.coerce.date()
 }),
   "createdAt": zod.coerce.date()
@@ -610,10 +616,11 @@ export const ListHomeVisitCartResponseItem = zod.object({
   "rack": zod.string().nullish(),
   "images": zod.array(zod.string()),
   "rating": zod.number(),
+  "merchantId": zod.number().nullish(),
   "createdAt": zod.coerce.date()
 }),
   "quantity": zod.number(),
-  "size": zod.string(),
+  "size": zod.string().optional(),
   "createdAt": zod.coerce.date()
 })
 export const ListHomeVisitCartResponse = zod.array(ListHomeVisitCartResponseItem)
@@ -624,7 +631,7 @@ export const addToHomeVisitCartBodyQuantityDefault = 1;
 export const AddToHomeVisitCartBody = zod.object({
   "productId": zod.number(),
   "quantity": zod.number().default(addToHomeVisitCartBodyQuantityDefault),
-  "size": zod.string()
+  "size": zod.string().optional()
 })
 
 export const AddToHomeVisitCartResponse = zod.object({
@@ -654,10 +661,11 @@ export const AddToHomeVisitCartResponse = zod.object({
   "rack": zod.string().nullish(),
   "images": zod.array(zod.string()),
   "rating": zod.number(),
+  "merchantId": zod.number().nullish(),
   "createdAt": zod.coerce.date()
 }),
   "quantity": zod.number(),
-  "size": zod.string(),
+  "size": zod.string().optional(),
   "createdAt": zod.coerce.date()
 })
 
@@ -734,6 +742,7 @@ export const ListBookingsResponseItem = zod.object({
   "rack": zod.string().nullish(),
   "images": zod.array(zod.string()),
   "rating": zod.number(),
+  "merchantId": zod.number().nullish(),
   "createdAt": zod.coerce.date()
 }),
   "status": zod.enum(['reserved', 'sold', 'returned', 'damaged']),
@@ -826,6 +835,7 @@ export const CreateBookingResponse = zod.object({
   "rack": zod.string().nullish(),
   "images": zod.array(zod.string()),
   "rating": zod.number(),
+  "merchantId": zod.number().nullish(),
   "createdAt": zod.coerce.date()
 }),
   "status": zod.enum(['reserved', 'sold', 'returned', 'damaged']),
@@ -891,6 +901,7 @@ export const ListMyBookingsResponseItem = zod.object({
   "rack": zod.string().nullish(),
   "images": zod.array(zod.string()),
   "rating": zod.number(),
+  "merchantId": zod.number().nullish(),
   "createdAt": zod.coerce.date()
 }),
   "status": zod.enum(['reserved', 'sold', 'returned', 'damaged']),
@@ -961,6 +972,7 @@ export const GetBookingResponse = zod.object({
   "rack": zod.string().nullish(),
   "images": zod.array(zod.string()),
   "rating": zod.number(),
+  "merchantId": zod.number().nullish(),
   "createdAt": zod.coerce.date()
 }),
   "status": zod.enum(['reserved', 'sold', 'returned', 'damaged']),
@@ -1037,6 +1049,7 @@ export const UpdateBookingStatusResponse = zod.object({
   "rack": zod.string().nullish(),
   "images": zod.array(zod.string()),
   "rating": zod.number(),
+  "merchantId": zod.number().nullish(),
   "createdAt": zod.coerce.date()
 }),
   "status": zod.enum(['reserved', 'sold', 'returned', 'damaged']),
@@ -1111,6 +1124,7 @@ export const RescheduleBookingResponse = zod.object({
   "rack": zod.string().nullish(),
   "images": zod.array(zod.string()),
   "rating": zod.number(),
+  "merchantId": zod.number().nullish(),
   "createdAt": zod.coerce.date()
 }),
   "status": zod.enum(['reserved', 'sold', 'returned', 'damaged']),
@@ -1184,6 +1198,7 @@ export const AssignExecutiveToBookingResponse = zod.object({
   "rack": zod.string().nullish(),
   "images": zod.array(zod.string()),
   "rating": zod.number(),
+  "merchantId": zod.number().nullish(),
   "createdAt": zod.coerce.date()
 }),
   "status": zod.enum(['reserved', 'sold', 'returned', 'damaged']),
@@ -1236,6 +1251,7 @@ export const AddBookingProductResponse = zod.object({
   "rack": zod.string().nullish(),
   "images": zod.array(zod.string()),
   "rating": zod.number(),
+  "merchantId": zod.number().nullish(),
   "createdAt": zod.coerce.date()
 }),
   "status": zod.enum(['reserved', 'sold', 'returned', 'damaged']),
@@ -1285,6 +1301,7 @@ export const UpdateBookingProductStatusResponse = zod.object({
   "rack": zod.string().nullish(),
   "images": zod.array(zod.string()),
   "rating": zod.number(),
+  "merchantId": zod.number().nullish(),
   "createdAt": zod.coerce.date()
 }),
   "status": zod.enum(['reserved', 'sold', 'returned', 'damaged']),
@@ -1342,6 +1359,7 @@ export const CreateOrderResponse = zod.object({
   "rack": zod.string().nullish(),
   "images": zod.array(zod.string()),
   "rating": zod.number(),
+  "merchantId": zod.number().nullish(),
   "createdAt": zod.coerce.date()
 }).optional(),
   "quantity": zod.number(),
@@ -1392,6 +1410,7 @@ export const ListOrdersResponseItem = zod.object({
   "rack": zod.string().nullish(),
   "images": zod.array(zod.string()),
   "rating": zod.number(),
+  "merchantId": zod.number().nullish(),
   "createdAt": zod.coerce.date()
 }).optional(),
   "quantity": zod.number(),
@@ -1440,6 +1459,7 @@ export const ListMyOrdersResponseItem = zod.object({
   "rack": zod.string().nullish(),
   "images": zod.array(zod.string()),
   "rating": zod.number(),
+  "merchantId": zod.number().nullish(),
   "createdAt": zod.coerce.date()
 }).optional(),
   "quantity": zod.number(),
@@ -1552,6 +1572,7 @@ export const ListMyVisitsResponseItem = zod.object({
   "rack": zod.string().nullish(),
   "images": zod.array(zod.string()),
   "rating": zod.number(),
+  "merchantId": zod.number().nullish(),
   "createdAt": zod.coerce.date()
 }),
   "status": zod.enum(['reserved', 'sold', 'returned', 'damaged']),
@@ -1561,6 +1582,36 @@ export const ListMyVisitsResponseItem = zod.object({
   "createdAt": zod.coerce.date()
 })
 export const ListMyVisitsResponse = zod.array(ListMyVisitsResponseItem)
+
+
+export const ListMerchantsResponseItem = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "phone": zod.string(),
+  "email": zod.string(),
+  "createdAt": zod.coerce.date()
+})
+export const ListMerchantsResponse = zod.array(ListMerchantsResponseItem)
+
+
+export const createMerchantBodyPasswordMin = 6;
+
+
+
+export const CreateMerchantBody = zod.object({
+  "name": zod.string(),
+  "phone": zod.string(),
+  "email": zod.string(),
+  "password": zod.string().min(createMerchantBodyPasswordMin)
+})
+
+export const CreateMerchantResponse = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "phone": zod.string(),
+  "email": zod.string(),
+  "createdAt": zod.coerce.date()
+})
 
 
 export const GetBookingInvoiceParams = zod.object({

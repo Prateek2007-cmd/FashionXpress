@@ -20,7 +20,7 @@ const upload = multer({
 
 router.post(
   "/upload",
-  requireAuth("admin"),
+  requireAuth("admin", "merchant"),
   upload.single("file"),
   (req: Request, res: Response): void => {
     if (!req.file) {

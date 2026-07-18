@@ -81,7 +81,7 @@ router.post(
         and(
           eq(cartItemsTable.customerId, customer.id),
           eq(cartItemsTable.productId, parsedData.productId),
-          eq(cartItemsTable.size, parsedData.size),
+          eq(cartItemsTable.size, parsedData.size as string),
         ),
       );
 

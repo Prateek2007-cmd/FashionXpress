@@ -9,17 +9,17 @@ import { Loader2, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
 const bookingSchema = z.object({
-  name: z.string().min(2, "Name is required"),
-  phone: z.string().regex(/^\d{10}$/, "Must be exactly 10 digits"),
+  name: z.string().optional(),
+  phone: z.string().optional(),
   addressText: z.string().min(10, "Please provide your full address"),
 });
 
 type BookingFormValues = z.infer<typeof bookingSchema>;
 
 export function BookVisitPage() {
-  const { isAuthenticated, token } = useAuth();
+  const { isAuthenticated, token, user } = useAuth();
   const [successCode, setSuccessCode] = useState<string | null>(null);
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(2);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
@@ -50,10 +50,10 @@ export function BookVisitPage() {
     }));
 
     const payload = {
-      name: data.name,
-      phone: data.phone,
+      name: data.name || user?.name || 'Guest Customer',
+      phone: data.phone || user?.phone || '9999999999',
       addressText: data.addressText,
-      email: 'not-provided@fashion-xpress.com',
+      email: user?.email || 'not-provided@fashion-xpress.com',
       preferredDate: new Date().toISOString().split('T')[0],
       preferredTime: 'As soon as possible',
       gender: 'not_specified',
@@ -144,7 +144,7 @@ export function BookVisitPage() {
               Continue on WhatsApp
             </a>
             
-            <Button variant="outline" className="w-full" onClick={() => { setSuccessCode(null); setStep(1); }}>
+            <Button variant="outline" className="w-full" onClick={() => { setSuccessCode(null); setStep(2); }}>
               Book Another Visit
             </Button>
           </div>
@@ -154,92 +154,29 @@ export function BookVisitPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-12">
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-serif text-white mb-2">Schedule Your Visit</h1>
-        <p className="text-muted-foreground mb-6">Book a personal fashion consultation at your doorstep.</p>
-        <div className="inline-block px-4 py-2 bg-primary/10 border border-primary/20 rounded-full text-primary text-sm">
-          <span className="font-semibold">Our Promise:</span> Services Executive will visit your location within 45-60 minutes of your scheduled time.
-        </div>
-      </div>
+    <div className="max-w-4xl mx-auto px-6 py-20 flex flex-col items-center justify-center text-center min-h-[70vh] relative">
+      {/* Premium glow element */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-primary/10 rounded-full blur-[120px] pointer-events-none"></div>
 
-      {/* Step indicator */}
-      <div className="flex items-center justify-center gap-4 mb-8">
-        <div className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium ${step === 1 ? 'bg-primary text-primary-foreground' : 'bg-white/5 text-muted-foreground'}`}>
-          <span className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-xs">1</span>
-          Your Details
+      <div className="relative z-10 space-y-8 max-w-3xl">
+        <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/20 rounded-full text-primary text-xs uppercase tracking-widest font-semibold animate-pulse mx-auto">
+          ★ Exclusive Preview ★
         </div>
-        <div className="w-8 h-px bg-white/10"></div>
-        <div className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium ${step === 2 ? 'bg-primary text-primary-foreground' : 'bg-white/5 text-muted-foreground'}`}>
-          <span className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-xs">2</span>
-          Address
-        </div>
-      </div>
+        
+        <h1 className="text-5xl md:text-7xl font-serif font-black tracking-tight text-white leading-none">
+          MOST AWAITED SERVICE IS <br />
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-amber-200 to-primary font-bold">COMING SOON</span>
+        </h1>
+        
+        <p className="text-muted-foreground text-lg md:text-xl font-light leading-relaxed max-w-xl mx-auto">
+          We are preparing to bring a luxury personal fashion consultation and custom home visit experience straight to your doorstep.
+        </p>
 
-      <div className="bg-card border border-white/5 rounded-2xl p-8">
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-          
-          {/* STEP 1: Name & Phone */}
-          <div className={step === 2 ? 'hidden' : ''}>
-            <h3 className="font-serif text-xl text-white border-b border-white/10 pb-4 mb-6">Contact Information</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="text-sm text-white/80">Full Name</label>
-                <Input {...register('name')} placeholder="Enter your full name" className={errors.name ? 'border-destructive' : ''} />
-                {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm text-white/80">Phone Number</label>
-                <Input {...register('phone')} placeholder="10-digit phone number" maxLength={10} className={errors.phone ? 'border-destructive' : ''} />
-                {errors.phone && <p className="text-xs text-destructive">{errors.phone.message}</p>}
-              </div>
-            </div>
-            <div className="pt-8 mt-8 border-t border-white/10 flex justify-end">
-              <Button 
-                type="button" 
-                onClick={handleStep1Next} 
-                size="lg" 
-                className="px-10 h-14 tracking-widest uppercase"
-              >
-                Book the service →
-              </Button>
-            </div>
+        <div className="pt-8 border-t border-white/5 flex flex-col items-center gap-4">
+          <div className="px-6 py-4 bg-white/[0.02] border border-white/5 rounded-xl text-muted-foreground text-sm max-w-md shadow-2xl backdrop-blur-md">
+            <span className="font-semibold text-white">Our Promise:</span> A professional Fashion Executive will visit your location within 45-60 minutes of your requested schedule to assist you.
           </div>
-
-          {/* STEP 2: Address */}
-          <div className={step === 1 ? 'hidden' : 'space-y-8'}>
-            <div>
-              <h3 className="font-serif text-xl text-white border-b border-white/10 pb-4 mb-6">Where should we come?</h3>
-              <div className="space-y-2">
-                <label className="text-sm text-white/80">Full Address</label>
-                <Input {...register('addressText')} placeholder="House/Flat No, Street, Landmark, City, Pincode" className={errors.addressText ? 'border-destructive' : ''} />
-                {errors.addressText && <p className="text-xs text-destructive">{errors.addressText.message}</p>}
-              </div>
-            </div>
-
-            <div className="pt-6 border-t border-white/10 flex justify-between">
-              <Button type="button" variant="outline" onClick={() => setStep(1)} size="lg" className="px-10 h-14 tracking-widest uppercase">
-                ← Back
-              </Button>
-              <Button 
-                type="submit" 
-                size="lg" 
-                className="px-10 h-14 tracking-widest uppercase bg-green-600 hover:bg-green-700" 
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? (
-                  <span className="flex items-center gap-2">
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    Confirming...
-                  </span>
-                ) : (
-                  "✓ Confirm Booking"
-                )}
-              </Button>
-            </div>
-          </div>
-
-        </form>
+        </div>
       </div>
     </div>
   );

@@ -50,6 +50,8 @@ import type {
   LoginInput,
   Measurement,
   MeasurementInput,
+  Merchant,
+  MerchantInput,
   Notification,
   Order,
   OrderInput,
@@ -3235,6 +3237,142 @@ export function useListMyVisits<TData = Awaited<ReturnType<typeof listMyVisits>>
 
 
 
+
+export const getListMerchantsUrl = () => {
+
+
+
+
+  return `/api/merchants`
+}
+
+export const listMerchants = async ( options?: RequestInit): Promise<Merchant[]> => {
+
+  return customFetch<Merchant[]>(getListMerchantsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListMerchantsQueryKey = () => {
+    return [
+    `/api/merchants`
+    ] as const;
+    }
+
+
+export const getListMerchantsQueryOptions = <TData = Awaited<ReturnType<typeof listMerchants>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listMerchants>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListMerchantsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listMerchants>>> = ({ signal }) => listMerchants({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listMerchants>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListMerchantsQueryResult = NonNullable<Awaited<ReturnType<typeof listMerchants>>>
+export type ListMerchantsQueryError = ErrorType<unknown>
+
+
+
+export function useListMerchants<TData = Awaited<ReturnType<typeof listMerchants>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listMerchants>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListMerchantsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateMerchantUrl = () => {
+
+
+
+
+  return `/api/merchants`
+}
+
+export const createMerchant = async (merchantInput: MerchantInput, options?: RequestInit): Promise<Merchant> => {
+
+  return customFetch<Merchant>(getCreateMerchantUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(merchantInput)
+  }
+);}
+
+
+
+
+
+export const getCreateMerchantMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createMerchant>>, TError,{data: BodyType<MerchantInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createMerchant>>, TError,{data: BodyType<MerchantInput>}, TContext> => {
+
+const mutationKey = ['createMerchant'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createMerchant>>, {data: BodyType<MerchantInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createMerchant(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateMerchantMutationResult = NonNullable<Awaited<ReturnType<typeof createMerchant>>>
+    export type CreateMerchantMutationBody = BodyType<MerchantInput>
+    export type CreateMerchantMutationError = ErrorType<unknown>
+
+    export const useCreateMerchant = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createMerchant>>, TError,{data: BodyType<MerchantInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createMerchant>>,
+        TError,
+        {data: BodyType<MerchantInput>},
+        TContext
+      > => {
+      return useMutation(getCreateMerchantMutationOptions(options));
+    }
 
 export const getGetBookingInvoiceUrl = (id: number,) => {
 

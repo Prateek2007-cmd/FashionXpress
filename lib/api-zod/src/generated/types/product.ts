@@ -37,5 +37,7 @@ export interface Product {
   rack?: string | null;
   images: string[];
   rating: number;
+  /** @nullable */
+  merchantId?: number | null;
   createdAt: Date;
 }

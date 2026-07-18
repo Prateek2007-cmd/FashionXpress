@@ -155,7 +155,16 @@ export function AdminProductsPage() {
       });
 
       const responseText = await res.text();
-      if (!res.ok) throw new Error(responseText || `Error ${res.status}`);
+      if (!res.ok) {
+        let errMsg = `Error ${res.status}`;
+        try {
+          const errData = JSON.parse(responseText);
+          errMsg = errData.error || errData.message || errMsg;
+        } catch {
+          errMsg = responseText || errMsg;
+        }
+        throw new Error(errMsg);
+      }
 
       toast({ title: '✅ Product created!', description: `${formData.name} has been added to the catalog.` });
       queryClient.invalidateQueries({ queryKey: ['/api/products'] });

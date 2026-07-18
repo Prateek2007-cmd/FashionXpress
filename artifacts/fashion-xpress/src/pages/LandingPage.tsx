@@ -40,7 +40,7 @@ export function LandingPage() {
       {/* Top Banner Marquee */}
       <div className="bg-primary/20 text-primary py-2 text-xs tracking-widest font-semibold uppercase border-b border-primary/30 overflow-hidden relative flex whitespace-nowrap">
         <div className="animate-[marquee_20s_linear_infinite]">
-          COMING SOON: XPRESS STITCHING SERVICES AT YOUR DOOR STEP &nbsp;&nbsp;&bull;&nbsp;&nbsp; <span className="text-red-500 font-bold">PRICE DROP: 30-60% OFF SALE IS ON LIVE</span> &nbsp;&nbsp;&bull;&nbsp;&nbsp; COMING SOON: XPRESS STITCHING SERVICES AT YOUR DOOR STEP &nbsp;&nbsp;&bull;&nbsp;&nbsp; <span className="text-red-500 font-bold">PRICE DROP: 30-60% OFF SALE IS ON LIVE</span>
+          COMING SOON: XPRESS STITCHING SERVICES AT YOUR DOOR STEP &nbsp;&nbsp;&bull;&nbsp;&nbsp; <span className="text-red-500 font-bold">PRICE DROP: 30-60% OFF SALE IS ON LIVE</span> &nbsp;&nbsp;&bull;&nbsp;&nbsp; COMING SOON: XPRESS SERVICES AT YOUR FASHION STORE. AT YOUR DOOR. &nbsp;&nbsp;&bull;&nbsp;&nbsp; COMING SOON: XPRESS STITCHING SERVICES AT YOUR DOOR STEP &nbsp;&nbsp;&bull;&nbsp;&nbsp; <span className="text-red-500 font-bold">PRICE DROP: 30-60% OFF SALE IS ON LIVE</span> &nbsp;&nbsp;&bull;&nbsp;&nbsp; COMING SOON: XPRESS SERVICES AT YOUR FASHION STORE. AT YOUR DOOR.
         </div>
       </div>
 
@@ -57,9 +57,12 @@ export function LandingPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, ease: "easeOut" }}
           >
-            <h1 className="text-5xl md:text-7xl font-serif text-white mb-6 leading-tight">
+            <h1 className="text-5xl md:text-7xl font-serif text-white mb-4 leading-tight">
               The Store <br/><span className="text-primary italic">Comes To You.</span>
             </h1>
+            <div className="mb-8 font-serif text-2xl md:text-3xl text-primary font-black tracking-widest uppercase animate-pulse">
+              ★ MOST AWAITED SERVICE IS COMING SOON ★
+            </div>
             <p className="text-lg md:text-xl text-white/80 max-w-2xl mx-auto mb-8 font-light">
               Experience the pinnacle of luxury shopping. Browse our curated catalog, select your pieces, and our Fashion Executive will bring the boutique experience directly to your home.
             </p>

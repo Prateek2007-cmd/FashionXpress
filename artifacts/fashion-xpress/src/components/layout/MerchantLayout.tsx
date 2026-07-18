@@ -1,27 +1,19 @@
 import React from 'react';
 import { Link, useLocation, Redirect } from 'wouter';
-import { LayoutDashboard, Calendar, Users, Package, Settings, LogOut, UserCheck, ClipboardList } from 'lucide-react';
+import { Package, LogOut, ClipboardList } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
-export function AdminLayout({ children }: { children: React.ReactNode }) {
+export function MerchantLayout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
   const { logout, isAuthenticated, isLoading, user } = useAuth();
 
   if (isLoading) return <div className="min-h-screen bg-black flex items-center justify-center"><div className="w-8 h-8 rounded-full border-4 border-primary border-t-transparent animate-spin"></div></div>;
   if (!isAuthenticated) return <Redirect to="/login" />;
-  if (user && user.role !== 'admin') return <div className="min-h-screen bg-black text-white flex items-center justify-center text-xl font-serif">Unauthorized access</div>;
+  if (user && user.role !== 'merchant') return <div className="min-h-screen bg-black text-white flex items-center justify-center text-xl font-serif">Unauthorized access</div>;
 
   const links = [
-    { label: 'Dashboard', href: '/admin', icon: LayoutDashboard },
-    { label: 'Orders', href: '/admin/orders', icon: ClipboardList },
-    { label: 'Bookings', href: '/admin/bookings', icon: Calendar },
-    { label: 'Customers', href: '/admin/customers', icon: Users },
-    { label: 'Categories', href: '/admin/categories', icon: Package },
-    { label: 'Products', href: '/admin/products', icon: Package },
-    { label: 'Merchants', href: '/admin/merchants', icon: Users },
-    { label: 'Analytics', href: '/admin/analytics', icon: Settings },
-    { label: 'Partners', href: '/admin/partners', icon: Users },
-    { label: 'Page Content', href: '/admin/content', icon: Settings },
+    { label: 'My Catalog', href: '/merchant', icon: Package },
+    { label: 'My Orders', href: '/merchant/orders', icon: ClipboardList },
   ];
 
   return (
@@ -31,11 +23,16 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
         <div className="h-20 flex items-center px-6 border-b border-white/5">
           <div className="flex items-center gap-2">
             <img src="/logo.png" alt="TFX Logo" className="h-8 w-auto object-contain" style={{ filter: 'invert(1) grayscale(1)', mixBlendMode: 'screen' }} />
-            <span className="font-serif font-bold text-sm tracking-widest uppercase text-primary">ADMIN</span>
+            <span className="font-serif font-bold text-sm tracking-widest uppercase text-primary">MERCHANT</span>
           </div>
         </div>
 
-        <nav className="flex-1 py-6 px-4 space-y-2">
+        <div className="p-6 pb-2">
+          <p className="text-xs text-muted-foreground uppercase tracking-wider">Welcome,</p>
+          <p className="text-white font-medium">{user?.name}</p>
+        </div>
+
+        <nav className="flex-1 py-4 px-4 space-y-2">
           {links.map((link) => {
             const Icon = link.icon;
             const isActive = location === link.href;

@@ -41,6 +41,7 @@ export function mapProduct(
     rack: p.rack,
     images: p.images,
     rating: toNum(p.rating),
+    merchantId: p.merchantId,
     createdAt: p.createdAt,
   };
 }

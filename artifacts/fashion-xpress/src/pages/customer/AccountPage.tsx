@@ -9,7 +9,7 @@ import { useQuery } from '@tanstack/react-query';
 import { formatPrice, formatDate } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Loader2, User as UserIcon, Calendar, MapPin, Ruler, Package } from 'lucide-react';
+import { Loader2, User as UserIcon, Calendar, MapPin, Ruler, Package, Clock, Check, X as XIcon } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
 export function AccountPage() {
@@ -150,7 +150,7 @@ export function AccountPage() {
 function OrdersList() {
   const { data: orders, isLoading } = useQuery({
     queryKey: ['/orders/me'],
-    queryFn: () => customFetch('/api/orders/me').then((res: any) => res.data)
+    queryFn: () => customFetch('/api/orders/me').then((res: any) => res)
   });
 
   if (isLoading) return <div className="py-12 flex justify-center"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>;
@@ -161,27 +161,103 @@ function OrdersList() {
   );
 
   return (
-    <div className="space-y-4">
-      {orders.map((order: any) => (
-        <div key={order.id} className="bg-card border border-white/5 rounded-xl p-6 hover:border-primary/30 transition-colors">
-          <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-4">
-            <div>
-              <div className="text-primary font-mono tracking-widest text-sm mb-1">{order.orderNumber}</div>
-              <div className="text-white font-medium">₹{order.totalAmount} • {new Date(order.createdAt).toLocaleDateString()}</div>
-            </div>
-            <div className="inline-flex px-3 py-1 rounded bg-white/5 border border-white/10 text-xs tracking-widest uppercase text-white/80 self-start">
-              {order.status}
-            </div>
-          </div>
-          <div className="text-sm text-muted-foreground mt-4 pt-4 border-t border-white/5 space-y-2">
-            {order.items.map((item: any) => (
-              <div key={item.id} className="flex justify-between">
-                <span>{item.quantity}x {item.product?.name} ({item.color}, {item.size})</span>
+    <div className="space-y-6">
+      {orders.map((order: any, idx: number) => {
+        return (
+          <div key={order.id} className="bg-card border border-white/5 hover:border-primary/20 rounded-xl overflow-hidden shadow-lg transition-all">
+            {/* Header */}
+            <div className="px-6 py-4 bg-white/[0.02] border-b border-white/5 flex flex-wrap items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <span className="font-serif font-bold text-primary text-xs bg-primary/10 px-2.5 py-1 rounded">
+                  S.No: {idx + 1}
+                </span>
+                <span className="font-mono font-bold text-white text-md">
+                  {order.orderNumber}
+                </span>
+                <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                  <Calendar className="w-3.5 h-3.5" />
+                  {new Date(order.createdAt).toLocaleDateString(undefined, {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}
+                </span>
               </div>
-            ))}
+              <div className="flex items-center gap-4">
+                <span className="font-medium text-white/90 text-sm">Total: {formatPrice(order.totalAmount)}</span>
+                <div>
+                  {order.status === 'approved' ? (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded bg-green-500/10 border border-green-500/20 text-xs text-green-500 font-medium capitalize">
+                      <Check className="w-3.5 h-3.5" /> Ready for Pickup
+                    </span>
+                  ) : order.status === 'rejected' ? (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded bg-red-500/10 border border-red-500/20 text-xs text-red-500 font-medium capitalize">
+                      <XIcon className="w-3.5 h-3.5" /> Rejected
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded bg-yellow-500/10 border border-yellow-500/20 text-xs text-yellow-500 font-medium capitalize">
+                      <Clock className="w-3.5 h-3.5" /> Pending Approval
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Content Details */}
+            <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Items to collect */}
+              <div className="md:col-span-2 space-y-3">
+                <span className="text-xs uppercase tracking-widest text-muted-foreground font-semibold block mb-2">Items to Collect</span>
+                <div className="space-y-3">
+                  {order.items?.map((item: any) => (
+                    <div key={item.id} className="flex gap-4 items-center bg-white/[0.01] p-3 rounded-lg border border-white/5">
+                      <div className="w-12 h-16 bg-black/50 rounded overflow-hidden flex-shrink-0 border border-white/5">
+                        {item.product?.images?.[0] ? (
+                          <img src={item.product.images[0]} alt={item.product.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center"><Package className="w-5 h-5 text-muted-foreground" /></div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-white text-sm font-medium truncate">{item.product?.name}</h4>
+                        <div className="text-xs text-muted-foreground mt-0.5">
+                          Brand/Merchant: <strong className="text-white">{item.product?.brandName}</strong>
+                        </div>
+                        <div className="flex gap-3 text-xs text-muted-foreground mt-1">
+                          <span>Size: <strong className="text-white">{item.size}</strong></span>
+                          <span>Color: <strong className="text-white">{item.color}</strong></span>
+                          <span>Qty: <strong className="text-white">{item.quantity}</strong></span>
+                        </div>
+                      </div>
+                      <div className="text-white text-sm font-medium">{formatPrice(parseFloat(item.priceAtSale))}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Customer Reservation Summary */}
+              <div className="bg-white/[0.01] p-4 rounded-lg border border-white/5 space-y-4">
+                <span className="text-xs uppercase tracking-widest text-muted-foreground font-semibold block mb-2 font-serif">Pickup Details</span>
+                <div className="space-y-2">
+                  <div className="text-xs text-muted-foreground">Store Address / Location</div>
+                  <div className="text-sm text-white flex items-start gap-1">
+                    <MapPin className="w-3.5 h-3.5 mt-0.5 text-primary flex-shrink-0" />
+                    <span>{order.shippingAddress}</span>
+                  </div>
+                </div>
+                {order.specialRequirements && (
+                  <div className="space-y-1 pt-2 border-t border-white/5">
+                    <div className="text-xs text-muted-foreground">Your Notes</div>
+                    <div className="text-xs text-white italic">"{order.specialRequirements}"</div>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

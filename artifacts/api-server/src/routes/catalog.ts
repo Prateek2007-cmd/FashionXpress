@@ -90,6 +90,7 @@ router.get("/products", async (req: Request, res: Response): Promise<void> => {
     maxPrice,
     page,
     limit,
+    merchantId,
   } = parsed.data;
 
   const conditions = [];
@@ -105,6 +106,8 @@ router.get("/products", async (req: Request, res: Response): Promise<void> => {
     conditions.push(lte(productsTable.sellingPrice, maxPrice.toString()));
   if (size)
     conditions.push(sql`${size} = ANY(${productsTable.sizes})`);
+  if (merchantId)
+    conditions.push(eq(productsTable.merchantId, merchantId));
 
   const where = conditions.length > 0 ? and(...conditions) : undefined;
 
@@ -140,8 +143,8 @@ router.get("/products", async (req: Request, res: Response): Promise<void> => {
 
 router.post(
   "/products",
-  requireAuth("admin"),
-  async (req: Request, res: Response): Promise<void> => {
+  requireAuth("admin", "merchant"),
+  async (req: AuthedRequest, res: Response): Promise<void> => {
     try {
       const body = req.body || {};
       if (!body.name || !body.sku) {
@@ -175,6 +178,16 @@ router.post(
         }
       }
 
+      const [existingSku] = await db
+        .select()
+        .from(productsTable)
+        .where(eq(productsTable.sku, body.sku.trim()));
+
+      if (existingSku) {
+        res.status(400).json({ error: "Product SKU already exists. Please use a unique SKU." });
+        return;
+      }
+
       const [product] = await db
         .insert(productsTable)
         .values({
@@ -197,6 +210,7 @@ router.post(
           warehouse: body.warehouse || null,
           rack: body.rack || null,
           images: body.images || [],
+          merchantId: req.auth!.role === "merchant" ? req.auth!.userId : null,
         })
         .returning();
 
@@ -243,12 +257,25 @@ router.get("/products/:id", async (req: Request, res: Response): Promise<void> =
 
 router.patch(
   "/products/:id",
-  requireAuth("admin"),
-  async (req: Request, res: Response): Promise<void> => {
+  requireAuth("admin", "merchant"),
+  async (req: AuthedRequest, res: Response): Promise<void> => {
     const id = parseInt(
       Array.isArray(req.params.id) ? req.params.id[0]! : req.params.id!,
       10,
     );
+
+    if (req.auth!.role === "merchant") {
+      const [existing] = await db.select().from(productsTable).where(eq(productsTable.id, id));
+      if (!existing) {
+        res.status(404).json({ error: "Product not found" });
+        return;
+      }
+      if (existing.merchantId !== req.auth!.userId) {
+        res.status(403).json({ error: "Forbidden: You do not own this product" });
+        return;
+      }
+    }
+
     const parsed = UpdateProductBody.safeParse(req.body);
     if (!parsed.success) {
       res.status(400).json({ error: parsed.error.message });
@@ -290,12 +317,24 @@ router.patch(
 
 router.delete(
   "/products/:id",
-  requireAuth("admin"),
-  async (req: Request, res: Response): Promise<void> => {
+  requireAuth("admin", "merchant"),
+  async (req: AuthedRequest, res: Response): Promise<void> => {
     const id = parseInt(
       Array.isArray(req.params.id) ? req.params.id[0]! : req.params.id!,
       10,
     );
+
+    if (req.auth!.role === "merchant") {
+      const [existing] = await db.select().from(productsTable).where(eq(productsTable.id, id));
+      if (!existing) {
+        res.status(404).json({ error: "Product not found" });
+        return;
+      }
+      if (existing.merchantId !== req.auth!.userId) {
+        res.status(403).json({ error: "Forbidden: You do not own this product" });
+        return;
+      }
+    }
     const [product] = await db
       .delete(productsTable)
       .where(eq(productsTable.id, id))

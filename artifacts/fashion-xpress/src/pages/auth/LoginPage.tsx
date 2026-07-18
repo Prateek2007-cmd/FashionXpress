@@ -35,6 +35,7 @@ export function LoginPage() {
         // Route based on role
         if (res.user.role === 'admin') setLocation('/admin');
         else if (res.user.role === 'executive') setLocation('/executive');
+        else if (res.user.role === 'merchant') setLocation('/merchant');
         else setLocation('/');
       },
       onError: (err: any) => {
