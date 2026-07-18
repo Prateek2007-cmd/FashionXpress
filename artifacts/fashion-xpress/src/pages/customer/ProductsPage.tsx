@@ -201,6 +201,22 @@ export function ProductsPage() {
                 <div className="text-xs text-muted-foreground tracking-widest uppercase mb-1">{product.brandName}</div>
                 <h3 className="text-white font-serif text-lg mb-1 truncate">{product.name}</h3>
                 <div className="text-white/80">{formatPrice(product.sellingPrice)}</div>
+                
+                {/* Mobile action buttons (always visible on touch devices) */}
+                <div className="mt-3 flex gap-2 md:hidden">
+                  <button 
+                    onClick={(e) => handleAddToCart(e, product.id, product.name)}
+                    className="flex-1 h-10 flex items-center justify-center gap-1.5 bg-primary text-primary-foreground rounded-md text-xs font-semibold tracking-wider uppercase hover:bg-primary/90 transition-colors"
+                  >
+                    <ShoppingBag className="w-3.5 h-3.5" /> Add to Cart
+                  </button>
+                  <button 
+                    onClick={(e) => handleAddToWishlist(e, product.id, product.name)}
+                    className="h-10 px-3 flex items-center justify-center bg-white/10 text-white border border-white/10 rounded-md hover:bg-white/20 transition-colors"
+                  >
+                    <Heart className={`w-4 h-4 ${isWishlisted(product.id) ? 'fill-red-500 text-red-500' : ''}`} />
+                  </button>
+                </div>
               </div>
             </div>
           ))}
