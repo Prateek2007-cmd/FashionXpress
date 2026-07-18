@@ -35,7 +35,7 @@ app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 app.use("/uploads", express.static(path.join(process.cwd(), "public", "uploads")));
 
 const publicPath = path.resolve(import.meta.dirname, "../../fashion-xpress/dist/public");
-app.use(express.static(publicPath));
+app.use(express.static(publicPath, { redirect: false }));
 
 app.use("/api", router);
 
