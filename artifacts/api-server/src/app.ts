@@ -34,6 +34,22 @@ app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 // Serve uploaded files statically
 app.use("/uploads", express.static(path.join(process.cwd(), "public", "uploads")));
 
+const publicPath = path.resolve(import.meta.dirname, "../../fashion-xpress/dist/public");
+app.use(express.static(publicPath));
+
 app.use("/api", router);
+
+// SPA fallback for client-side routing
+app.get("*splat", (req: Request, res: Response, next: NextFunction) => {
+  if (req.path.startsWith("/api") || req.path.startsWith("/uploads")) {
+    next();
+    return;
+  }
+  res.sendFile(path.join(publicPath, "index.html"), (err) => {
+    if (err) {
+      res.status(404).send("Not Found");
+    }
+  });
+});
 
 export default app;
