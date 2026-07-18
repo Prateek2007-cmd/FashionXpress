@@ -40,7 +40,7 @@ export function LandingPage() {
       {/* Top Banner Marquee */}
       <div className="bg-primary/20 text-primary py-2 text-xs tracking-widest font-semibold uppercase border-b border-primary/30 overflow-hidden relative flex whitespace-nowrap">
         <div className="animate-[marquee_20s_linear_infinite]">
-          COMING SOON: XPRESS STITCHING SERVICES AT YOUR DOOR STEP &nbsp;&nbsp;&bull;&nbsp;&nbsp; <span className="text-red-500 font-bold">PRICE DROP: 30-60% OFF SALE IS ON LIVE</span> &nbsp;&nbsp;&bull;&nbsp;&nbsp; COMING SOON: XPRESS SERVICES AT YOUR FASHION STORE. AT YOUR DOOR. &nbsp;&nbsp;&bull;&nbsp;&nbsp; COMING SOON: XPRESS STITCHING SERVICES AT YOUR DOOR STEP &nbsp;&nbsp;&bull;&nbsp;&nbsp; <span className="text-red-500 font-bold">PRICE DROP: 30-60% OFF SALE IS ON LIVE</span> &nbsp;&nbsp;&bull;&nbsp;&nbsp; COMING SOON: XPRESS SERVICES AT YOUR FASHION STORE. AT YOUR DOOR.
+          <span className="text-red-500 font-bold">PRICE DROP: 30-60% OFF SALE IS ON LIVE</span> &nbsp;&nbsp;&bull;&nbsp;&nbsp; COMING SOON: XPRESS SERVICES AT YOUR FASHION STORE. AT YOUR DOOR. &nbsp;&nbsp;&bull;&nbsp;&nbsp; <span className="text-red-500 font-bold">PRICE DROP: 30-60% OFF SALE IS ON LIVE</span> &nbsp;&nbsp;&bull;&nbsp;&nbsp; COMING SOON: XPRESS SERVICES AT YOUR FASHION STORE. AT YOUR DOOR.
         </div>
       </div>
 
