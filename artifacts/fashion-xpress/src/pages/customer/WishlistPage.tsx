@@ -18,7 +18,7 @@ export function WishlistPage() {
 
   const API_BASE =
     import.meta.env.VITE_API_URL ||
-    "https://fashionxpress.onrender.com";
+    "";
 
   const handleRemove = async (productId: number) => {
     setRemovingId(productId);
@@ -40,34 +40,12 @@ export function WishlistPage() {
   };
 
   const handleMoveToCart = async (productId: number) => {
-    setMovingId(productId);
-    try {
-      // Add to cart
-      console.log("API_BASE:", API_BASE);
-      console.log("Request URL:", `${API_BASE}/api/home-visit-cart`);
-      const cartRes = await fetch(`${API_BASE}/api/home-visit-cart`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify({ productId, quantity: 1, size: 'M' })
-      });
-      if (!cartRes.ok) throw new Error('Failed to add to cart');
-      
-      // Remove from wishlist
-      console.log("API_BASE:", API_BASE);
-      console.log("Request URL:", `${API_BASE}/api/wishlist/${productId}`);
-      await fetch(`${API_BASE}/api/wishlist/${productId}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      
-      queryClient.invalidateQueries({ queryKey: ['/api/wishlist'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/home-visit-cart'] });
-      toast({ title: "✅ Moved to Cart", description: "Item moved to your cart." });
-    } catch (err: any) {
-      toast({ title: "Error", description: err.message, variant: "destructive" });
-    } finally {
-      setMovingId(null);
-    }
+    toast({
+      title: "Select a Size",
+      description: "Please select a size on the product details page to add it to your cart.",
+      variant: "destructive"
+    });
+    setLocation(`/products/${productId}`);
   };
 
   if (isLoading) return <div className="min-h-[60vh] flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;

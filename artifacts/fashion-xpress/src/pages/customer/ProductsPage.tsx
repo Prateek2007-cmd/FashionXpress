@@ -41,27 +41,21 @@ export function ProductsPage() {
 
   const API_BASE =
     import.meta.env.VITE_API_URL ||
-    "https://fashionxpress.onrender.com";
+    "";
 
   const handleAddToCart = async (e: React.MouseEvent, productId: number, productName: string) => {
     e.preventDefault(); // prevent Link navigation
     e.stopPropagation();
     if (!isAuthenticated) { setLocation('/login'); return; }
     
-    try {
-      console.log("API_BASE:", API_BASE);
-      console.log("Request URL:", `${API_BASE}/api/home-visit-cart`);
-      const res = await fetch(`${API_BASE}/api/home-visit-cart`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify({ productId, quantity: 1, size: 'M' })
-      });
-      if (!res.ok) throw new Error(await res.text());
-      toast({ title: "✅ Added to Cart", description: `${productName} has been added to your cart.` });
-      queryClient.invalidateQueries({ queryKey: ['/api/home-visit-cart'] });
-    } catch (err: any) {
-      toast({ title: "Failed", description: err.message, variant: "destructive" });
-    }
+    toast({
+      title: "Select a Size",
+      description: "Please select a size on the product details page and try again.",
+      variant: "destructive"
+    });
+    setTimeout(() => {
+      setLocation(`/products/${productId}`);
+    }, 1000);
   };
 
   const handleAddToWishlist = async (e: React.MouseEvent, productId: number, productName: string) => {

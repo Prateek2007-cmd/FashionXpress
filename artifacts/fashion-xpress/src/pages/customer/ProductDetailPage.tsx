@@ -19,6 +19,7 @@ export function ProductDetailPage() {
   const [addingToCart, setAddingToCart] = useState(false);
   const [addingToWishlist, setAddingToWishlist] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
+  const [sizeError, setSizeError] = useState(false);
   
   const { data: product, isLoading } = useGetProduct(productId, {
     query: { enabled: !!productId, queryKey: ['/products', productId] }
@@ -29,7 +30,7 @@ export function ProductDetailPage() {
 
   const API_BASE =
     import.meta.env.VITE_API_URL ||
-    "https://fashionxpress.onrender.com";
+    "";
 
   const handleWishlist = async () => {
     if (!isAuthenticated) { setLocation('/login'); return; }
@@ -55,9 +56,11 @@ export function ProductDetailPage() {
   const handleCart = async () => {
     if (!isAuthenticated) { setLocation('/login'); return; }
     if (!selectedSize) {
+      setSizeError(true);
       toast({ title: "Select a size", description: "Please select a size before adding to cart.", variant: "destructive" });
       return;
     }
+    setSizeError(false);
     setAddingToCart(true);
     try {
       console.log("API_BASE:", API_BASE);
@@ -138,7 +141,10 @@ export function ProductDetailPage() {
                 {product.sizes.map(s => (
                   <button 
                     key={s} 
-                    onClick={() => setSelectedSize(s)}
+                    onClick={() => {
+                      setSelectedSize(s);
+                      setSizeError(false);
+                    }}
                     className={`px-3 py-1.5 text-xs border rounded transition-colors ${
                       selectedSize === s 
                         ? 'bg-primary text-primary-foreground border-primary' 
@@ -153,6 +159,11 @@ export function ProductDetailPage() {
           </div>
 
           <div className="flex flex-col gap-4 mt-auto">
+            {sizeError && (
+              <div className="text-red-500 text-xs font-semibold uppercase tracking-wider mb-2 animate-pulse text-left">
+                ⚠️ Please select a size first and try again!
+              </div>
+            )}
             <div className="flex gap-4">
               <Button 
                 size="lg" 
