@@ -31,10 +31,14 @@ app.use(cors());
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
+import fs from "fs";
+
 // Serve uploaded files statically
 app.use("/uploads", express.static(path.join(process.cwd(), "public", "uploads")));
 
 const publicPath = path.resolve(import.meta.dirname, "../../fashion-xpress/dist/public");
+logger.info({ publicPath, exists: fs.existsSync(publicPath), indexExists: fs.existsSync(path.join(publicPath, "index.html")) }, "SPA static paths check");
+
 app.use(express.static(publicPath, { redirect: false }));
 
 app.use("/api", router);
