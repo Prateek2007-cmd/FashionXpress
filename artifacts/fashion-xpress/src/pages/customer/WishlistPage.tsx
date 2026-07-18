@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { useListWishlist } from '@workspace/api-client-react';
 import { formatPrice } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Link } from 'wouter';
+import { Link, useLocation } from 'wouter';
 import { Trash2, ShoppingBag, Loader2, Heart } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/context/AuthContext';
 
 export function WishlistPage() {
+  const [_, setLocation] = useLocation();
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const { token } = useAuth();
