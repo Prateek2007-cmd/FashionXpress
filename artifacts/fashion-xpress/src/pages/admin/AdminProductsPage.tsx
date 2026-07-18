@@ -417,65 +417,67 @@ export function AdminProductsPage() {
         </div>
       ) : (
         <div className="bg-card border border-white/5 rounded-xl overflow-hidden">
-          <table className="w-full text-sm text-left">
-            <thead className="text-xs text-muted-foreground uppercase tracking-widest bg-white/[0.02] border-b border-white/5">
-              <tr>
-                <th className="px-6 py-4">Product</th>
-                <th className="px-6 py-4">SKU</th>
-                <th className="px-6 py-4">Category</th>
-                <th className="px-6 py-4">Price</th>
-                <th className="px-6 py-4">Stock</th>
-                <th className="px-6 py-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5">
-              {productsData.items.map((product) => (
-                <tr key={product.id} className="hover:bg-white/[0.02] transition-colors">
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-12 rounded bg-black/50 overflow-hidden flex-shrink-0 border border-white/5">
-                        {product.images?.[0] ? (
-                          <img src={product.images[0]} alt="" className="w-full h-full object-cover" />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <ImageIcon className="w-4 h-4 text-muted-foreground" />
-                          </div>
-                        )}
-                      </div>
-                      <div>
-                        <div className="font-medium text-white">{product.name}</div>
-                        <div className="text-xs text-muted-foreground">{product.brandName}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 font-mono text-muted-foreground text-xs">{product.sku}</td>
-                  <td className="px-6 py-4 text-muted-foreground">{product.categoryName}</td>
-                  <td className="px-6 py-4 text-white">₹{product.sellingPrice}</td>
-                  <td className="px-6 py-4">
-                    <span className={`${product.stock < 5 ? 'text-red-400' : 'text-white'}`}>{product.stock}</span>
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="flex items-center justify-end gap-1">
-                      <button
-                        onClick={() => openEdit(product)}
-                        className="text-muted-foreground hover:text-primary transition-colors p-2 rounded hover:bg-primary/10"
-                        title="Edit product"
-                      >
-                        <Pencil className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(product.id, product.name)}
-                        className="text-muted-foreground hover:text-destructive transition-colors p-2 rounded hover:bg-destructive/10"
-                        title="Delete product"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
+          <div className="w-full overflow-x-auto">
+            <table className="w-full text-sm text-left min-w-[700px]">
+              <thead className="text-xs text-muted-foreground uppercase tracking-widest bg-white/[0.02] border-b border-white/5">
+                <tr>
+                  <th className="px-6 py-4">Product</th>
+                  <th className="px-6 py-4">SKU</th>
+                  <th className="px-6 py-4">Category</th>
+                  <th className="px-6 py-4">Price</th>
+                  <th className="px-6 py-4">Stock</th>
+                  <th className="px-6 py-4 text-right">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {productsData.items.map((product) => (
+                  <tr key={product.id} className="hover:bg-white/[0.02] transition-colors">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-12 rounded bg-black/50 overflow-hidden flex-shrink-0 border border-white/5">
+                          {product.images?.[0] ? (
+                            <img src={product.images[0]} alt="" className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center">
+                              <ImageIcon className="w-4 h-4 text-muted-foreground" />
+                            </div>
+                          )}
+                        </div>
+                        <div>
+                          <div className="font-medium text-white">{product.name}</div>
+                          <div className="text-xs text-muted-foreground">{product.brandName}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 font-mono text-muted-foreground text-xs">{product.sku}</td>
+                    <td className="px-6 py-4 text-muted-foreground">{product.categoryName}</td>
+                    <td className="px-6 py-4 text-white">₹{product.sellingPrice}</td>
+                    <td className="px-6 py-4">
+                      <span className={`${product.stock < 5 ? 'text-red-400' : 'text-white'}`}>{product.stock}</span>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        <button
+                          onClick={() => openEdit(product)}
+                          className="text-muted-foreground hover:text-primary transition-colors p-2 rounded hover:bg-primary/10"
+                          title="Edit product"
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(product.id, product.name)}
+                          className="text-muted-foreground hover:text-destructive transition-colors p-2 rounded hover:bg-destructive/10"
+                          title="Delete product"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
