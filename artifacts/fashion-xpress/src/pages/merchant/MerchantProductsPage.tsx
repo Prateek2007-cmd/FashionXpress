@@ -659,9 +659,10 @@ export function MerchantProductsPage() {
                       <button
                         type="button"
                         onClick={() => removeImage(i)}
-                        className="absolute top-1 right-1 w-5 h-5 bg-black/70 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                        title="Delete photo"
+                        className="absolute top-1 right-1 w-6 h-6 bg-red-600 hover:bg-red-700 text-white rounded-full flex items-center justify-center shadow-lg border border-white/20 z-10 transition-transform active:scale-95 cursor-pointer"
                       >
-                        <X className="w-3 h-3 text-white" />
+                        <X className="w-3.5 h-3.5" />
                       </button>
                     </div>
                   ))}
@@ -988,9 +989,10 @@ export function MerchantProductsPage() {
                         <button
                           type="button"
                           onClick={() => removeEditImage(i)}
-                          className="absolute top-1 right-1 w-5 h-5 bg-black/70 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                          title="Delete photo"
+                          className="absolute top-1 right-1 w-6 h-6 bg-red-600 hover:bg-red-700 text-white rounded-full flex items-center justify-center shadow-lg border border-white/20 z-10 transition-transform active:scale-95 cursor-pointer"
                         >
-                          <X className="w-3 h-3 text-white" />
+                          <X className="w-3.5 h-3.5" />
                         </button>
                       </div>
                     ))}
