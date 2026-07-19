@@ -114,7 +114,17 @@ export function ProductDetailPage() {
         <div className="flex flex-col">
           <div className="text-sm text-primary tracking-widest uppercase mb-2">{product.brandName}</div>
           <h1 className="text-4xl font-serif text-white mb-4 leading-tight">{product.name}</h1>
-          <div className="text-2xl text-white/90 mb-8 font-light">{formatPrice(product.sellingPrice)}</div>
+          <div className="flex items-baseline gap-3 mb-8">
+            <span className="text-3xl font-serif text-white font-semibold">{formatPrice(product.sellingPrice)}</span>
+            {product.mrp > product.sellingPrice && (
+              <span className="text-lg text-muted-foreground line-through font-light">{formatPrice(product.mrp)}</span>
+            )}
+            {product.mrp > product.sellingPrice && (
+              <span className="px-2.5 py-1 bg-red-600/90 text-white text-xs font-bold rounded-md tracking-wider uppercase shadow">
+                {Math.round(((product.mrp - product.sellingPrice) / product.mrp) * 100)}% OFF
+              </span>
+            )}
+          </div>
 
           <p className="text-muted-foreground leading-relaxed mb-10 text-lg">
             {product.description || "A masterclass in modern tailoring, this piece embodies the sophisticated aesthetic of the house. Cut from premium fabric with impeccable attention to detail."}

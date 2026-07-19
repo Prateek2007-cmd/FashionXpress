@@ -12,6 +12,11 @@ import { useQueryClient } from '@tanstack/react-query';
 const COLOR_OPTIONS = ['Red', 'Pink', 'Blue', 'Green', 'Yellow', 'Orange', 'Purple', 'White', 'Black', 'Gold', 'Silver', 'Maroon', 'Navy Blue', 'Peach', 'Lavender', 'Turquoise', 'Mint', 'Coral', 'Beige', 'Ivory'];
 const OCCASION_OPTIONS = ['Wedding', 'Party', 'Festive', 'Casual', 'Formal', 'Engagement', 'Baby Shower', 'Cocktail', 'Office', 'Traditional', 'Sangeet', 'Mehndi', 'Reception', 'College', 'Date Night'];
 
+const getDiscountPercent = (mrp?: number, sellingPrice?: number) => {
+  if (!mrp || !sellingPrice || mrp <= sellingPrice) return 0;
+  return Math.round(((mrp - sellingPrice) / mrp) * 100);
+};
+
 export function ProductsPage() {
   const [search, setSearch] = useState('');
   const [categoryId, setCategoryId] = useState<number | undefined>(undefined);
@@ -19,6 +24,12 @@ export function ProductsPage() {
   const [color, setColor] = useState<string | undefined>(undefined);
   const [occasion, setOccasion] = useState<string | undefined>(undefined);
   
+  const searchParams = new URLSearchParams(window.location.search);
+  const filterParam = searchParams.get('filter');
+  const [discountFilter, setDiscountFilter] = useState<string>(
+    filterParam === 'price-drop' ? 'price-drop' : 'all'
+  );
+
   const { isAuthenticated, token } = useAuth();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
@@ -79,12 +90,30 @@ export function ProductsPage() {
     }
   };
 
+  const filteredProducts = (productsData?.items || []).filter(product => {
+    const discount = getDiscountPercent(product.mrp, product.sellingPrice);
+    if (discountFilter === 'price-drop') {
+      return discount >= 35 || (product.mrp && product.mrp > product.sellingPrice);
+    }
+    if (discountFilter === '50') {
+      return discount >= 50;
+    }
+    if (discountFilter === 'any') {
+      return discount > 0;
+    }
+    return true;
+  });
+
   return (
     <div className="max-w-7xl mx-auto px-6 py-12">
       <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
         <div>
-          <h1 className="text-4xl font-serif text-white mb-2">The Collection</h1>
-          <p className="text-muted-foreground">Curated pieces for your personal style.</p>
+          <h1 className="text-4xl font-serif text-white mb-2">
+            {discountFilter === 'price-drop' ? '🔥 Price Drop Collection' : 'The Collection'}
+          </h1>
+          <p className="text-muted-foreground">
+            {discountFilter === 'price-drop' ? 'Exclusive pieces with 35%+ discount.' : 'Curated pieces for your personal style.'}
+          </p>
         </div>
         
         <div className="flex flex-wrap gap-4 w-full md:w-auto">
@@ -97,6 +126,19 @@ export function ProductsPage() {
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
+
+          {/* Discount / Price Drop Filter */}
+          <select 
+            className="h-10 rounded-md border border-red-500/30 bg-card px-3 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-primary font-medium"
+            value={discountFilter}
+            onChange={(e) => setDiscountFilter(e.target.value)}
+          >
+            <option value="all">All Items</option>
+            <option value="price-drop">🔥 Price Drop (35%+ OFF)</option>
+            <option value="50">50%+ OFF</option>
+            <option value="any">Any Discount</option>
+          </select>
+
           <select 
             className="h-10 rounded-md border border-white/10 bg-card px-3 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-primary"
             value={categoryId || ''}
@@ -150,70 +192,90 @@ export function ProductsPage() {
         <div className="flex justify-center items-center py-24">
           <Loader2 className="w-8 h-8 animate-spin text-primary" />
         </div>
-      ) : !productsData?.items?.length ? (
+      ) : !filteredProducts.length ? (
         <div className="text-center py-24 border border-white/5 rounded-2xl bg-card/30">
           <p className="text-muted-foreground">No pieces found matching your criteria.</p>
-          <Button variant="link" onClick={() => { setSearch(''); setCategoryId(undefined); setBrandId(undefined); setColor(undefined); setOccasion(undefined); }} className="text-primary mt-2">
+          <Button variant="link" onClick={() => { setSearch(''); setCategoryId(undefined); setBrandId(undefined); setColor(undefined); setOccasion(undefined); setDiscountFilter('all'); }} className="text-primary mt-2">
             Clear filters
           </Button>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-          {productsData?.items?.map(product => (
-            <div key={product.id} className="group block">
-              <Link href={`/products/${product.id}`} className="block">
-                <div className="relative aspect-[3/4] bg-card/50 rounded-lg overflow-hidden mb-4 border border-white/5 group-hover:border-primary/30 transition-colors">
-                  {product.images[0] ? (
-                    <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-muted-foreground">No Image</div>
-                  )}
-                  {product.stock < 5 && product.stock > 0 && (
-                    <div className="absolute top-3 left-3 bg-black/80 backdrop-blur-md px-2 py-1 text-[10px] uppercase tracking-widest text-primary border border-primary/20 rounded">
-                      Few Left
+          {filteredProducts.map(product => {
+            const discountPercent = getDiscountPercent(product.mrp, product.sellingPrice);
+            return (
+              <div key={product.id} className="group block">
+                <Link href={`/products/${product.id}`} className="block">
+                  <div className="relative aspect-[3/4] bg-card/50 rounded-lg overflow-hidden mb-4 border border-white/5 group-hover:border-primary/30 transition-colors">
+                    {product.images[0] ? (
+                      <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-muted-foreground">No Image</div>
+                    )}
+
+                    {/* Stock indicator */}
+                    {product.stock < 5 && product.stock > 0 && (
+                      <div className="absolute top-3 left-3 bg-black/80 backdrop-blur-md px-2 py-1 text-[10px] uppercase tracking-widest text-primary border border-primary/20 rounded">
+                        Few Left
+                      </div>
+                    )}
+
+                    {/* Discount badge */}
+                    {discountPercent > 0 && (
+                      <div className="absolute top-3 right-3 bg-red-600 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded shadow-md border border-red-400/30">
+                        {discountPercent}% OFF
+                      </div>
+                    )}
+                    
+                    {/* Quick action buttons - visible on hover */}
+                    <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex gap-2">
+                      <button 
+                        onClick={(e) => handleAddToCart(e, product.id, product.name)}
+                        className="flex-1 flex items-center justify-center gap-1.5 bg-primary text-primary-foreground rounded-md py-2 text-xs font-medium tracking-wider uppercase hover:bg-primary/90 transition-colors"
+                      >
+                        <ShoppingBag className="w-3.5 h-3.5" /> Add to Cart
+                      </button>
+                      <button 
+                        onClick={(e) => handleAddToWishlist(e, product.id, product.name)}
+                        className="flex items-center justify-center bg-white/10 backdrop-blur text-white rounded-md px-3 py-2 hover:bg-white/20 transition-colors"
+                      >
+                        <Heart className={`w-4 h-4 ${isWishlisted(product.id) ? 'fill-red-500 text-red-500' : ''}`} />
+                      </button>
                     </div>
-                  )}
+                  </div>
+                </Link>
+                <div>
+                  <div className="text-xs text-muted-foreground tracking-widest uppercase mb-1">{product.brandName}</div>
+                  <h3 className="text-white font-serif text-lg mb-1 truncate">{product.name}</h3>
+                  <div className="flex items-center gap-2">
+                    <span className="text-white font-medium">{formatPrice(product.sellingPrice)}</span>
+                    {product.mrp > product.sellingPrice && (
+                      <span className="text-muted-foreground text-xs line-through">{formatPrice(product.mrp)}</span>
+                    )}
+                    {discountPercent > 0 && (
+                      <span className="text-red-400 text-xs font-semibold">({discountPercent}% OFF)</span>
+                    )}
+                  </div>
                   
-                  {/* Quick action buttons - visible on hover */}
-                  <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex gap-2">
+                  {/* Mobile action buttons (always visible on touch devices) */}
+                  <div className="mt-3 flex gap-2 md:hidden">
                     <button 
                       onClick={(e) => handleAddToCart(e, product.id, product.name)}
-                      className="flex-1 flex items-center justify-center gap-1.5 bg-primary text-primary-foreground rounded-md py-2 text-xs font-medium tracking-wider uppercase hover:bg-primary/90 transition-colors"
+                      className="flex-1 h-10 flex items-center justify-center gap-1.5 bg-primary text-primary-foreground rounded-md text-xs font-semibold tracking-wider uppercase hover:bg-primary/90 transition-colors"
                     >
                       <ShoppingBag className="w-3.5 h-3.5" /> Add to Cart
                     </button>
                     <button 
                       onClick={(e) => handleAddToWishlist(e, product.id, product.name)}
-                      className="flex items-center justify-center bg-white/10 backdrop-blur text-white rounded-md px-3 py-2 hover:bg-white/20 transition-colors"
+                      className="h-10 px-3 flex items-center justify-center bg-white/10 text-white border border-white/10 rounded-md hover:bg-white/20 transition-colors"
                     >
                       <Heart className={`w-4 h-4 ${isWishlisted(product.id) ? 'fill-red-500 text-red-500' : ''}`} />
                     </button>
                   </div>
                 </div>
-              </Link>
-              <div>
-                <div className="text-xs text-muted-foreground tracking-widest uppercase mb-1">{product.brandName}</div>
-                <h3 className="text-white font-serif text-lg mb-1 truncate">{product.name}</h3>
-                <div className="text-white/80">{formatPrice(product.sellingPrice)}</div>
-                
-                {/* Mobile action buttons (always visible on touch devices) */}
-                <div className="mt-3 flex gap-2 md:hidden">
-                  <button 
-                    onClick={(e) => handleAddToCart(e, product.id, product.name)}
-                    className="flex-1 h-10 flex items-center justify-center gap-1.5 bg-primary text-primary-foreground rounded-md text-xs font-semibold tracking-wider uppercase hover:bg-primary/90 transition-colors"
-                  >
-                    <ShoppingBag className="w-3.5 h-3.5" /> Add to Cart
-                  </button>
-                  <button 
-                    onClick={(e) => handleAddToWishlist(e, product.id, product.name)}
-                    className="h-10 px-3 flex items-center justify-center bg-white/10 text-white border border-white/10 rounded-md hover:bg-white/20 transition-colors"
-                  >
-                    <Heart className={`w-4 h-4 ${isWishlisted(product.id) ? 'fill-red-500 text-red-500' : ''}`} />
-                  </button>
-                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

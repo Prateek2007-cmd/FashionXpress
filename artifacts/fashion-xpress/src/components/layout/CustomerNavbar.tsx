@@ -17,7 +17,7 @@ export function CustomerNavbar() {
     { label: 'Home', href: '/' },
     { label: 'Home Visit', href: '/book-visit' },
     { label: 'Store Pickup', href: '/products' },
-    { label: 'Price Drop', href: '/products' },
+    { label: 'Price Drop', href: '/products?filter=price-drop' },
     { label: 'Partner With Us', href: '/partner' },
   ];
 
