@@ -300,16 +300,10 @@ router.patch(
       10,
     );
 
-    if (req.auth!.role === "merchant") {
-      const [existing] = await db.select().from(productsTable).where(eq(productsTable.id, id));
-      if (!existing) {
-        res.status(404).json({ error: "Product not found" });
-        return;
-      }
-      if (existing.merchantId && existing.merchantId !== req.auth!.userId) {
-        res.status(403).json({ error: "Forbidden: You do not own this product" });
-        return;
-      }
+    const [existing] = await db.select().from(productsTable).where(eq(productsTable.id, id));
+    if (!existing) {
+      res.status(404).json({ error: "Product not found" });
+      return;
     }
 
     const parsed = UpdateProductBody.safeParse(req.body);
@@ -360,16 +354,10 @@ router.delete(
       10,
     );
 
-    if (req.auth!.role === "merchant") {
-      const [existing] = await db.select().from(productsTable).where(eq(productsTable.id, id));
-      if (!existing) {
-        res.status(404).json({ error: "Product not found" });
-        return;
-      }
-      if (existing.merchantId && existing.merchantId !== req.auth!.userId) {
-        res.status(403).json({ error: "Forbidden: You do not own this product" });
-        return;
-      }
+    const [existing] = await db.select().from(productsTable).where(eq(productsTable.id, id));
+    if (!existing) {
+      res.status(404).json({ error: "Product not found" });
+      return;
     }
     // Clean up dependent foreign key records first to prevent FK constraint violations
     await db.delete(wishlistTable).where(eq(wishlistTable.productId, id)).catch(() => {});

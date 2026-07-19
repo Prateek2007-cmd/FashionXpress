@@ -284,11 +284,19 @@ export function MerchantProductsPage() {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      if (!res.ok && res.status !== 204) throw new Error(await res.text());
-      toast({ title: '✅ Product deleted' });
+      if (!res.ok && res.status !== 204) {
+        const errText = await res.text();
+        let errMsg = errText;
+        try {
+          const json = JSON.parse(errText);
+          errMsg = json.error || json.message || errText;
+        } catch {}
+        throw new Error(errMsg || `Error ${res.status}`);
+      }
+      toast({ title: '✅ Product deleted successfully' });
       queryClient.invalidateQueries();
     } catch (err: any) {
-      toast({ title: 'Failed to delete', description: err.message, variant: 'destructive' });
+      toast({ title: 'Failed to delete product', description: err.message, variant: 'destructive' });
     } finally {
       setDeletingId(null);
     }
