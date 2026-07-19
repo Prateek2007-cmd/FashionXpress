@@ -8,6 +8,10 @@ import {
   reviewsTable,
   customersTable,
   usersTable,
+  wishlistTable,
+  cartItemsTable,
+  orderItemsTable,
+  bookingProductsTable,
 } from "@workspace/db";
 import {
   ListCategoriesResponse,
@@ -367,6 +371,13 @@ router.delete(
         return;
       }
     }
+    // Clean up dependent foreign key records first to prevent FK constraint violations
+    await db.delete(wishlistTable).where(eq(wishlistTable.productId, id)).catch(() => {});
+    await db.delete(cartItemsTable).where(eq(cartItemsTable.productId, id)).catch(() => {});
+    await db.delete(reviewsTable).where(eq(reviewsTable.productId, id)).catch(() => {});
+    await db.delete(bookingProductsTable).where(eq(bookingProductsTable.productId, id)).catch(() => {});
+    await db.delete(orderItemsTable).where(eq(orderItemsTable.productId, id)).catch(() => {});
+
     const [product] = await db
       .delete(productsTable)
       .where(eq(productsTable.id, id))

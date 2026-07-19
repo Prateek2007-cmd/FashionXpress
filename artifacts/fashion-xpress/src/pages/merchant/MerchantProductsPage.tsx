@@ -73,6 +73,7 @@ export function MerchantProductsPage() {
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const editCameraInputRef = useRef<HTMLInputElement>(null);
 
+  const [deletingId, setDeletingId] = useState<number | null>(null);
   const [isAdding, setIsAdding] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [uploadedImageUrls, setUploadedImageUrls] = useState<string[]>([]);
@@ -276,19 +277,20 @@ export function MerchantProductsPage() {
     }
   };
 
-  const handleDelete = async (id: number, name: string) => {
-    if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
-
+  const handleDelete = async (id: number) => {
     try {
+      setDeletingId(id);
       const res = await fetch(`${API_BASE}/api/products/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (!res.ok && res.status !== 204) throw new Error(await res.text());
-      toast({ title: 'Product deleted' });
+      toast({ title: '✅ Product deleted' });
       queryClient.invalidateQueries();
     } catch (err: any) {
       toast({ title: 'Failed to delete', description: err.message, variant: 'destructive' });
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -729,22 +731,42 @@ export function MerchantProductsPage() {
                       <span className={`${product.stock < 5 ? 'text-red-400' : 'text-white'}`}>{product.stock}</span>
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        <button
-                          onClick={() => openEdit(product)}
-                          className="text-muted-foreground hover:text-primary transition-colors p-2 rounded hover:bg-primary/10"
-                          title="Edit product"
-                        >
-                          <Pencil className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(product.id, product.name)}
-                          className="text-muted-foreground hover:text-destructive transition-colors p-2 rounded hover:bg-destructive/10"
-                          title="Delete product"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
+                      {deletingId === product.id ? (
+                        <div className="flex items-center justify-end gap-1.5">
+                          <span className="text-xs text-red-400 font-medium whitespace-nowrap">Delete?</span>
+                          <button
+                            type="button"
+                            onClick={() => handleDelete(product.id)}
+                            className="px-2.5 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-xs font-semibold shadow transition-colors"
+                          >
+                            Yes
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setDeletingId(null)}
+                            className="px-2 py-1 bg-white/10 hover:bg-white/20 text-white rounded text-xs font-medium transition-colors"
+                          >
+                            No
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-end gap-1">
+                          <button
+                            onClick={() => openEdit(product)}
+                            className="text-muted-foreground hover:text-primary transition-colors p-2 rounded hover:bg-primary/10"
+                            title="Edit product"
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => setDeletingId(product.id)}
+                            className="text-muted-foreground hover:text-destructive transition-colors p-2 rounded hover:bg-destructive/10"
+                            title="Delete product"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      )}
                     </td>
                   </tr>
                 ))}
