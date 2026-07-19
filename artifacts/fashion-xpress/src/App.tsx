@@ -59,6 +59,8 @@ function CustomerRoutes() {
       <Switch>
         <Route path="/" component={LandingPage} />
         <Route path="/login" component={LoginPage} />
+        <Route path="/merchant/login" component={LoginPage} />
+        <Route path="/merchant-login" component={LoginPage} />
         <Route path="/register" component={RegisterPage} />
         <Route path="/products" component={ProductsPage} />
         <Route path="/products/:id" component={ProductDetailPage} />
@@ -78,6 +80,7 @@ function AdminRoutes() {
     <AdminLayout>
       <Switch>
         <Route path="/admin" component={AdminDashboard} />
+        <Route path="/admin/" component={AdminDashboard} />
         <Route path="/admin/bookings" component={AdminBookingsPage} />
         <Route path="/admin/customers" component={AdminCustomersPage} />
         <Route path="/admin/executives" component={AdminExecutivesPage} />
@@ -99,6 +102,8 @@ function MerchantRoutes() {
     <MerchantLayout>
       <Switch>
         <Route path="/merchant" component={MerchantProductsPage} />
+        <Route path="/merchant/" component={MerchantProductsPage} />
+        <Route path="/merchant/products" component={MerchantProductsPage} />
         <Route path="/merchant/orders" component={MerchantOrdersPage} />
         <Route component={NotFound} />
       </Switch>
@@ -111,7 +116,7 @@ function ExecutiveRoutes() {
     <ExecutiveLayout>
       <Switch>
         <Route path="/executive" component={ExecutiveVisits} />
-        {/* We will add more executive routes later */}
+        <Route path="/executive/" component={ExecutiveVisits} />
         <Route component={NotFound} />
       </Switch>
     </ExecutiveLayout>
@@ -125,6 +130,8 @@ function AppRouter() {
       <Route path="/admin/*" component={AdminRoutes} />
       <Route path="/executive" component={ExecutiveRoutes} />
       <Route path="/executive/*" component={ExecutiveRoutes} />
+      <Route path="/merchant/login" component={CustomerRoutes} />
+      <Route path="/merchant-login" component={CustomerRoutes} />
       <Route path="/merchant" component={MerchantRoutes} />
       <Route path="/merchant/*" component={MerchantRoutes} />
       {/* Customer routes handle the base path and everything else not caught above */}
