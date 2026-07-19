@@ -36,8 +36,12 @@ router.post(
   requireAuth("admin"),
   async (req: Request, res: Response): Promise<void> => {
     try {
-      const { name, email, phone, password } = req.body;
-      if (!name || !email || !password) {
+      const cleanName = String(name).trim();
+      const cleanEmail = String(email).trim().toLowerCase();
+      const cleanPassword = String(password).trim();
+      const cleanPhone = phone ? String(phone).trim() : null;
+
+      if (!cleanName || !cleanEmail || !cleanPassword) {
         res.status(400).json({ error: "Missing required fields" });
         return;
       }
@@ -45,20 +49,20 @@ router.post(
       const [existing] = await db
         .select()
         .from(usersTable)
-        .where(eq(usersTable.email, email.toLowerCase()));
+        .where(eq(usersTable.email, cleanEmail));
 
       if (existing) {
         res.status(400).json({ error: "An account with this email already exists" });
         return;
       }
 
-      const passwordHash = await hashPassword(password);
+      const passwordHash = await hashPassword(cleanPassword);
       const [user] = await db
         .insert(usersTable)
         .values({
-          name,
-          email: email.toLowerCase(),
-          phone,
+          name: cleanName,
+          email: cleanEmail,
+          phone: cleanPhone,
           passwordHash,
           role: "merchant",
         })

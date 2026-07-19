@@ -53,9 +53,26 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     next();
     return;
   }
-  res.sendFile(path.join(publicPath, "index.html"), (err) => {
+
+  const candidatePaths = [
+    path.join(publicPath, "index.html"),
+    path.resolve(process.cwd(), "artifacts/fashion-xpress/dist/public/index.html"),
+    path.resolve(process.cwd(), "fashion-xpress/dist/public/index.html"),
+    path.resolve(process.cwd(), "dist/public/index.html"),
+  ];
+
+  const targetFile = candidatePaths.find(p => fs.existsSync(p));
+
+  if (!targetFile) {
+    logger.error({ candidatePaths, cwd: process.cwd() }, "SPA index.html not found in any candidate path");
+    res.status(404).send("Not Found");
+    return;
+  }
+
+  res.sendFile(targetFile, (err) => {
     if (err) {
-      res.status(404).send("Not Found");
+      logger.error({ err, targetFile }, "Error sending SPA index.html");
+      res.status(500).send("Error serving application");
     }
   });
 });

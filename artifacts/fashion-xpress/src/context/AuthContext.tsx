@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User, useGetCurrentUser } from '@workspace/api-client-react';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface AuthContextType {
   token: string | null;
@@ -14,41 +15,52 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
+  const [initialUser, setInitialUser] = useState<User | null>(null);
+  const queryClient = useQueryClient();
   
-  // We use the query, but only enable it if we have a token.
-  // Wait, orval generated hooks:
-  // useGetCurrentUser(options?: { query?: UseQueryOptions... })
-  const { data: user, isLoading, isError } = useGetCurrentUser({
+  const { data: fetchedUser, isLoading, isError } = useGetCurrentUser({
     query: {
       enabled: !!token,
       retry: false,
-      queryKey: ['/auth/me']
     }
   });
 
+  const currentUser = fetchedUser || initialUser;
+
   useEffect(() => {
-    if (isError) {
-      // Token might be invalid
+    if (isError && !initialUser) {
       localStorage.removeItem('token');
       setToken(null);
+      setInitialUser(null);
     }
-  }, [isError]);
+  }, [isError, initialUser]);
 
   const login = (newToken: string, newUser: User) => {
     localStorage.setItem('token', newToken);
+    setInitialUser(newUser);
     setToken(newToken);
-    // The query will automatically fetch the user now, but we don't have a way to manually set the query data here easily without queryClient.
-    // It will just reload quickly.
+    queryClient.invalidateQueries();
   };
 
   const logout = () => {
     localStorage.removeItem('token');
     setToken(null);
+    setInitialUser(null);
+    queryClient.clear();
     window.location.href = '/';
   };
 
   return (
-    <AuthContext.Provider value={{ token, user: user || null, login, logout, isLoading: !!token && isLoading, isAuthenticated: !!token }}>
+    <AuthContext.Provider 
+      value={{ 
+        token, 
+        user: currentUser || null, 
+        login, 
+        logout, 
+        isLoading: !!token && !currentUser && isLoading, 
+        isAuthenticated: !!token 
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

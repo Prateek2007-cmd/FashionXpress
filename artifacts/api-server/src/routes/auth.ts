@@ -71,12 +71,13 @@ router.post("/auth/login", async (req: Request, res: Response): Promise<void> =>
     res.status(400).json({ error: parsed.error.message });
     return;
   }
-  const { email, password } = parsed.data;
+  const email = parsed.data.email.trim().toLowerCase();
+  const password = parsed.data.password.trim();
 
   const [user] = await db
     .select()
     .from(usersTable)
-    .where(eq(usersTable.email, email.toLowerCase()));
+    .where(eq(usersTable.email, email));
 
   if (!user || !(await comparePassword(password, user.passwordHash))) {
     res.status(401).json({ error: "Invalid email or password" });
