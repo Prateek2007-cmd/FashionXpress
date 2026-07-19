@@ -20,8 +20,7 @@ export function AdminCustomersPage() {
   const [search, setSearch] = useState('');
 
   const API_BASE =
-    import.meta.env.VITE_API_URL ||
-    "https://fashionxpress.onrender.com";
+    import.meta.env.VITE_API_URL || "";
 
   const { data: customers, isLoading } = useQuery<Customer[]>({
     queryKey: ['/api/admin/customers'],

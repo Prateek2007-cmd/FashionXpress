@@ -6,8 +6,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/context/AuthContext';
 
 const API_BASE =
-  import.meta.env.VITE_API_URL ||
-  'https://fashionxpress.onrender.com';
+  import.meta.env.VITE_API_URL || "";
 
 const compressImage = (file: File): Promise<Blob> => {
   return new Promise((resolve, reject) => {

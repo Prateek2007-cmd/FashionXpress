@@ -20,8 +20,7 @@ export function AdminPartnersPage() {
   const queryClient = useQueryClient();
 
   const API_BASE =
-    import.meta.env.VITE_API_URL ||
-    "https://fashionxpress.onrender.com";
+    import.meta.env.VITE_API_URL || "";
 
   const { data: requests, isLoading } = useQuery<PartnerRequest[]>({
     queryKey: ['/api/partners'],

@@ -82,7 +82,7 @@ export function AdminAnalyticsPage() {
 
   const API_BASE =
     import.meta.env.VITE_API_URL ||
-    "https://fashionxpress.onrender.com";
+    "";
 
   const { data: summary, isLoading: sl } = useQuery<any>({
     queryKey: ['/api/admin/dashboard/summary'],

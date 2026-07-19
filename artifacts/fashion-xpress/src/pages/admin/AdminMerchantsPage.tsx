@@ -31,8 +31,7 @@ export function AdminMerchantsPage() {
   });
 
   const API_BASE =
-    import.meta.env.VITE_API_URL ||
-    "https://fashionxpress.onrender.com";
+    import.meta.env.VITE_API_URL || "";
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number; data: Partial<MerchantEditState> }) => {

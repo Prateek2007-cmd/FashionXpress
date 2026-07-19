@@ -18,8 +18,7 @@ export function CustomOrderModal({ product, onClose }: { product: any, onClose: 
     setIsSubmitting(true);
     
     const API_BASE =
-      import.meta.env.VITE_API_URL ||
-      "https://fashionxpress.onrender.com";
+      import.meta.env.VITE_API_URL || "";
 
     try {
       console.log("API_BASE:", API_BASE);

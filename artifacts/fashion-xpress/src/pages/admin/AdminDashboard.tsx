@@ -16,8 +16,7 @@ export function AdminDashboard() {
   const updateStatus = useUpdateBookingStatus();
 
   const API_BASE =
-    import.meta.env.VITE_API_URL ||
-    "https://fashionxpress.onrender.com";
+    import.meta.env.VITE_API_URL || "";
 
   const { data: brandRevenue, isLoading: loadingBrandRevenue } = useQuery<{ brandName: string; quantitySold: number; revenue: number }[]>({
     queryKey: ['brand-revenue'],

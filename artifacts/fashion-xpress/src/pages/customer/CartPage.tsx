@@ -19,8 +19,7 @@ export function CartPage() {
   const [confirmedOrder, setConfirmedOrder] = useState<any>(null);
 
   const API_BASE =
-    import.meta.env.VITE_API_URL ||
-    "https://fashionxpress.onrender.com";
+    import.meta.env.VITE_API_URL || "";
 
   const handleRemove = async (productId: number) => {
     setRemovingId(productId);

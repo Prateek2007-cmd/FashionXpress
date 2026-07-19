@@ -16,8 +16,7 @@ export function PartnerWithUsPage() {
   });
 
   const API_BASE =
-    import.meta.env.VITE_API_URL ||
-    "https://fashionxpress.onrender.com";
+    import.meta.env.VITE_API_URL || "";
 
   const { data: content } = useQuery({
     queryKey: ['/api/content/partner_page'],

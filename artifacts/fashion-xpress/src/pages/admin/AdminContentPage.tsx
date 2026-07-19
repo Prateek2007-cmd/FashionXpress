@@ -20,8 +20,7 @@ export function AdminContentPage() {
   const [uploading, setUploading] = useState(false);
 
   const API_BASE =
-    import.meta.env.VITE_API_URL ||
-    "https://fashionxpress.onrender.com";
+    import.meta.env.VITE_API_URL || "";
 
   const { data: content, isLoading } = useQuery({
     queryKey: ['/api/content/partner_page'],

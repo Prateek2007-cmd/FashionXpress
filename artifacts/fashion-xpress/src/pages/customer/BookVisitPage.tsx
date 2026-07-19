@@ -67,8 +67,7 @@ export function BookVisitPage() {
     };
 
     const API_BASE =
-      import.meta.env.VITE_API_URL ||
-      "https://fashionxpress.onrender.com";
+      import.meta.env.VITE_API_URL || "";
 
     // Use guest endpoint if not authenticated, otherwise use authenticated endpoint
     const endpoint = isAuthenticated ? `${API_BASE}/api/bookings` : `${API_BASE}/api/bookings/guest`;

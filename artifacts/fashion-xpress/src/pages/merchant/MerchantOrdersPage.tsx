@@ -18,8 +18,7 @@ import {
 } from 'lucide-react';
 
 const API_BASE =
-  import.meta.env.VITE_API_URL ||
-  'https://fashionxpress.onrender.com';
+  import.meta.env.VITE_API_URL || "";
 
 interface OrderItem {
   id: number;
