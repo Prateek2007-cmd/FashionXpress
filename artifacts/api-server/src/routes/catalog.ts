@@ -67,6 +67,38 @@ router.delete(
   }
 );
 
+router.patch(
+  "/categories/:id",
+  requireAuth("admin"),
+  async (req: AuthedRequest, res: Response): Promise<void> => {
+    try {
+      const id = parseInt(
+        Array.isArray(req.params.id) ? req.params.id[0]! : req.params.id!,
+        10
+      );
+      const { name, slug, imageUrl } = req.body || {};
+      const updates: any = {};
+      if (name !== undefined) updates.name = name;
+      if (slug !== undefined) updates.slug = slug;
+      if (imageUrl !== undefined) updates.imageUrl = imageUrl;
+
+      const [updated] = await db
+        .update(categoriesTable)
+        .set(updates)
+        .where(eq(categoriesTable.id, id))
+        .returning();
+
+      if (!updated) {
+        res.status(404).json({ error: "Category not found" });
+        return;
+      }
+      res.json(updated);
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  }
+);
+
 router.get("/brands", async (_req: Request, res: Response): Promise<void> => {
   const brands = await db.select().from(brandsTable);
   res.json(ListBrandsResponse.parse(brands));
