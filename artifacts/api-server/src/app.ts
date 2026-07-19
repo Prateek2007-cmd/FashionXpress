@@ -69,12 +69,14 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     return;
   }
 
-  res.sendFile(targetFile, (err) => {
-    if (err) {
-      logger.error({ err, targetFile }, "Error sending SPA index.html");
-      res.status(500).send("Error serving application");
-    }
-  });
+  try {
+    const htmlContent = fs.readFileSync(targetFile, "utf-8");
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.status(200).send(htmlContent);
+  } catch (err: any) {
+    logger.error({ err, targetFile }, "Error reading SPA index.html");
+    res.status(500).send("Error serving application");
+  }
 });
 
 export default app;
