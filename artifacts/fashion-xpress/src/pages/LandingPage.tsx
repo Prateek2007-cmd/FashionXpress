@@ -64,7 +64,7 @@ export function LandingPage() {
               ★ HOME VISIT SERVICE HAS NOT YET STARTED — COMING SOON ★
             </div>
             <p className="text-lg md:text-xl text-white/80 max-w-2xl mx-auto mb-8 font-light">
-              Experience the pinnacle of luxury shopping. Browse our curated catalog, select your pieces, and our Fashion Executive will bring the boutique experience directly to your home once launched!
+              Enjoy luxury shopping from the comfort of your home. Browse our collection, choose your favorite pieces, and our Fashion Executive will bring them directly to you.
             </p>
             <div className="flex flex-col items-center justify-center gap-4">
               <Link href="/book-visit" className="w-full sm:w-[480px]">
