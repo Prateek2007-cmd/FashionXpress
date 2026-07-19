@@ -23,7 +23,7 @@ export function AdminCategoriesPage() {
     },
     mutation: {
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['/api/categories'] });
+        queryClient.invalidateQueries();
         setIsAdding(false);
         setFormData({ name: '', slug: '', imageUrl: '' });
       },
@@ -38,7 +38,7 @@ export function AdminCategoriesPage() {
     },
     mutation: {
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['/api/categories'] });
+        queryClient.invalidateQueries();
       },
     },
   });
@@ -72,7 +72,7 @@ export function AdminCategoriesPage() {
         body: JSON.stringify(editFormData)
       });
       if (!res.ok) throw new Error(await res.text());
-      queryClient.invalidateQueries({ queryKey: ['/api/categories'] });
+      queryClient.invalidateQueries();
       setEditingCategory(null);
     } catch (err: any) {
       alert(err.message || 'Failed to update category');

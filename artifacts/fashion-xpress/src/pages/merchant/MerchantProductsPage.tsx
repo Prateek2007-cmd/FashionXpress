@@ -262,7 +262,7 @@ export function MerchantProductsPage() {
       }
 
       toast({ title: '✅ Product created!', description: `${formData.name} has been added to the catalog.` });
-      queryClient.invalidateQueries({ queryKey: ['/api/products'] });
+      queryClient.invalidateQueries();
       setIsAdding(false);
       setUploadedImageUrls([]);
       setFabricsList([]);
@@ -286,7 +286,7 @@ export function MerchantProductsPage() {
       });
       if (!res.ok && res.status !== 204) throw new Error(await res.text());
       toast({ title: 'Product deleted' });
-      queryClient.invalidateQueries({ queryKey: ['/api/products'] });
+      queryClient.invalidateQueries();
     } catch (err: any) {
       toast({ title: 'Failed to delete', description: err.message, variant: 'destructive' });
     }
@@ -357,7 +357,7 @@ export function MerchantProductsPage() {
       }
 
       toast({ title: '✅ Product updated!', description: `${editForm.name} has been updated.` });
-      queryClient.invalidateQueries({ queryKey: ['/api/products'] });
+      queryClient.invalidateQueries();
       setEditingProduct(null);
     } catch (err: any) {
       toast({ title: 'Failed to update product', description: err.message, variant: 'destructive' });

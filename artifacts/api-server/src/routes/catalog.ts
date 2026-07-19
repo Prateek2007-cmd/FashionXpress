@@ -302,7 +302,7 @@ router.patch(
         res.status(404).json({ error: "Product not found" });
         return;
       }
-      if (existing.merchantId !== req.auth!.userId) {
+      if (existing.merchantId && existing.merchantId !== req.auth!.userId) {
         res.status(403).json({ error: "Forbidden: You do not own this product" });
         return;
       }
@@ -362,7 +362,7 @@ router.delete(
         res.status(404).json({ error: "Product not found" });
         return;
       }
-      if (existing.merchantId !== req.auth!.userId) {
+      if (existing.merchantId && existing.merchantId !== req.auth!.userId) {
         res.status(403).json({ error: "Forbidden: You do not own this product" });
         return;
       }
