@@ -20,6 +20,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   
   const { data: fetchedUser, isLoading, isError } = useGetCurrentUser({
     query: {
+      queryKey: ['/api/auth/me'],
       enabled: !!token,
       retry: false,
     }

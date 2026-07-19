@@ -36,9 +36,10 @@ router.post(
   requireAuth("admin"),
   async (req: Request, res: Response): Promise<void> => {
     try {
-      const cleanName = String(name).trim();
-      const cleanEmail = String(email).trim().toLowerCase();
-      const cleanPassword = String(password).trim();
+      const { name, email, phone, password } = req.body || {};
+      const cleanName = String(name || '').trim();
+      const cleanEmail = String(email || '').trim().toLowerCase();
+      const cleanPassword = String(password || '').trim();
       const cleanPhone = phone ? String(phone).trim() : null;
 
       if (!cleanName || !cleanEmail || !cleanPassword) {
