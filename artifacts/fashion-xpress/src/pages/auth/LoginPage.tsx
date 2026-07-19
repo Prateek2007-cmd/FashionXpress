@@ -41,7 +41,7 @@ export function LoginPage() {
       onError: (err: any) => {
         toast({ 
           title: "Login failed", 
-          description: err.response?.data?.message || "Please check your credentials and try again.",
+          description: err.response?.data?.error || err.response?.data?.message || err.message || "Please check your credentials and try again.",
           variant: "destructive"
         });
       }

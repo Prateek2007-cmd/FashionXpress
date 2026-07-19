@@ -44,7 +44,11 @@ app.use(express.static(publicPath, { redirect: false }));
 app.use("/api", router);
 
 // SPA fallback for client-side routing
-app.get("*splat", (req: Request, res: Response, next: NextFunction) => {
+app.use((req: Request, res: Response, next: NextFunction) => {
+  if (req.method !== "GET") {
+    next();
+    return;
+  }
   if (req.path.startsWith("/api") || req.path.startsWith("/uploads")) {
     next();
     return;
