@@ -60,20 +60,21 @@ export function LandingPage() {
             <h1 className="text-5xl md:text-7xl font-serif text-white mb-4 leading-tight">
               The Store <br/><span className="text-primary italic">Comes To You.</span>
             </h1>
-            <div className="mb-8 font-serif text-2xl md:text-3xl text-primary font-black tracking-widest uppercase animate-pulse">
-              ★ MOST AWAITED SERVICE IS COMING SOON ★
+            <div className="mb-8 font-serif text-2xl md:text-3xl text-amber-400 font-black tracking-widest uppercase animate-pulse">
+              ★ HOME VISIT SERVICE HAS NOT YET STARTED — COMING SOON ★
             </div>
             <p className="text-lg md:text-xl text-white/80 max-w-2xl mx-auto mb-8 font-light">
-              Experience the pinnacle of luxury shopping. Browse our curated catalog, select your pieces, and our Fashion Executive will bring the boutique experience directly to your home.
+              Experience the pinnacle of luxury shopping. Browse our curated catalog, select your pieces, and our Fashion Executive will bring the boutique experience directly to your home once launched!
             </p>
             <div className="flex flex-col items-center justify-center gap-4">
               <Link href="/book-visit" className="w-full sm:w-[480px]">
-                <Button size="lg" className="w-full text-base h-16 tracking-widest uppercase font-semibold text-white bg-primary hover:bg-primary/90 rounded-xl transition-all shadow-lg hover:shadow-primary/25">
-                  Book a Visit
+                <Button size="lg" className="w-full text-base h-16 tracking-widest uppercase font-semibold text-white bg-card/80 hover:bg-card border border-amber-500/40 rounded-xl transition-all shadow-lg flex items-center justify-center gap-3">
+                  <span className="bg-amber-500/20 text-amber-400 px-3 py-1 rounded text-xs font-bold border border-amber-500/30">COMING SOON</span>
+                  <span>Home Visit Service</span>
                 </Button>
               </Link>
-              <div className="text-sm text-primary font-medium tracking-wide bg-primary/10 border border-primary/20 rounded-lg px-6 py-2">
-                ✨ <strong>Our Promise:</strong> Services Executive will visit your location within 45-60 minutes of your scheduled time.
+              <div className="text-sm text-muted-foreground font-medium tracking-wide bg-card/40 border border-white/10 rounded-lg px-6 py-2">
+                ✨ <strong>Note:</strong> Home Visit service will begin soon in select pin codes.
               </div>
             </div>
           </motion.div>

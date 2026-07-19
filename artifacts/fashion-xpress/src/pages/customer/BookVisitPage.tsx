@@ -158,17 +158,17 @@ export function BookVisitPage() {
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-primary/10 rounded-full blur-[120px] pointer-events-none"></div>
 
       <div className="relative z-10 space-y-8 max-w-3xl">
-        <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/20 rounded-full text-primary text-xs uppercase tracking-widest font-semibold animate-pulse mx-auto">
-          ★ Exclusive Preview ★
+        <div className="inline-flex items-center gap-2 px-4 py-2 bg-amber-500/10 border border-amber-500/30 rounded-full text-amber-400 text-xs uppercase tracking-widest font-semibold animate-pulse mx-auto">
+          ⚠️ Service Has Not Yet Started ⚠️
         </div>
         
-        <h1 className="text-5xl md:text-7xl font-serif font-black tracking-tight text-white leading-none">
-          MOST AWAITED SERVICE IS <br />
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-amber-200 to-primary font-bold">COMING SOON</span>
+        <h1 className="text-4xl md:text-6xl font-serif font-black tracking-tight text-white leading-none">
+          HOME VISIT SERVICE IS <br />
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-200 to-amber-500 font-bold">COMING SOON</span>
         </h1>
         
         <p className="text-muted-foreground text-lg md:text-xl font-light leading-relaxed max-w-xl mx-auto">
-          We are preparing to bring a luxury personal fashion consultation and custom home visit experience straight to your doorstep.
+          Our Home Visit service has not yet launched. We are preparing to bring a luxury personal fashion consultation and custom fitting experience straight to your doorstep. Stay tuned!
         </p>
 
         <div className="pt-8 border-t border-white/5 flex flex-col items-center gap-4">
