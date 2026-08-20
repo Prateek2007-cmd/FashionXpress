@@ -61,7 +61,7 @@ export function LandingPage() {
               The Store <br/><span className="text-primary italic">Comes To You.</span>
             </h1>
             <div className="mb-8 font-serif text-2xl md:text-3xl text-amber-400 font-black tracking-widest uppercase animate-pulse">
-              ★ HOME VISIT SERVICE HAS NOT YET STARTED — COMING SOON ★
+              ★ HOME VISIT SERVICE IS NOW ACTIVE ★
             </div>
             <p className="text-lg md:text-xl text-white/80 max-w-2xl mx-auto mb-8 font-light">
               Enjoy luxury shopping from the comfort of your home. Browse our collection, choose your favorite pieces, and our Fashion Executive will bring them directly to you.
@@ -69,12 +69,12 @@ export function LandingPage() {
             <div className="flex flex-col items-center justify-center gap-4">
               <Link href="/book-visit" className="w-full sm:w-[480px]">
                 <Button size="lg" className="w-full text-base h-16 tracking-widest uppercase font-semibold text-white bg-card/80 hover:bg-card border border-amber-500/40 rounded-xl transition-all shadow-lg flex items-center justify-center gap-3">
-                  <span className="bg-amber-500/20 text-amber-400 px-3 py-1 rounded text-xs font-bold border border-amber-500/30">COMING SOON</span>
-                  <span>Home Visit Service</span>
+                  <span className="bg-green-500/20 text-green-400 px-3 py-1 rounded text-xs font-bold border border-green-500/30">ACTIVE</span>
+                  <span>Book Home Visit Service</span>
                 </Button>
               </Link>
               <div className="text-sm text-muted-foreground font-medium tracking-wide bg-card/40 border border-white/10 rounded-lg px-6 py-2">
-                ✨ <strong>Note:</strong> Home Visit service will begin soon in select pin codes.
+                ✨ <strong>Note:</strong> Home Visit service is active in select pin codes.
               </div>
             </div>
           </motion.div>

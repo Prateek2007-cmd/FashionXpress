@@ -5,49 +5,108 @@ import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
-import { Loader2, CheckCircle2 } from 'lucide-react';
+import { Link } from 'wouter';
+import {
+  Loader2, CheckCircle2, MapPin, Phone, User, Sparkles,
+  Clock, Star, Shield, ArrowRight, Home, ShoppingBag,
+  Zap, Award, ChevronRight, MessageCircle
+} from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { useLocation } from 'wouter';
 
 const bookingSchema = z.object({
-  name: z.string().optional(),
-  phone: z.string().optional(),
-  addressText: z.string().min(10, "Please provide your full address"),
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  phone: z.string().regex(/^\d{10}$/, "Phone number must be exactly 10 digits"),
+  addressText: z.string().min(10, "Please provide your full address (minimum 10 characters)"),
 });
 
 type BookingFormValues = z.infer<typeof bookingSchema>;
 
+const FEATURES = [
+  {
+    icon: Clock,
+    title: "45-Min Arrival",
+    desc: "Our Fashion Executive arrives at your door within 45–60 minutes of booking.",
+    color: "text-amber-400",
+    bg: "bg-amber-500/10 border-amber-500/20",
+  },
+  {
+    icon: ShoppingBag,
+    title: "Try Before You Pay",
+    desc: "Browse and try on curated pieces at home. Pay only for what you love.",
+    color: "text-primary",
+    bg: "bg-primary/10 border-primary/20",
+  },
+  {
+    icon: Star,
+    title: "Expert Styling",
+    desc: "Personal fashion consultation from our trained style executives.",
+    color: "text-purple-400",
+    bg: "bg-purple-500/10 border-purple-500/20",
+  },
+  {
+    icon: Shield,
+    title: "Zero Risk",
+    desc: "No booking fee. No upfront payment. Cancel anytime without hassle.",
+    color: "text-emerald-400",
+    bg: "bg-emerald-500/10 border-emerald-500/20",
+  },
+];
+
+const STEPS_INFO = [
+  { n: "01", title: "Book Visit", desc: "Fill your name, phone & address below" },
+  { n: "02", title: "Executive Arrives", desc: "Our stylist reaches you with a curated collection" },
+  { n: "03", title: "Try & Choose", desc: "Browse, try, mix & match at your comfort" },
+  { n: "04", title: "Pay for Keeps", desc: "Only pay for pieces you decide to keep" },
+];
+
 export function BookVisitPage() {
   const { isAuthenticated, token, user } = useAuth();
   const [successCode, setSuccessCode] = useState<string | null>(null);
-  const [step, setStep] = useState(2);
+  const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
+  const [countdown, setCountdown] = useState(5);
 
-  const { register, handleSubmit, formState: { errors }, trigger } = useForm<BookingFormValues>({
+  const { register, handleSubmit, formState: { errors }, trigger, reset } = useForm<BookingFormValues>({
     resolver: zodResolver(bookingSchema),
     defaultValues: {
-      name: '',
-      phone: '',
+      name: user?.name || '',
+      phone: user?.phone || '',
       addressText: ''
     }
   });
 
+  React.useEffect(() => {
+    if (user) {
+      reset({ name: user.name || '', phone: user.phone || '', addressText: '' });
+    }
+  }, [user, reset]);
+
+  React.useEffect(() => {
+    let timer: NodeJS.Timeout | number | undefined;
+    if (successCode) {
+      setCountdown(5);
+      timer = setInterval(() => {
+        setCountdown(prev => {
+          if (prev <= 1) { if (timer) clearInterval(timer); setLocation('/products'); return 0; }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => { if (timer) clearInterval(timer as number); };
+  }, [successCode, setLocation]);
+
   const handleStep1Next = async () => {
     const valid = await trigger(['name', 'phone']);
-    if (valid) {
-      setStep(2);
-    }
+    if (valid) setStep(2);
   };
 
   const onSubmit = async (data: BookingFormValues) => {
     setIsSubmitting(true);
-
     const guestCart = JSON.parse(localStorage.getItem('guest_cart') || '[]');
-    const products = guestCart.map((item: any) => ({
-      productId: item.productId,
-      quantity: item.quantity,
-      size: item.size
-    }));
+    const products = guestCart.map((item: any) => ({ productId: item.productId, quantity: item.quantity, size: item.size }));
 
     const payload = {
       name: data.name || user?.name || 'Guest Customer',
@@ -56,95 +115,95 @@ export function BookVisitPage() {
       email: user?.email || 'not-provided@fashion-xpress.com',
       preferredDate: new Date().toISOString().split('T')[0],
       preferredTime: 'As soon as possible',
-      gender: 'not_specified',
-      preferredFit: '',
-      preferredBrands: [],
-      preferredColors: [],
-      topSize: '',
-      bottomSize: '',
-      notes: '',
-      products
+      gender: 'not_specified', preferredFit: '',
+      preferredBrands: [], preferredColors: [],
+      topSize: '', bottomSize: '', notes: '', products
     };
 
-    const API_BASE =
-      import.meta.env.VITE_API_URL || "";
-
-    // Use guest endpoint if not authenticated, otherwise use authenticated endpoint
+    const API_BASE = import.meta.env.VITE_API_URL || "";
     const endpoint = isAuthenticated ? `${API_BASE}/api/bookings` : `${API_BASE}/api/bookings/guest`;
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    };
-    if (isAuthenticated && token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (isAuthenticated && token) headers['Authorization'] = `Bearer ${token}`;
 
     try {
-      console.log('[BookVisitPage] Sending booking request...');
-      console.log("API_BASE:", API_BASE);
-      console.log("Request URL:", endpoint);
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify(payload)
-      });
-
+      const response = await fetch(endpoint, { method: 'POST', headers, body: JSON.stringify(payload) });
       const responseText = await response.text();
-      console.log('[BookVisitPage] Response status:', response.status);
-      console.log('[BookVisitPage] Response body:', responseText);
-
-      if (!response.ok) {
-        throw new Error(responseText || `Server error: ${response.status}`);
-      }
-
+      if (!response.ok) throw new Error(responseText || `Server error: ${response.status}`);
       const result = JSON.parse(responseText);
-      console.log('[BookVisitPage] Booking created:', result);
       setSuccessCode(result.bookingCode || result.id?.toString() || 'CONFIRMED');
       window.scrollTo(0, 0);
       toast({ title: "✅ Booking Confirmed!", description: `Your booking reference: ${result.bookingCode}` });
-
-      // Clear guest cart on successful booking
       localStorage.removeItem('guest_cart');
-
     } catch (err: any) {
-      console.error('[BookVisitPage] Booking error:', err);
-      toast({ 
-        title: "Booking failed", 
-        description: err.message || 'Could not complete your booking. Please try again.', 
-        variant: "destructive" 
-      });
+      toast({ title: "Booking failed", description: err.message || 'Could not complete your booking. Please try again.', variant: "destructive" });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // SUCCESS SCREEN - Show after booking is confirmed
+  // ── SUCCESS SCREEN ───────────────────────────────────────────────────────────
   if (successCode) {
     return (
-      <div className="min-h-[80vh] flex items-center justify-center px-6">
-        <div className="max-w-md w-full text-center bg-card p-10 rounded-2xl border border-white/5">
-          <div className="w-20 h-20 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
-            <CheckCircle2 className="w-10 h-10 text-green-500" />
-          </div>
-          <h2 className="text-3xl font-serif text-white mb-2">🎉 Booking Confirmed!</h2>
-          <p className="text-muted-foreground mb-6">Your Fashion Executive will see you soon.</p>
-          
-          <div className="bg-black/50 border border-green-500/20 rounded-lg py-5 px-4 mb-8">
-            <p className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Your Unique Order ID</p>
-            <p className="text-2xl font-mono text-green-400 tracking-widest font-bold">{successCode}</p>
+      <div className="min-h-screen flex items-center justify-center px-6 relative overflow-hidden">
+        {/* Background glows */}
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-green-500/5 rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute bottom-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-[80px] pointer-events-none" />
+
+        <div className="max-w-lg w-full text-center relative z-10">
+          {/* Animated checkmark */}
+          <div className="relative inline-block mb-8">
+            <div className="w-24 h-24 bg-green-500/10 rounded-full flex items-center justify-center mx-auto border border-green-500/20 animate-pulse">
+              <CheckCircle2 className="w-12 h-12 text-green-400" />
+            </div>
+            <div className="absolute -top-1 -right-1 w-8 h-8 bg-primary rounded-full flex items-center justify-center shadow-lg">
+              <Sparkles className="w-4 h-4 text-primary-foreground" />
+            </div>
           </div>
 
+          <h2 className="text-4xl font-serif text-white mb-2">Booking Confirmed!</h2>
+          <p className="text-muted-foreground mb-8 text-lg">Your personal Fashion Executive is on the way. Get ready for a premium at-home styling experience.</p>
+
+          {/* Booking ID box */}
+          <div className="bg-card/60 backdrop-blur-xl border border-green-500/20 rounded-2xl py-6 px-6 mb-6">
+            <p className="text-[10px] text-muted-foreground uppercase tracking-[0.25em] font-bold mb-3">Booking Reference ID</p>
+            <p className="text-3xl font-mono text-green-400 tracking-[0.2em] font-bold">{successCode}</p>
+            <div className="mt-4 pt-4 border-t border-white/5 flex items-center justify-center gap-2 text-xs text-primary font-semibold animate-pulse">
+              <Clock className="w-3.5 h-3.5" />
+              Redirecting to Collection in {countdown}s…
+            </div>
+          </div>
+
+          {/* What's next */}
+          <div className="bg-card/30 border border-white/5 rounded-2xl p-5 mb-6 text-left space-y-3">
+            <p className="text-xs text-muted-foreground uppercase tracking-widest font-bold mb-3">What happens next</p>
+            {[
+              { icon: Clock, text: "Executive arrives within 45–60 minutes", color: "text-amber-400" },
+              { icon: ShoppingBag, text: "They bring curated pieces based on your preferences", color: "text-primary" },
+              { icon: Star, text: "Try on at home, keep only what you love", color: "text-purple-400" },
+            ].map(({ icon: Icon, text, color }, i) => (
+              <div key={i} className="flex items-center gap-3 text-sm">
+                <div className={`w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center flex-shrink-0 ${color}`}>
+                  <Icon className="w-3.5 h-3.5" />
+                </div>
+                <span className="text-white/80">{text}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Action buttons */}
           <div className="space-y-3">
-            <a 
-              href={`https://wa.me/916304847223?text=Hi, I just booked a Home Visit. Reference: ${successCode}`}
-              target="_blank"
-              rel="noreferrer"
-              className="w-full flex items-center justify-center h-12 bg-green-600 hover:bg-green-700 text-white rounded-md font-medium text-sm transition-colors"
+            <a
+              href={`https://wa.me/916304847223?text=Hi%2C+I+just+booked+a+Home+Visit+with+The+Fashion+Xpress.+Reference+ID%3A+${successCode}`}
+              target="_blank" rel="noreferrer"
+              className="w-full flex items-center justify-center gap-2 h-12 bg-green-600 hover:bg-green-700 text-white rounded-xl font-semibold text-sm transition-all shadow-lg"
             >
-              Continue on WhatsApp
+              <MessageCircle className="w-4 h-4" /> Confirm via WhatsApp
             </a>
-            
-            <Button variant="outline" className="w-full" onClick={() => { setSuccessCode(null); setStep(2); }}>
-              Book Another Visit
+            <Button
+              className="w-full h-12 font-semibold text-sm"
+              onClick={() => { setSuccessCode(null); setStep(1); setLocation('/products'); }}
+            >
+              <ShoppingBag className="w-4 h-4 mr-2" /> Pick Products to Try
             </Button>
           </div>
         </div>
@@ -152,31 +211,283 @@ export function BookVisitPage() {
     );
   }
 
+  // ── MAIN PAGE ────────────────────────────────────────────────────────────────
   return (
-    <div className="max-w-4xl mx-auto px-6 py-20 flex flex-col items-center justify-center text-center min-h-[70vh] relative">
-      {/* Premium glow element */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-primary/10 rounded-full blur-[120px] pointer-events-none"></div>
+    <div className="min-h-screen">
 
-      <div className="relative z-10 space-y-8 max-w-3xl">
-        <div className="inline-flex items-center gap-2 px-4 py-2 bg-amber-500/10 border border-amber-500/30 rounded-full text-amber-400 text-xs uppercase tracking-widest font-semibold animate-pulse mx-auto">
-          ⚠️ Service Has Not Yet Started ⚠️
-        </div>
-        
-        <h1 className="text-4xl md:text-6xl font-serif font-black tracking-tight text-white leading-none">
-          HOME VISIT SERVICE IS <br />
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-200 to-amber-500 font-bold">COMING SOON</span>
-        </h1>
-        
-        <p className="text-muted-foreground text-lg md:text-xl font-light leading-relaxed max-w-xl mx-auto">
-          Our Home Visit service has not yet launched. We are preparing to bring a luxury personal fashion consultation and custom fitting experience straight to your doorstep. Stay tuned!
-        </p>
+      {/* ── HERO BANNER ── */}
+      <div className="relative overflow-hidden bg-gradient-to-b from-card/80 to-transparent border-b border-white/5 py-20 px-6">
+        {/* Glow effects */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-primary/5 rounded-full blur-[150px] pointer-events-none" />
+        <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/5 rounded-full blur-[100px] pointer-events-none" />
 
-        <div className="pt-8 border-t border-white/5 flex flex-col items-center gap-4">
-          <div className="px-6 py-4 bg-white/[0.02] border border-white/5 rounded-xl text-muted-foreground text-sm max-w-md shadow-2xl backdrop-blur-md">
-            <span className="font-semibold text-white">Our Promise:</span> A professional Fashion Executive will visit your location within 45-60 minutes of your requested schedule to assist you.
+        <div className="max-w-6xl mx-auto relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+
+            {/* Left - Hero Copy */}
+            <div className="space-y-8">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/20 rounded-full text-primary text-xs uppercase tracking-[0.2em] font-bold">
+                <Zap className="w-3.5 h-3.5" />
+                Now Active in Select Pincodes
+              </div>
+
+              <div>
+                <h1 className="text-5xl md:text-6xl font-serif font-black text-white leading-[1.05] mb-5">
+                  Fashion Delivered
+                  <br />
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-amber-300 to-primary">
+                    To Your Door.
+                  </span>
+                </h1>
+                <p className="text-lg text-white/70 leading-relaxed max-w-lg">
+                  Skip the malls. A personal Fashion Executive visits your home with a curated collection — you try, you choose, you pay only for what you love.
+                </p>
+              </div>
+
+              {/* Trust bar */}
+              <div className="flex flex-wrap gap-4">
+                {[
+                  { icon: Clock, label: "45-Min Arrival" },
+                  { icon: Shield, label: "Zero Risk" },
+                  { icon: Star, label: "Curated Styles" },
+                ].map(({ icon: Icon, label }, i) => (
+                  <div key={i} className="flex items-center gap-2 px-3 py-2 bg-white/[0.03] border border-white/10 rounded-xl text-xs text-white/80 font-semibold uppercase tracking-wider">
+                    <Icon className="w-3.5 h-3.5 text-primary" /> {label}
+                  </div>
+                ))}
+              </div>
+
+              {/* Social proof */}
+              <div className="flex items-center gap-4 pt-2">
+                <div className="flex -space-x-2">
+                  {['A', 'B', 'C', 'D'].map((l, i) => (
+                    <div key={i} className="w-8 h-8 rounded-full bg-gradient-to-br from-primary/40 to-purple-500/40 border-2 border-background flex items-center justify-center text-[10px] font-bold text-white">{l}</div>
+                  ))}
+                </div>
+                <div>
+                  <div className="flex gap-0.5 mb-0.5">{[...Array(5)].map((_, i) => <Star key={i} className="w-3.5 h-3.5 fill-primary text-primary" />)}</div>
+                  <p className="text-xs text-muted-foreground"><span className="text-white font-semibold">2,400+</span> happy customers this month</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Right — Booking Form Card */}
+            <div className="bg-card/60 backdrop-blur-xl border border-white/10 rounded-3xl p-8 shadow-2xl relative">
+              {/* Glow inside card */}
+              <div className="absolute top-0 right-0 w-40 h-40 bg-primary/5 rounded-full blur-[60px] -translate-y-1/3 translate-x-1/3 pointer-events-none" />
+
+              {/* Step pills */}
+              <div className="flex items-center gap-3 mb-8">
+                {[{ n: 1, label: "Your Details" }, { n: 2, label: "Your Address" }].map(({ n, label }) => (
+                  <React.Fragment key={n}>
+                    <div className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest transition-all ${step === n ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20' : 'bg-white/5 text-muted-foreground'}`}>
+                      <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black ${step === n ? 'bg-white/20 text-primary-foreground' : 'bg-white/10 text-muted-foreground'}`}>{n}</span>
+                      {label}
+                    </div>
+                    {n < 2 && <div className="flex-1 h-px bg-white/10" />}
+                  </React.Fragment>
+                ))}
+              </div>
+
+              <form onSubmit={handleSubmit(onSubmit)}>
+
+                {/* STEP 1 */}
+                <div className={step === 2 ? 'hidden' : 'space-y-6'}>
+                  <div>
+                    <h3 className="text-xl font-serif text-white mb-1">Who are we visiting?</h3>
+                    <p className="text-xs text-muted-foreground">We'll use these details to coordinate your visit.</p>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="space-y-1.5">
+                      <label className="text-xs text-muted-foreground uppercase tracking-widest font-semibold flex items-center gap-1.5">
+                        <User className="w-3.5 h-3.5 text-primary" /> Full Name
+                      </label>
+                      <Input
+                        {...register('name')}
+                        placeholder="Enter your full name"
+                        className={`h-12 bg-white/5 border-white/10 text-white placeholder:text-muted-foreground/50 focus:border-primary/50 rounded-xl ${errors.name ? 'border-destructive' : ''}`}
+                      />
+                      {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs text-muted-foreground uppercase tracking-widest font-semibold flex items-center gap-1.5">
+                        <Phone className="w-3.5 h-3.5 text-primary" /> Phone Number
+                      </label>
+                      <Input
+                        {...register('phone')}
+                        placeholder="10-digit mobile number"
+                        maxLength={10}
+                        className={`h-12 bg-white/5 border-white/10 text-white placeholder:text-muted-foreground/50 focus:border-primary/50 rounded-xl ${errors.phone ? 'border-destructive' : ''}`}
+                      />
+                      {errors.phone && <p className="text-xs text-destructive">{errors.phone.message}</p>}
+                    </div>
+                  </div>
+
+                  <Button
+                    type="button"
+                    onClick={handleStep1Next}
+                    size="lg"
+                    className="w-full h-14 text-sm tracking-[0.15em] uppercase font-bold rounded-xl shadow-lg shadow-primary/20 flex items-center justify-center gap-2 group"
+                  >
+                    Continue to Address
+                    <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+
+                  <p className="text-[10px] text-muted-foreground/60 text-center tracking-wide">
+                    By booking, you agree to our free-visit terms. No charge until you buy.
+                  </p>
+                </div>
+
+                {/* STEP 2 */}
+                <div className={step === 1 ? 'hidden' : 'space-y-6'}>
+                  <div>
+                    <h3 className="text-xl font-serif text-white mb-1">Where should we come?</h3>
+                    <p className="text-xs text-muted-foreground">Share your complete address for accurate navigation.</p>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs text-muted-foreground uppercase tracking-widest font-semibold flex items-center gap-1.5">
+                      <MapPin className="w-3.5 h-3.5 text-primary" /> Full Address
+                    </label>
+                    <Input
+                      {...register('addressText')}
+                      placeholder="House No, Street, Landmark, City, Pincode"
+                      className={`h-12 bg-white/5 border-white/10 text-white placeholder:text-muted-foreground/50 focus:border-primary/50 rounded-xl ${errors.addressText ? 'border-destructive' : ''}`}
+                    />
+                    {errors.addressText && <p className="text-xs text-destructive">{errors.addressText.message}</p>}
+                  </div>
+
+                  <div className="bg-primary/5 border border-primary/15 rounded-xl px-4 py-3 flex items-start gap-3">
+                    <Clock className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                    <p className="text-xs text-white/70 leading-relaxed">
+                      <span className="text-white font-semibold">Our Promise:</span> A Fashion Executive will reach your location within <span className="text-primary font-bold">45–60 minutes</span> of booking confirmation.
+                    </p>
+                  </div>
+
+                  <div className="flex gap-3">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setStep(1)}
+                      className="flex-1 h-14 rounded-xl border-white/10 text-xs uppercase tracking-widest font-bold"
+                    >
+                      ← Back
+                    </Button>
+                    <Button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="flex-[2] h-14 text-sm tracking-[0.15em] uppercase font-bold rounded-xl bg-green-600 hover:bg-green-700 shadow-lg shadow-green-900/30"
+                    >
+                      {isSubmitting ? (
+                        <span className="flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Confirming…</span>
+                      ) : (
+                        <span className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4" /> Confirm Booking</span>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              </form>
+            </div>
+
           </div>
         </div>
       </div>
+
+      {/* ── FEATURE HIGHLIGHTS ── */}
+      <section className="py-20 px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-14">
+            <p className="text-primary text-xs uppercase tracking-[0.25em] font-bold mb-3">Why Home Visit?</p>
+            <h2 className="text-3xl md:text-4xl font-serif text-white">Shopping, Reimagined</h2>
+            <div className="w-12 h-px bg-primary mx-auto mt-4" />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {FEATURES.map(({ icon: Icon, title, desc, color, bg }, i) => (
+              <div key={i} className="bg-card/30 border border-white/5 rounded-2xl p-6 hover:border-white/10 hover:-translate-y-1 transition-all duration-300 shadow-xl group">
+                <div className={`w-12 h-12 rounded-2xl ${bg} border flex items-center justify-center mb-5 group-hover:scale-110 transition-transform`}>
+                  <Icon className={`w-6 h-6 ${color}`} />
+                </div>
+                <h3 className="text-white font-serif text-lg mb-2">{title}</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">{desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── HOW IT WORKS ── */}
+      <section className="py-20 px-6 bg-card/20 border-y border-white/5">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-14">
+            <p className="text-primary text-xs uppercase tracking-[0.25em] font-bold mb-3">The Process</p>
+            <h2 className="text-3xl md:text-4xl font-serif text-white">How It Works</h2>
+            <div className="w-12 h-px bg-primary mx-auto mt-4" />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            {STEPS_INFO.map(({ n, title, desc }, i) => (
+              <div key={i} className="relative flex flex-col items-center md:items-start text-center md:text-left">
+                {i < STEPS_INFO.length - 1 && (
+                  <div className="hidden md:block absolute top-8 left-[calc(100%-12px)] w-full h-px border-t border-dashed border-white/10 z-0" />
+                )}
+                <div className="relative z-10 w-16 h-16 rounded-2xl bg-card border border-white/5 flex items-center justify-center mb-5 shadow-xl">
+                  <span className="text-2xl font-serif font-black text-primary">{n}</span>
+                </div>
+                <h4 className="text-white font-semibold text-base mb-1">{title}</h4>
+                <p className="text-muted-foreground text-sm leading-relaxed">{desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── MERCHANT PARTNER CTA ── */}
+      <section className="py-20 px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="relative overflow-hidden bg-gradient-to-br from-primary/10 via-card to-purple-500/5 border border-primary/20 rounded-3xl p-10 md:p-16 shadow-2xl">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-[100px] pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-48 h-48 bg-purple-500/10 rounded-full blur-[80px] pointer-events-none" />
+
+            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-10">
+              <div className="max-w-xl">
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/20 rounded-full text-primary text-xs uppercase tracking-[0.2em] font-bold mb-6">
+                  <Award className="w-3.5 h-3.5" />
+                  For Fashion Brands & Merchants
+                </div>
+                <h2 className="text-3xl md:text-4xl font-serif text-white mb-4">
+                  List Your Brand on <br />
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-amber-300">The Fashion Xpress</span>
+                </h2>
+                <p className="text-white/70 text-base leading-relaxed mb-6">
+                  Partner with us to reach thousands of premium customers through our unique home-visit model. Your products, delivered by our executives, tried on at the customer's doorstep.
+                </p>
+                <div className="flex flex-wrap gap-3">
+                  {[
+                    { icon: Home, text: "Zero Inventory Risk" },
+                    { icon: Zap, text: "Direct Revenue Share" },
+                    { icon: Star, text: "Premium Brand Placement" },
+                  ].map(({ icon: Icon, text }, i) => (
+                    <div key={i} className="flex items-center gap-2 px-3 py-2 bg-white/[0.04] border border-white/10 rounded-xl text-xs text-white/80 font-semibold">
+                      <Icon className="w-3.5 h-3.5 text-primary" /> {text}
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="flex flex-col gap-4 w-full md:w-auto">
+                <Link href="/partner">
+                  <Button size="lg" className="w-full md:w-56 h-14 text-sm tracking-widest uppercase font-bold rounded-xl shadow-xl shadow-primary/20 flex items-center justify-center gap-2 group">
+                    Partner With Us
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </Link>
+                <p className="text-xs text-muted-foreground text-center">Brands review in 2–3 business days</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
     </div>
   );
 }
