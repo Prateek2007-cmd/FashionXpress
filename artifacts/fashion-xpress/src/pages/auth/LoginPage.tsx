@@ -31,7 +31,7 @@ export function LoginPage() {
       onSuccess: (res) => {
         login(res.token, res.user);
         toast({ title: "Welcome back", description: "Successfully logged in." });
-        
+
         // Route based on role
         if (res.user.role === 'admin') setLocation('/admin');
         else if (res.user.role === 'executive') setLocation('/executive');
@@ -39,8 +39,8 @@ export function LoginPage() {
         else setLocation('/');
       },
       onError: (err: any) => {
-        toast({ 
-          title: "Login failed", 
+        toast({
+          title: "Login failed",
           description: err.response?.data?.error || err.response?.data?.message || err.message || "Please check your credentials and try again.",
           variant: "destructive"
         });
@@ -59,9 +59,9 @@ export function LoginPage() {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 bg-card p-8 rounded-2xl border border-white/5 shadow-2xl">
           <div className="space-y-2">
             <label className="text-sm font-medium text-white/80">Email</label>
-            <Input 
-              type="email" 
-              placeholder="Enter your email" 
+            <Input
+              type="email"
+              placeholder="Enter your email"
               {...register('email')}
               className={errors.email ? 'border-destructive' : ''}
             />
@@ -73,18 +73,18 @@ export function LoginPage() {
               <label className="text-sm font-medium text-white/80">Password</label>
               <a href="#" className="text-xs text-primary hover:underline">Forgot password?</a>
             </div>
-            <Input 
-              type="password" 
-              placeholder="Enter your password" 
+            <Input
+              type="password"
+              placeholder="Enter your password"
               {...register('password')}
               className={errors.password ? 'border-destructive' : ''}
             />
             {errors.password && <p className="text-xs text-destructive">{errors.password.message}</p>}
           </div>
 
-          <Button 
-            type="submit" 
-            className="w-full" 
+          <Button
+            type="submit"
+            className="w-full"
             disabled={loginMutation.isPending}
           >
             {loginMutation.isPending ? "SIGNING IN..." : "SIGN IN"}

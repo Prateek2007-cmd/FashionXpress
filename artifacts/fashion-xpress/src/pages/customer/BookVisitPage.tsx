@@ -319,6 +319,16 @@ export function BookVisitPage() {
                         {...register('phone')}
                         placeholder="10-digit mobile number"
                         maxLength={10}
+                        inputMode="numeric"
+                        onKeyDown={(e) => {
+                          const allowed = ['Backspace', 'Delete', 'Tab', 'ArrowLeft', 'ArrowRight', 'Home', 'End'];
+                          if (!allowed.includes(e.key) && !/^[0-9]$/.test(e.key)) e.preventDefault();
+                        }}
+                        onChange={(e) => {
+                          const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
+                          e.target.value = digits;
+                          register('phone').onChange(e);
+                        }}
                         className={`h-12 bg-white/5 border-white/10 text-white placeholder:text-muted-foreground/50 focus:border-primary/50 rounded-xl ${errors.phone ? 'border-destructive' : ''}`}
                       />
                       {errors.phone && <p className="text-xs text-destructive">{errors.phone.message}</p>}

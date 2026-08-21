@@ -1,6 +1,7 @@
 import express, { type Express, type Request, type Response, type NextFunction } from "express";
 import cors from "cors";
 import path from "path";
+import fs from "fs";
 import { pinoHttp } from "pino-http";
 import { type IncomingMessage, type ServerResponse } from "http";
 import router from "./routes/index";
@@ -27,23 +28,43 @@ app.use(
     },
   }),
 );
-app.use(cors());
+
+app.use(cors({ origin: true, credentials: true }));
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
-import fs from "fs";
+// Serve uploaded files statically if they exist
+const uploadsPath = path.join(process.cwd(), "public", "uploads");
+if (fs.existsSync(uploadsPath)) {
+  app.use("/uploads", express.static(uploadsPath));
+}
 
-// Serve uploaded files statically
-app.use("/uploads", express.static(path.join(process.cwd(), "public", "uploads")));
+// Safely determine current directory without relying solely on import.meta.dirname
+const currentDir = typeof import.meta.dirname !== "undefined"
+  ? import.meta.dirname
+  : typeof __dirname !== "undefined"
+  ? __dirname
+  : process.cwd();
 
-const publicPath = path.resolve(import.meta.dirname, "../../fashion-xpress/dist/public");
-logger.info({ publicPath, exists: fs.existsSync(publicPath), indexExists: fs.existsSync(path.join(publicPath, "index.html")) }, "SPA static paths check");
+const publicPath = path.resolve(currentDir, "../../fashion-xpress/dist/public");
+if (fs.existsSync(publicPath)) {
+  app.use(express.static(publicPath, { redirect: false }));
+}
 
-app.use(express.static(publicPath, { redirect: false }));
-
+// API Routes
 app.use("/api", router);
 
-// SPA fallback for client-side routing
+// Root route handler for API-only deployments (e.g. Vercel)
+app.get("/", (_req: Request, res: Response) => {
+  res.json({
+    name: "The Fashion Xpress API Server",
+    status: "active",
+    version: "1.0.0",
+    message: "Server is running smoothly. Access endpoints under /api (e.g. /api/health)",
+  });
+});
+
+// SPA fallback for client-side routing when frontend bundle is colocated
 app.use((req: Request, res: Response, next: NextFunction) => {
   if (req.method !== "GET") {
     next();
@@ -59,13 +80,18 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     path.resolve(process.cwd(), "artifacts/fashion-xpress/dist/public/index.html"),
     path.resolve(process.cwd(), "fashion-xpress/dist/public/index.html"),
     path.resolve(process.cwd(), "dist/public/index.html"),
+    path.resolve(currentDir, "../fashion-xpress/dist/public/index.html"),
   ];
 
-  const targetFile = candidatePaths.find(p => fs.existsSync(p));
+  const targetFile = candidatePaths.find((p) => fs.existsSync(p));
 
   if (!targetFile) {
-    logger.error({ candidatePaths, cwd: process.cwd() }, "SPA index.html not found in any candidate path");
-    res.status(404).send("Not Found");
+    res.json({
+      name: "The Fashion Xpress API Server",
+      status: "active",
+      path: req.path,
+      endpoints: "/api",
+    });
     return;
   }
 

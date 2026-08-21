@@ -36,8 +36,8 @@ export function RegisterPage() {
         setLocation('/');
       },
       onError: (err: any) => {
-        toast({ 
-          title: "Registration failed", 
+        toast({
+          title: "Registration failed",
           description: err.response?.data?.message || "An error occurred during registration.",
           variant: "destructive"
         });
@@ -56,9 +56,9 @@ export function RegisterPage() {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 bg-card p-8 rounded-2xl border border-white/5 shadow-2xl">
           <div className="space-y-2">
             <label className="text-sm font-medium text-white/80">Full Name</label>
-            <Input 
-              type="text" 
-              placeholder="e.g. Rahul Sharma" 
+            <Input
+              type="text"
+              placeholder="e.g. Rahul Sharma"
               {...register('name')}
               className={errors.name ? 'border-destructive' : ''}
             />
@@ -67,9 +67,9 @@ export function RegisterPage() {
 
           <div className="space-y-2">
             <label className="text-sm font-medium text-white/80">Email</label>
-            <Input 
-              type="email" 
-              placeholder="Enter your email" 
+            <Input
+              type="email"
+              placeholder="Enter your email"
               {...register('email')}
               className={errors.email ? 'border-destructive' : ''}
             />
@@ -78,10 +78,21 @@ export function RegisterPage() {
 
           <div className="space-y-2">
             <label className="text-sm font-medium text-white/80">Phone Number</label>
-            <Input 
-              type="tel" 
-              placeholder="Enter 10-digit number" 
+            <Input
+              type="tel"
+              placeholder="Enter 10-digit number"
               {...register('phone')}
+              inputMode="numeric"
+              maxLength={10}
+              onKeyDown={(e) => {
+                const allowed = ['Backspace', 'Delete', 'Tab', 'ArrowLeft', 'ArrowRight', 'Home', 'End'];
+                if (!allowed.includes(e.key) && !/^[0-9]$/.test(e.key)) e.preventDefault();
+              }}
+              onChange={(e) => {
+                const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
+                e.target.value = digits;
+                register('phone').onChange(e);
+              }}
               className={errors.phone ? 'border-destructive' : ''}
             />
             {errors.phone && <p className="text-xs text-destructive">{errors.phone.message}</p>}
@@ -89,18 +100,18 @@ export function RegisterPage() {
 
           <div className="space-y-2">
             <label className="text-sm font-medium text-white/80">Password</label>
-            <Input 
-              type="password" 
-              placeholder="Create a strong password" 
+            <Input
+              type="password"
+              placeholder="Create a strong password"
               {...register('password')}
               className={errors.password ? 'border-destructive' : ''}
             />
             {errors.password && <p className="text-xs text-destructive">{errors.password.message}</p>}
           </div>
 
-          <Button 
-            type="submit" 
-            className="w-full mt-2" 
+          <Button
+            type="submit"
+            className="w-full mt-2"
             disabled={registerMutation.isPending}
           >
             {registerMutation.isPending ? "CREATING ACCOUNT..." : "CREATE ACCOUNT"}

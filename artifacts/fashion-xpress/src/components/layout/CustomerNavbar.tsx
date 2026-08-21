@@ -15,7 +15,7 @@ export function CustomerNavbar() {
 
   const navLinks = [
     { label: 'Home', href: '/' },
-    { label: 'Home Visit', href: '/book-visit' },
+    { label: 'Book Visit', href: '/book-visit' },
     { label: 'Collection', href: '/products' },
     { label: 'Partner With Us', href: '/partner' },
   ];

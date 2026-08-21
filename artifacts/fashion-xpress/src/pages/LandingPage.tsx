@@ -2,159 +2,326 @@ import React from 'react';
 import { Link } from 'wouter';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Star, Truck, Shield, Ruler } from 'lucide-react';
+import {
+  ArrowRight, Star, Clock, Shield, Zap, Home,
+  ShoppingBag, Sparkles, ChevronRight, MapPin,
+  CheckCircle2, Flame, Award, Users
+} from 'lucide-react';
 import heroBg from '@assets/generated_images/hero.jpg';
+
+const EASE: [number, number, number, number] = [0.25, 0.46, 0.45, 0.94];
+
+const PERKS = [
+  { icon: Clock,     label: '45-Min Arrival',    sub: 'Executive at your door fast',    color: 'text-amber-400',   bg: 'bg-amber-400/10 border-amber-400/20' },
+  { icon: ShoppingBag, label: 'Try Before You Pay', sub: 'Only pay for what you keep',   color: 'text-primary',     bg: 'bg-primary/10 border-primary/20'     },
+  { icon: Shield,    label: 'Zero Risk Booking',  sub: 'No upfront, cancel anytime',     color: 'text-emerald-400', bg: 'bg-emerald-400/10 border-emerald-400/20' },
+  { icon: Star,      label: 'Expert Styling',     sub: 'Trained fashion consultants',    color: 'text-purple-400',  bg: 'bg-purple-400/10 border-purple-400/20'   },
+];
+
+const HOW_IT_WORKS = [
+  { n: '01', icon: Home,        title: 'Book a Visit',          desc: 'Fill in your details — name, phone & address. No login or payment required upfront.' },
+  { n: '02', icon: Users,       title: 'Executive Confirms',    desc: 'Our Fashion Executive calls to confirm your style preferences, sizes & schedule.' },
+  { n: '03', icon: ShoppingBag, title: 'We Bring The Store',    desc: 'Executive picks curated pieces from our partner brands and arrives at your door.' },
+  { n: '04', icon: CheckCircle2,title: 'Try & Pay For Keeps',   desc: 'Try everything at home. Pay only for what you love. Return the rest — no questions.' },
+];
+
+const STATS = [
+  { value: '2,400+', label: 'Happy Customers' },
+  { value: '45 Min', label: 'Avg. Arrival Time' },
+  { value: '100%',   label: 'Try-Before-Pay' },
+  { value: '50+',    label: 'Premium Brands' },
+];
 
 export function LandingPage() {
   const [visitorCount, setVisitorCount] = React.useState(() => {
     const saved = localStorage.getItem('visitor_count');
     if (saved) return parseInt(saved, 10);
-    // Start with a premium base number of visitors
     return Math.floor(15340 + Math.random() * 100);
   });
   const [lastUpdated, setLastUpdated] = React.useState('');
 
   React.useEffect(() => {
     localStorage.setItem('visitor_count', visitorCount.toString());
-    
     const updateTime = () => {
       const now = new Date();
       setLastUpdated(now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
     };
     updateTime();
-
     const interval = setInterval(() => {
       setVisitorCount(prev => {
-        const next = prev + Math.floor(Math.random() * 2) + 1; // Realtime simulated traffic increments
+        const next = prev + Math.floor(Math.random() * 2) + 1;
         localStorage.setItem('visitor_count', next.toString());
         return next;
       });
       updateTime();
     }, 5000);
-
     return () => clearInterval(interval);
   }, [visitorCount]);
 
   return (
-    <div className="flex flex-col">
-      {/* Top Banner Marquee */}
-      <div className="bg-primary/20 text-primary py-2 text-xs tracking-widest font-semibold uppercase border-b border-primary/30 overflow-hidden relative flex whitespace-nowrap">
-        <div className="animate-[marquee_20s_linear_infinite]">
-          <span className="text-red-500 font-bold">PRICE DROP: 30-60% OFF SALE IS ON LIVE</span> &nbsp;&nbsp;&bull;&nbsp;&nbsp; COMING SOON: XPRESS SERVICES AT YOUR FASHION STORE. AT YOUR DOOR. &nbsp;&nbsp;&bull;&nbsp;&nbsp; <span className="text-red-500 font-bold">PRICE DROP: 30-60% OFF SALE IS ON LIVE</span> &nbsp;&nbsp;&bull;&nbsp;&nbsp; COMING SOON: XPRESS SERVICES AT YOUR FASHION STORE. AT YOUR DOOR.
+    <div className="flex flex-col overflow-x-hidden">
+
+      {/* ── MARQUEE STRIP ── */}
+      <div className="bg-primary/15 text-primary py-2.5 text-[11px] tracking-[0.2em] font-bold uppercase border-b border-primary/20 overflow-hidden relative flex whitespace-nowrap">
+        <div className="animate-[marquee_25s_linear_infinite] flex items-center gap-8">
+          {[...Array(4)].map((_, i) => (
+            <span key={i} className="flex items-center gap-8">
+              <span className="flex items-center gap-2"><Flame className="w-3 h-3 text-red-400" /><span className="text-red-400">PRICE DROP: 30–60% OFF LIVE NOW</span></span>
+              <span className="text-white/30">•</span>
+              <span className="flex items-center gap-2"><Sparkles className="w-3 h-3" />HOME VISIT SERVICE NOW ACTIVE IN SELECT PINCODES</span>
+              <span className="text-white/30">•</span>
+              <span className="flex items-center gap-2"><Star className="w-3 h-3 text-amber-400" />FASHION AT YOUR DOORSTEP — BOOK NOW, PAY LATER</span>
+              <span className="text-white/30">•</span>
+            </span>
+          ))}
         </div>
       </div>
 
-      {/* HERO SECTION */}
-      <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden">
+      {/* ── HERO SECTION ── */}
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+
+        {/* Background image */}
         <div className="absolute inset-0 z-0">
-          <img src={heroBg} alt="Luxury living room with fashion rack" className="w-full h-full object-cover opacity-40" />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent"></div>
+          <img src={heroBg} alt="Luxury home fashion" className="w-full h-full object-cover opacity-30" />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/50 to-background" />
+          <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-transparent to-background/80" />
         </div>
-        
-        <div className="relative z-10 max-w-5xl mx-auto px-6 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, ease: "easeOut" }}
-          >
-            <h1 className="text-5xl md:text-7xl font-serif text-white mb-4 leading-tight">
-              The Store <br/><span className="text-primary italic">Comes To You.</span>
-            </h1>
-            <div className="mb-8 font-serif text-2xl md:text-3xl text-amber-400 font-black tracking-widest uppercase animate-pulse">
-              ★ HOME VISIT SERVICE IS NOW ACTIVE ★
+
+        {/* Glow orbs */}
+        <div className="absolute top-1/3 left-1/4 w-96 h-96 bg-primary/8 rounded-full blur-[140px] pointer-events-none" />
+        <div className="absolute bottom-1/3 right-1/4 w-80 h-80 bg-purple-500/8 rounded-full blur-[120px] pointer-events-none" />
+
+        <div className="relative z-10 max-w-6xl mx-auto px-6 text-center">
+
+          {/* Live badge */}
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.7, delay: 0.1 }} className="flex justify-center mb-8">
+            <div className="inline-flex items-center gap-3 px-5 py-2.5 bg-card/60 backdrop-blur-xl border border-primary/20 rounded-full shadow-xl shadow-primary/5">
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500" />
+              </span>
+              <span className="text-xs font-bold uppercase tracking-[0.2em] text-green-400">Home Visit Service — Now Active</span>
             </div>
-            <p className="text-lg md:text-xl text-white/80 max-w-2xl mx-auto mb-8 font-light">
-              Enjoy luxury shopping from the comfort of your home. Browse our collection, choose your favorite pieces, and our Fashion Executive will bring them directly to you.
-            </p>
-            <div className="flex flex-col items-center justify-center gap-4">
-              <Link href="/book-visit" className="w-full sm:w-[480px]">
-                <Button size="lg" className="w-full text-base h-16 tracking-widest uppercase font-semibold text-white bg-card/80 hover:bg-card border border-amber-500/40 rounded-xl transition-all shadow-lg flex items-center justify-center gap-3">
-                  <span className="bg-green-500/20 text-green-400 px-3 py-1 rounded text-xs font-bold border border-green-500/30">ACTIVE</span>
-                  <span>Book Home Visit Service</span>
-                </Button>
-              </Link>
-              <div className="text-sm text-muted-foreground font-medium tracking-wide bg-card/40 border border-white/10 rounded-lg px-6 py-2">
-                ✨ <strong>Note:</strong> Home Visit service is active in select pin codes.
-              </div>
+          </motion.div>
+
+          {/* Headline */}
+          <motion.h1 initial={{ opacity: 0, y: 32 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease: EASE, delay: 0.2 }} className="text-6xl md:text-8xl font-serif font-black text-white leading-[0.95] mb-6">
+            The Store
+            <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-amber-300 to-primary animate-[shimmer_3s_ease_infinite] bg-[length:200%_auto]">
+              Comes To You.
+            </span>
+          </motion.h1>
+
+          <motion.p initial={{ opacity: 0, y: 32 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease: EASE, delay: 0.35 }} className="text-lg md:text-xl text-white/65 max-w-2xl mx-auto mb-10 leading-relaxed font-light">
+            Skip the mall. Our Fashion Executive visits your home with a curated selection —
+            <span className="text-white/90 font-semibold"> try everything, pay only for what you love.</span>
+          </motion.p>
+
+          {/* CTA Group */}
+          <motion.div initial={{ opacity: 0, y: 32 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease: EASE, delay: 0.45 }} className="flex flex-col items-center gap-4 mb-14">
+
+            {/* Primary CTA */}
+            <Link href="/book-visit" className="w-full sm:w-auto">
+              <button className="group relative w-full sm:w-auto inline-flex items-center justify-center gap-4 px-10 h-18 py-5 rounded-2xl overflow-hidden font-bold text-base tracking-wide transition-all duration-300 shadow-2xl shadow-primary/20 hover:shadow-primary/40 hover:scale-[1.02]"
+                style={{ background: 'linear-gradient(135deg, hsl(45,90%,48%) 0%, hsl(36,100%,45%) 50%, hsl(45,90%,48%) 100%)' }}>
+                {/* Shimmer sweep */}
+                <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                <span className="relative flex items-center gap-3 text-black">
+                  <span className="bg-black/15 rounded-lg px-2.5 py-1 text-[10px] font-black uppercase tracking-widest">ACTIVE</span>
+                  <span className="text-lg font-black uppercase tracking-widest">Book Home Visit</span>
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </span>
+              </button>
+            </Link>
+
+            {/* Secondary CTA */}
+            <Link href="/products">
+              <button className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-white transition-colors font-medium group">
+                <ShoppingBag className="w-4 h-4" />
+                Browse the Collection
+                <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+              </button>
+            </Link>
+
+            {/* Promise note */}
+            <div className="flex items-center gap-2 px-5 py-2.5 bg-card/30 backdrop-blur-md border border-white/8 rounded-xl text-xs text-muted-foreground">
+              <MapPin className="w-3.5 h-3.5 text-primary" />
+              <span><strong className="text-white">Our Promise:</strong> Executive arrives within 45–60 minutes of booking</span>
+            </div>
+          </motion.div>
+
+          {/* Social proof strip */}
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.7, delay: 0.6 }} className="flex items-center justify-center gap-6 flex-wrap">
+            <div className="flex -space-x-2">
+              {['R', 'A', 'P', 'S', 'M'].map((l, i) => (
+                <div key={i} className="w-9 h-9 rounded-full bg-gradient-to-br from-primary/50 to-purple-500/50 border-2 border-background flex items-center justify-center text-xs font-bold text-white shadow-lg">{l}</div>
+              ))}
+            </div>
+            <div className="text-left">
+              <div className="flex gap-0.5 mb-0.5">{[...Array(5)].map((_, i) => <Star key={i} className="w-3.5 h-3.5 fill-primary text-primary" />)}</div>
+              <p className="text-xs text-muted-foreground"><span className="text-white font-bold">2,400+</span> happy customers this month</p>
+            </div>
+            <div className="w-px h-8 bg-white/10 hidden sm:block" />
+            <div className="text-xs text-muted-foreground">
+              <span className="text-white font-bold">50+</span> premium brands available
             </div>
           </motion.div>
         </div>
+
+        {/* Scroll indicator */}
+        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce opacity-40">
+          <div className="w-px h-10 bg-gradient-to-b from-transparent to-white/50" />
+          <span className="text-[9px] tracking-[0.3em] text-white/50 uppercase">Scroll</span>
+        </div>
       </section>
 
-      {/* HOW IT WORKS */}
-      <section className="py-24 bg-card/20">
+      {/* ── STATS STRIP ── */}
+      <section className="py-8 border-y border-white/5 bg-card/20 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-serif text-white mb-4">How it Works</h2>
-            <div className="w-16 h-[1px] bg-primary mx-auto"></div>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {[
-              {
-                step: "01",
-                title: "Book a Visit",
-                desc: "Choose a time slot and date that works for you. No logins or upfront payments required."
-              },
-              {
-                step: "02",
-                title: "Executive Calls You",
-                desc: "Our Fashion Executive will reach out to confirm your style preferences, sizes, and schedule details."
-              },
-              {
-                step: "03",
-                title: "Store Pickup & Delivery",
-                desc: "The Executive collects items from the store and visits your doorstep for a personalized fitting session."
-              },
-              {
-                step: "04",
-                title: "Try & Pay",
-                desc: "Try all items in your own space. Only pay for the products you decide to keep. No obligations."
-              }
-            ].map((item, i) => (
-              <motion.div 
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.15 }}
-                className="relative p-8 rounded-2xl bg-card border border-white/5 hover:border-primary/30 transition-colors"
-              >
-                <div className="text-6xl font-serif text-white/5 absolute top-4 right-6">{item.step}</div>
-                <h3 className="text-xl font-serif text-white mb-4 mt-8">{item.title}</h3>
-                <p className="text-muted-foreground leading-relaxed text-sm">{item.desc}</p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 divide-x divide-white/5">
+            {STATS.map(({ value, label }, i) => (
+              <motion.div key={i} initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: 0.1 * i }} className="text-center px-4 py-2">
+                <div className="text-2xl md:text-3xl font-serif font-black text-transparent bg-clip-text bg-gradient-to-r from-primary to-amber-300 mb-1">{value}</div>
+                <div className="text-[10px] text-muted-foreground uppercase tracking-[0.15em] font-semibold">{label}</div>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Live Visitor Tracker Section */}
-      <section className="py-12 border-t border-white/5 bg-gradient-to-b from-black/60 to-black/95">
-        <div className="max-w-7xl mx-auto px-6 text-center">
-          <div className="inline-flex flex-col sm:flex-row items-center gap-4 px-8 py-4 rounded-2xl bg-white/[0.02] border border-white/10 shadow-[0_0_30px_rgba(212,175,55,0.04)] backdrop-blur-md relative overflow-hidden group hover:border-primary/30 transition-all duration-500">
-            {/* Soft glow effect */}
-            <div className="absolute -inset-px bg-gradient-to-r from-primary/5 via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none rounded-2xl"></div>
-            
-            <div className="flex items-center gap-3 z-10">
-              <span className="relative flex h-3 w-3">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
-              </span>
-              <span className="text-muted-foreground text-sm font-medium tracking-widest uppercase">
-                Total Visitors Till Now: 
-                <strong className="text-transparent bg-clip-text bg-gradient-to-r from-white via-primary to-white font-mono text-lg ml-2">
-                  {visitorCount.toLocaleString()}
-                </strong>
-              </span>
-            </div>
-            <span className="hidden sm:inline text-white/10 z-10">|</span>
-            <span className="text-xs text-muted-foreground tracking-wider font-light z-10">
-              Last updated at <span className="font-mono text-white/95 font-medium">{lastUpdated}</span>
-            </span>
+      {/* ── PERKS GRID ── */}
+      <section className="py-24 px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <motion.p initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7, ease: EASE }} className="text-primary text-xs uppercase tracking-[0.25em] font-bold mb-3">Why Fashion Xpress</motion.p>
+            <motion.h2 initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7, ease: EASE, delay: 0.1 }} className="text-4xl md:text-5xl font-serif text-white mb-4">Luxury, At Your Doorstep</motion.h2>
+            <div className="w-12 h-px bg-primary mx-auto" />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {PERKS.map(({ icon: Icon, label, sub, color, bg }, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.12 }}
+                className={`group relative p-7 rounded-3xl bg-card/30 border border-white/5 hover:border-white/15 hover:-translate-y-2 transition-all duration-400 shadow-xl overflow-hidden cursor-default`}
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent pointer-events-none" />
+                <div className={`w-14 h-14 rounded-2xl ${bg} border flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
+                  <Icon className={`w-7 h-7 ${color}`} />
+                </div>
+                <h3 className="text-white font-serif text-lg font-bold mb-2">{label}</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">{sub}</p>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
+
+      {/* ── HOW IT WORKS ── */}
+      <section className="py-24 px-6 bg-card/15 border-y border-white/5 relative overflow-hidden">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[300px] bg-primary/3 rounded-full blur-[120px] pointer-events-none" />
+
+        <div className="max-w-7xl mx-auto relative z-10">
+          <div className="text-center mb-16">
+            <motion.p initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7, ease: EASE }} className="text-primary text-xs uppercase tracking-[0.25em] font-bold mb-3">The Experience</motion.p>
+            <motion.h2 initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7, ease: EASE, delay: 0.1 }} className="text-4xl md:text-5xl font-serif text-white mb-4">How It Works</motion.h2>
+            <div className="w-12 h-px bg-primary mx-auto" />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {HOW_IT_WORKS.map(({ n, icon: Icon, title, desc }, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 28 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.15, duration: 0.7 }}
+                className="relative group"
+              >
+                {/* Connector line */}
+                {i < HOW_IT_WORKS.length - 1 && (
+                  <div className="hidden lg:block absolute top-10 left-[calc(100%-8px)] w-full h-px border-t border-dashed border-white/10 z-0" />
+                )}
+
+                <div className="relative z-10 p-7 rounded-3xl bg-card/40 border border-white/5 hover:border-primary/20 transition-all duration-300 shadow-xl group-hover:shadow-primary/5 group-hover:shadow-2xl h-full">
+                  {/* Step number watermark */}
+                  <div className="absolute top-5 right-6 text-7xl font-serif font-black text-white/[0.04] leading-none select-none">{n}</div>
+
+                  <div className="w-14 h-14 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-6 group-hover:bg-primary/15 transition-colors">
+                    <Icon className="w-6 h-6 text-primary" />
+                  </div>
+                  <h3 className="text-white font-serif text-lg font-bold mb-3">{title}</h3>
+                  <p className="text-muted-foreground text-sm leading-relaxed">{desc}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Bottom CTA */}
+          <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7, ease: EASE, delay: 0.4 }} className="text-center mt-16">
+            <Link href="/book-visit">
+              <Button size="lg" className="h-14 px-10 text-sm tracking-[0.15em] uppercase font-bold rounded-2xl shadow-lg shadow-primary/20 flex items-center gap-3 mx-auto">
+                <Sparkles className="w-4 h-4" />
+                Book My Home Visit
+                <ArrowRight className="w-4 h-4" />
+              </Button>
+            </Link>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ── LIVE COUNTER ── */}
+      <section className="py-14 border-t border-white/5 bg-gradient-to-b from-card/30 to-background">
+        <div className="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-center gap-6 flex-wrap">
+
+          {/* Live visitors badge */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            className="inline-flex items-center gap-4 px-8 py-4 rounded-2xl bg-card/50 backdrop-blur-xl border border-white/8 shadow-xl hover:border-primary/20 transition-all duration-500 group"
+          >
+            <div className="flex items-center gap-2">
+              <span className="relative flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500" />
+              </span>
+              <span className="text-xs text-muted-foreground font-semibold uppercase tracking-widest">Live</span>
+            </div>
+
+            <div className="h-5 w-px bg-white/10" />
+
+            <div className="text-sm text-muted-foreground font-medium tracking-wide">
+              Total Visits:&nbsp;
+              <span className="font-mono font-black text-xl text-transparent bg-clip-text bg-gradient-to-r from-white via-primary to-white">
+                {visitorCount.toLocaleString()}
+              </span>
+            </div>
+
+            <div className="h-5 w-px bg-white/10 hidden sm:block" />
+            <span className="text-xs text-muted-foreground/60 font-mono hidden sm:block">
+              Updated at <span className="text-white/80">{lastUpdated}</span>
+            </span>
+          </motion.div>
+
+          {/* Award badge */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1 }}
+            className="inline-flex items-center gap-3 px-6 py-4 rounded-2xl bg-primary/8 border border-primary/15"
+          >
+            <Award className="w-5 h-5 text-primary" />
+            <span className="text-xs font-bold uppercase tracking-widest text-primary/90">#1 Home Fashion Service — 2025</span>
+          </motion.div>
+        </div>
+      </section>
+
     </div>
   );
 }
