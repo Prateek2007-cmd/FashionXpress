@@ -33,30 +33,6 @@ const STATS = [
 ];
 
 export function LandingPage() {
-  const [visitorCount, setVisitorCount] = React.useState(() => {
-    const saved = localStorage.getItem('visitor_count');
-    if (saved) return parseInt(saved, 10);
-    return Math.floor(15340 + Math.random() * 100);
-  });
-  const [lastUpdated, setLastUpdated] = React.useState('');
-
-  React.useEffect(() => {
-    localStorage.setItem('visitor_count', visitorCount.toString());
-    const updateTime = () => {
-      const now = new Date();
-      setLastUpdated(now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
-    };
-    updateTime();
-    const interval = setInterval(() => {
-      setVisitorCount(prev => {
-        const next = prev + Math.floor(Math.random() * 2) + 1;
-        localStorage.setItem('visitor_count', next.toString());
-        return next;
-      });
-      updateTime();
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [visitorCount]);
 
   return (
     <div className="flex flex-col overflow-x-hidden">
@@ -270,54 +246,6 @@ export function LandingPage() {
                 <ArrowRight className="w-4 h-4" />
               </Button>
             </Link>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* ── LIVE COUNTER ── */}
-      <section className="py-14 border-t border-white/5 bg-gradient-to-b from-card/30 to-background">
-        <div className="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-center gap-6 flex-wrap">
-
-          {/* Live visitors badge */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            className="inline-flex items-center gap-4 px-8 py-4 rounded-2xl bg-card/50 backdrop-blur-xl border border-white/8 shadow-xl hover:border-primary/20 transition-all duration-500 group"
-          >
-            <div className="flex items-center gap-2">
-              <span className="relative flex h-3 w-3">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500" />
-              </span>
-              <span className="text-xs text-muted-foreground font-semibold uppercase tracking-widest">Live</span>
-            </div>
-
-            <div className="h-5 w-px bg-white/10" />
-
-            <div className="text-sm text-muted-foreground font-medium tracking-wide">
-              Total Visits:&nbsp;
-              <span className="font-mono font-black text-xl text-transparent bg-clip-text bg-gradient-to-r from-white via-primary to-white">
-                {visitorCount.toLocaleString()}
-              </span>
-            </div>
-
-            <div className="h-5 w-px bg-white/10 hidden sm:block" />
-            <span className="text-xs text-muted-foreground/60 font-mono hidden sm:block">
-              Updated at <span className="text-white/80">{lastUpdated}</span>
-            </span>
-          </motion.div>
-
-          {/* Award badge */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.1 }}
-            className="inline-flex items-center gap-3 px-6 py-4 rounded-2xl bg-primary/8 border border-primary/15"
-          >
-            <Award className="w-5 h-5 text-primary" />
-            <span className="text-xs font-bold uppercase tracking-widest text-primary/90">#1 Home Fashion Service — 2025</span>
           </motion.div>
         </div>
       </section>
