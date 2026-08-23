@@ -192,8 +192,8 @@ export function ProductsPage() {
                   </span>
                 )}
               </h1>
-              <p className="text-white/60 text-lg max-w-xl mx-auto">
-                Hand-picked premium pieces brought to your doorstep by our personal Fashion Executives.
+              <p className="text-white/70 text-lg max-w-2xl mx-auto leading-relaxed">
+                Curated designer pieces and exclusive discounted styles with up to <span className="text-amber-300 font-semibold">30%–60% OFF</span>, brought directly to your doorstep by our personal Fashion Executives.
               </p>
             </>
           )}
@@ -201,11 +201,12 @@ export function ProductsPage() {
           {/* Quick stat strip */}
           <div className="flex items-center justify-center gap-6 mt-8 flex-wrap">
             {[
-              { icon: Tag, label: `${productsData?.total || 0} Pieces`, color: "text-primary" },
+              { icon: Tag, label: `${productsData?.total || 0} Curated Pieces`, color: "text-primary" },
+              { icon: Flame, label: "Up to 60% OFF", color: "text-red-400" },
               { icon: Star, label: "Premium Brands", color: "text-amber-400" },
-              { icon: ShoppingBag, label: "Try at Home", color: "text-purple-400" },
+              { icon: ShoppingBag, label: "Try Before You Pay", color: "text-purple-400" },
             ].map(({ icon: Icon, label, color }, i) => (
-              <div key={i} className="flex items-center gap-2 px-4 py-2 bg-white/[0.03] border border-white/10 rounded-xl text-xs font-semibold text-white/70 uppercase tracking-wider">
+              <div key={i} className="flex items-center gap-2 px-4 py-2 bg-white/[0.03] border border-white/10 rounded-xl text-xs font-semibold text-white/80 uppercase tracking-wider shadow-sm">
                 <Icon className={`w-3.5 h-3.5 ${color}`} /> {label}
               </div>
             ))}
