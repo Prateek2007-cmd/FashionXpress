@@ -24,9 +24,8 @@ export function CustomerNavbar() {
     <nav className="fixed top-0 left-0 right-0 z-50 glass">
       <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-3">
-          <img src="/logo.png" alt="TFX" className="h-14 w-auto object-contain" style={{ filter: 'invert(1) grayscale(1)', mixBlendMode: 'screen' }} />
-          <span className="font-serif font-bold text-lg md:text-xl tracking-widest uppercase text-white hover:text-primary transition-colors">THE FASHION XPRESS</span>
+        <Link href="/" className="flex items-center">
+          <img src="/logo.png" alt="The Fashion Xpress" className="h-16 w-auto object-contain" style={{ mixBlendMode: 'screen' }} />
         </Link>
 
         {/* Desktop Links */}

@@ -30,7 +30,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       {/* Mobile Header */}
       <header className="h-16 border-b border-white/5 bg-card/50 flex items-center justify-between px-6 md:hidden z-40 w-full shrink-0">
         <div className="flex items-center gap-2">
-          <img src="/logo.png" alt="TFX Logo" className="h-7 w-auto object-contain" style={{ filter: 'invert(1) grayscale(1)', mixBlendMode: 'screen' }} />
+          <img src="/logo.png" alt="TFX Logo" className="h-7 w-auto object-contain" style={{ mixBlendMode: 'screen' }} />
           <span className="font-serif font-bold text-xs tracking-widest uppercase text-primary">ADMIN</span>
         </div>
         <button 
@@ -57,7 +57,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       >
         <div className="h-20 flex items-center justify-between px-6 border-b border-white/5 shrink-0">
           <div className="flex items-center gap-2">
-            <img src="/logo.png" alt="TFX Logo" className="h-8 w-auto object-contain" style={{ filter: 'invert(1) grayscale(1)', mixBlendMode: 'screen' }} />
+            <img src="/logo.png" alt="TFX Logo" className="h-8 w-auto object-contain" style={{ mixBlendMode: 'screen' }} />
             <span className="font-serif font-bold text-sm tracking-widest uppercase text-primary">ADMIN</span>
           </div>
           {/* Close button inside sidebar on mobile */}
