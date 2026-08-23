@@ -28,12 +28,20 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-black relative">
       {/* Mobile Header */}
-      <header className="h-16 border-b border-white/5 bg-card/50 flex items-center justify-between px-6 md:hidden z-40 w-full shrink-0">
-        <div className="flex items-center gap-2">
-          <img src="/logo.png" alt="TFX Logo" className="h-7 w-auto object-contain" style={{ mixBlendMode: 'screen' }} />
-          <span className="font-serif font-bold text-xs tracking-widest uppercase text-primary">ADMIN</span>
+      <header className="h-16 border-b border-white/5 bg-card/50 flex items-center justify-between px-4 md:hidden z-40 w-full shrink-0">
+        <div className="flex items-center gap-3">
+          <img
+            src="/logo.png"
+            alt="The Fashion Xpress"
+            className="h-9 w-9 object-contain rounded-lg"
+            style={{ mixBlendMode: 'screen' }}
+          />
+          <div className="leading-tight">
+            <div className="font-serif text-sm text-white font-bold tracking-wide">The Fashion Xpress</div>
+            <div className="text-[9px] text-primary uppercase tracking-[0.2em] font-semibold">Admin Console</div>
+          </div>
         </div>
-        <button 
+        <button
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
           className="text-white hover:text-primary transition-colors focus:outline-none"
         >
@@ -55,13 +63,21 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        <div className="h-20 flex items-center justify-between px-6 border-b border-white/5 shrink-0">
-          <div className="flex items-center gap-2">
-            <img src="/logo.png" alt="TFX Logo" className="h-8 w-auto object-contain" style={{ mixBlendMode: 'screen' }} />
-            <span className="font-serif font-bold text-sm tracking-widest uppercase text-primary">ADMIN</span>
+        <div className="h-24 flex items-center justify-between px-5 border-b border-white/5 shrink-0">
+          <div className="flex items-center gap-3">
+            <img
+              src="/logo.png"
+              alt="The Fashion Xpress"
+              className="h-12 w-12 object-contain rounded-xl"
+              style={{ mixBlendMode: 'screen' }}
+            />
+            <div className="leading-tight">
+              <div className="font-serif text-base text-white font-bold tracking-wide">The Fashion Xpress</div>
+              <div className="text-[10px] text-primary uppercase tracking-[0.2em] font-semibold mt-0.5">Admin Console</div>
+            </div>
           </div>
           {/* Close button inside sidebar on mobile */}
-          <button 
+          <button
             onClick={() => setIsSidebarOpen(false)}
             className="text-muted-foreground hover:text-white md:hidden"
           >
