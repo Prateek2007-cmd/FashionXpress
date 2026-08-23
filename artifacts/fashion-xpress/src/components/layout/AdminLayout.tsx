@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { Link, useLocation, Redirect } from 'wouter';
-import { LayoutDashboard, Calendar, Users, Package, Settings, LogOut, UserCheck, ClipboardList, Menu, X } from 'lucide-react';
+import { LayoutDashboard, Calendar, Users, Package, Settings, LogOut, ClipboardList, Menu, X, Sun, Moon } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { useTheme } from '@/context/ThemeContext';
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
   const { logout, isAuthenticated, isLoading, user } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   if (isLoading) return <div className="min-h-screen bg-black flex items-center justify-center"><div className="w-8 h-8 rounded-full border-4 border-primary border-t-transparent animate-spin"></div></div>;
@@ -95,7 +97,18 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
           })}
         </nav>
 
-        <div className="p-4 border-t border-white/5 shrink-0">
+        <div className="p-4 border-t border-border shrink-0 space-y-2">
+          {/* Theme Toggle */}
+          <button
+            onClick={toggleTheme}
+            className="flex items-center gap-3 px-4 py-3 w-full rounded-md text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-white/5 dark:hover:bg-white/5 transition-colors"
+          >
+            {theme === 'dark' ? (
+              <><Sun className="w-4 h-4 text-amber-400" /> Switch to Light Mode</>
+            ) : (
+              <><Moon className="w-4 h-4 text-blue-500" /> Switch to Dark Mode</>
+            )}
+          </button>
           <button
             onClick={() => {
               setIsSidebarOpen(false);
