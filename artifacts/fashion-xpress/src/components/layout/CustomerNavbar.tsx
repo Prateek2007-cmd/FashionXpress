@@ -25,9 +25,17 @@ export function CustomerNavbar() {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 glass">
       <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-        {/* Logo */}
-        <Link href="/" className="flex items-center">
-          <img src="/logo.png" alt="The Fashion Xpress" className="h-16 w-auto object-contain" style={{ mixBlendMode: 'screen' }} />
+
+        {/* Logo + Brand Name */}
+        <Link href="/" className="flex items-center gap-3">
+          <img
+            src="/logo.png"
+            alt="The Fashion Xpress"
+            className="h-12 w-12 object-contain rounded-xl shrink-0"
+          />
+          <span className="font-serif text-base font-bold text-foreground tracking-wide hidden sm:block">
+            The Fashion Xpress
+          </span>
         </Link>
 
         {/* Desktop Links */}
@@ -40,27 +48,39 @@ export function CustomerNavbar() {
         </div>
 
         {/* Desktop Actions */}
-        <div className="hidden md:flex items-center gap-4">
+        <div className="hidden md:flex items-center gap-3">
+
+          {/* Theme toggle — always visible */}
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-lg hover:bg-white/5 transition-colors"
+            title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+          >
+            {theme === 'dark'
+              ? <Sun className="w-5 h-5 text-amber-400" />
+              : <Moon className="w-5 h-5 text-blue-500" />}
+          </button>
+
           {user ? (
             <>
               <Link href="/wishlist" className="p-2 hover:text-primary transition-colors relative">
-                <Heart className="w-5 h-5 text-white" />
+                <Heart className="w-5 h-5" />
                 {wishlist && wishlist.length > 0 && (
-                  <span className="absolute top-0 right-0 w-4 h-4 bg-primary text-black font-bold text-[10px] flex items-center justify-center rounded-full">
+                  <span className="absolute top-0 right-0 w-4 h-4 bg-primary text-primary-foreground font-bold text-[10px] flex items-center justify-center rounded-full">
                     {wishlist.length}
                   </span>
                 )}
               </Link>
               <Link href="/home-visit-cart" className="p-2 hover:text-primary transition-colors relative">
-                <ShoppingBag className="w-5 h-5 text-white" />
+                <ShoppingBag className="w-5 h-5" />
                 {cartItems && cartItems.length > 0 && (
-                  <span className="absolute top-0 right-0 w-4 h-4 bg-primary text-black font-bold text-[10px] flex items-center justify-center rounded-full">
+                  <span className="absolute top-0 right-0 w-4 h-4 bg-primary text-primary-foreground font-bold text-[10px] flex items-center justify-center rounded-full">
                     {cartItems.length}
                   </span>
                 )}
               </Link>
               <Link href="/account" className="p-2 hover:text-primary transition-colors">
-                <User className="w-5 h-5 text-white" />
+                <User className="w-5 h-5" />
               </Link>
               {user.role === 'admin' && (
                 <Link href="/admin">
@@ -77,15 +97,6 @@ export function CustomerNavbar() {
                   <Button variant="outline" size="sm" className="text-xs uppercase tracking-wider">Executive</Button>
                 </Link>
               )}
-              <button
-                onClick={toggleTheme}
-                className="p-2 hover:text-primary transition-colors"
-                title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-              >
-                {theme === 'dark'
-                  ? <Sun className="w-5 h-5 text-amber-400" />
-                  : <Moon className="w-5 h-5 text-blue-500" />}
-              </button>
               <Button variant="ghost" size="icon" onClick={logout} title="Sign Out">
                 <LogOut className="w-5 h-5 text-muted-foreground hover:text-destructive" />
               </Button>
@@ -97,10 +108,20 @@ export function CustomerNavbar() {
           )}
         </div>
 
-        {/* Mobile Toggle */}
-        <button className="md:hidden text-foreground" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-          {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-        </button>
+        {/* Mobile: Theme toggle + hamburger */}
+        <div className="flex md:hidden items-center gap-2">
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-lg hover:bg-white/5 transition-colors"
+          >
+            {theme === 'dark'
+              ? <Sun className="w-5 h-5 text-amber-400" />
+              : <Moon className="w-5 h-5 text-blue-500" />}
+          </button>
+          <button className="text-foreground p-1" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+            {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile Menu */}
@@ -116,7 +137,7 @@ export function CustomerNavbar() {
               <Link href="/wishlist" onClick={() => setIsMobileMenuOpen(false)} className="relative">
                 <Heart className="w-5 h-5" />
                 {wishlist && wishlist.length > 0 && (
-                  <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-primary text-black font-bold text-[9px] flex items-center justify-center rounded-full">
+                  <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-primary text-primary-foreground font-bold text-[9px] flex items-center justify-center rounded-full">
                     {wishlist.length}
                   </span>
                 )}
@@ -124,16 +145,13 @@ export function CustomerNavbar() {
               <Link href="/home-visit-cart" onClick={() => setIsMobileMenuOpen(false)} className="relative">
                 <ShoppingBag className="w-5 h-5" />
                 {cartItems && cartItems.length > 0 && (
-                  <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-primary text-black font-bold text-[9px] flex items-center justify-center rounded-full">
+                  <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-primary text-primary-foreground font-bold text-[9px] flex items-center justify-center rounded-full">
                     {cartItems.length}
                   </span>
                 )}
               </Link>
               <Link href="/account" onClick={() => setIsMobileMenuOpen(false)}><User className="w-5 h-5" /></Link>
               <button onClick={logout}><LogOut className="w-5 h-5 text-destructive" /></button>
-              <button onClick={toggleTheme} title={theme === 'dark' ? 'Light' : 'Dark'}>
-                {theme === 'dark' ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5 text-blue-500" />}
-              </button>
             </div>
           ) : (
             <Link href="/login" onClick={() => setIsMobileMenuOpen(false)} className="mt-4">
@@ -145,4 +163,3 @@ export function CustomerNavbar() {
     </nav>
   );
 }
-
