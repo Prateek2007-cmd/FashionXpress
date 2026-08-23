@@ -9,6 +9,7 @@ import {
   productsTable,
   brandsTable,
   invoicesTable,
+  usersTable,
 } from "@workspace/db";
 import {
   GetDashboardSummaryResponse,
@@ -199,6 +200,163 @@ router.get(
       res.status(500).json({ error: "Failed to fetch brand revenue" });
     }
   },
+);
+// ── Executive Performance ──────────────────────────────────────────────────
+router.get(
+  "/admin/dashboard/executive-performance",
+  requireAuth("admin"),
+  async (_req: Request, res: Response): Promise<void> => {
+    try {
+      const rows = await db
+        .select({
+          name: usersTable.name,
+          totalVisits: sql<number>`count(*)::int`,
+          completedVisits: sql<number>`count(*) filter (where ${bookingsTable.status} = 'completed')::int`,
+          rating: executivesTable.rating,
+        })
+        .from(executivesTable)
+        .innerJoin(usersTable, eq(executivesTable.userId, usersTable.id))
+        .leftJoin(bookingsTable, eq(bookingsTable.executiveId, executivesTable.id))
+        .groupBy(usersTable.name, executivesTable.rating)
+        .orderBy(sql`count(*) desc`)
+        .limit(8);
+
+      res.json(rows.map((r) => ({
+        name: r.name,
+        totalVisits: r.totalVisits,
+        completedVisits: r.completedVisits,
+        rating: parseFloat(r.rating as string),
+      })));
+    } catch (err: any) {
+      console.error("GET /admin/dashboard/executive-performance error:", err);
+      res.status(500).json({ error: "Failed to fetch executive performance" });
+    }
+  }
+);
+
+// ── Top Cities ───────────────────────────────────────────────────────────────
+router.get(
+  "/admin/dashboard/top-cities",
+  requireAuth("admin"),
+  async (_req: Request, res: Response): Promise<void> => {
+    try {
+      // Extract first word/locality from addressText as city approximation
+      const rows = await db
+        .select({
+          city: sql<string>`split_part(${bookingsTable.addressText}, ',', -1)`,
+          count: sql<number>`count(*)::int`,
+        })
+        .from(bookingsTable)
+        .groupBy(sql`split_part(${bookingsTable.addressText}, ',', -1)`)
+        .orderBy(sql`count(*) desc`)
+        .limit(6);
+
+      res.json(rows.map((r) => ({
+        city: (r.city || "").trim(),
+        count: r.count,
+      })));
+    } catch (err: any) {
+      console.error("GET /admin/dashboard/top-cities error:", err);
+      res.status(500).json({ error: "Failed to fetch top cities" });
+    }
+  }
+);
+
+// ── Monthly Booking Goal ──────────────────────────────────────────────────────
+router.get(
+  "/admin/dashboard/monthly-goal",
+  requireAuth("admin"),
+  async (_req: Request, res: Response): Promise<void> => {
+    try {
+      const now = new Date();
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
+      const TARGET = 100; // Monthly target
+
+      const [{ count: thisMonth }] = await db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(bookingsTable)
+        .where(gte(bookingsTable.preferredDate, monthStart));
+
+      const [{ count: completedMonth }] = await db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(bookingsTable)
+        .where(
+          and(
+            gte(bookingsTable.preferredDate, monthStart),
+            eq(bookingsTable.status, "completed")
+          )
+        );
+
+      res.json({ target: TARGET, thisMonth, completedMonth });
+    } catch (err: any) {
+      console.error("GET /admin/dashboard/monthly-goal error:", err);
+      res.status(500).json({ error: "Failed to fetch monthly goal" });
+    }
+  }
+);
+
+// ── Customer Retention ────────────────────────────────────────────────────────
+router.get(
+  "/admin/dashboard/customer-retention",
+  requireAuth("admin"),
+  async (_req: Request, res: Response): Promise<void> => {
+    try {
+      const repeatRows = await db
+        .select({
+          customerId: bookingsTable.customerId,
+          bookingCount: sql<number>`count(*)::int`,
+        })
+        .from(bookingsTable)
+        .groupBy(bookingsTable.customerId);
+
+      const total = repeatRows.length;
+      const repeat = repeatRows.filter((r) => r.bookingCount > 1).length;
+      const newCustomers = total - repeat;
+
+      res.json({
+        total,
+        repeat,
+        newCustomers,
+        repeatRate: total > 0 ? Math.round((repeat / total) * 100) : 0,
+      });
+    } catch (err: any) {
+      console.error("GET /admin/dashboard/customer-retention error:", err);
+      res.status(500).json({ error: "Failed to fetch retention data" });
+    }
+  }
+);
+
+// ── Recent Activity Feed ──────────────────────────────────────────────────────
+router.get(
+  "/admin/dashboard/recent-activity",
+  requireAuth("admin"),
+  async (_req: Request, res: Response): Promise<void> => {
+    try {
+      const recentBookings = await db
+        .select({
+          id: bookingsTable.id,
+          name: bookingsTable.name,
+          status: bookingsTable.status,
+          createdAt: bookingsTable.createdAt,
+          bookingCode: bookingsTable.bookingCode,
+        })
+        .from(bookingsTable)
+        .orderBy(sql`${bookingsTable.createdAt} desc`)
+        .limit(8);
+
+      res.json(recentBookings.map((b) => ({
+        type: "booking",
+        id: b.id,
+        name: b.name,
+        status: b.status,
+        code: b.bookingCode,
+        createdAt: b.createdAt,
+      })));
+    } catch (err: any) {
+      console.error("GET /admin/dashboard/recent-activity error:", err);
+      res.status(500).json({ error: "Failed to fetch recent activity" });
+    }
+  }
 );
 
 export default router;
