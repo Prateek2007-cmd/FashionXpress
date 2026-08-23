@@ -132,10 +132,87 @@
 
 /* Glassmorphism utils */
 .glass {
-  @apply bg-background/60 backdrop-blur-xl border-b border-white/5;
+  @apply bg-background/80 backdrop-blur-xl border-b border-border;
 }
 .glass-card {
-  @apply bg-card/40 backdrop-blur-lg border border-white/5 shadow-2xl;
+  @apply bg-card/80 backdrop-blur-lg border border-border shadow-2xl;
+}
+
+/* ── LIGHT MODE OVERRIDES ──────────────────────────────────────────────
+   Many components use hardcoded Tailwind dark-mode classes (text-white,
+   bg-card, border-white/5 etc). These overrides ensure light mode is
+   readable without touching every component.
+────────────────────────────────────────────────────────────────────── */
+:root:not(.dark) {
+
+  /* Force text-white to become dark on light backgrounds */
+  .text-white {
+    color: hsl(0 0% 8%) !important;
+  }
+
+  /* Muted text should be readable */
+  .text-muted-foreground {
+    color: hsl(0 0% 35%) !important;
+  }
+
+  /* Cards: white background, subtle border */
+  .bg-card {
+    background-color: hsl(0 0% 100%) !important;
+  }
+  .border-white\/5,
+  .border-white\/8,
+  .border-white\/10 {
+    border-color: hsl(0 0% 88%) !important;
+  }
+
+  /* Input fields: white background with dark text */
+  input, textarea, select {
+    background-color: hsl(0 0% 100%) !important;
+    color: hsl(0 0% 8%) !important;
+    border-color: hsl(0 0% 82%) !important;
+  }
+  input::placeholder, textarea::placeholder {
+    color: hsl(0 0% 55%) !important;
+  }
+
+  /* Dark backgrounds used by hero sections — keep them dark so white hero text stays visible */
+  .bg-black,
+  .bg-black\/95,
+  .bg-black\/90,
+  .bg-black\/80 {
+    /* These are intentional dark overlays — don't override */
+  }
+
+  /* Sidebar backgrounds */
+  .bg-card\/30 {
+    background-color: hsl(0 0% 96%) !important;
+  }
+
+  /* Nav glass in light mode */
+  nav.glass {
+    background-color: rgba(255, 255, 255, 0.92) !important;
+  }
+
+  /* Table rows */
+  .divide-white\/5 > * + * {
+    border-color: hsl(0 0% 90%) !important;
+  }
+
+  /* Badges and tags with white/low opacity borders */
+  .bg-white\/5 {
+    background-color: hsl(0 0% 94%) !important;
+  }
+  .bg-white\/\[0\.02\],
+  .bg-white\/\[0\.01\] {
+    background-color: hsl(0 0% 96%) !important;
+  }
+
+  /* Ensure chart tooltips are readable */
+  .recharts-tooltip-wrapper .recharts-default-tooltip {
+    background-color: white !important;
+    color: #111 !important;
+    border: 1px solid #e5e5e5 !important;
+  }
 }
 
 /* Hide scrollbar but allow scrolling */
