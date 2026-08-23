@@ -43,7 +43,7 @@ export function CustomerFooter() {
           <h4 className="font-serif text-lg mb-6 text-white">Services</h4>
           <ul className="space-y-4 text-sm text-muted-foreground">
             <li><Link href="/book-visit" className="hover:text-primary transition-colors">Book a Home Visit</Link></li>
-            <li><Link href="/about" className="hover:text-primary transition-colors">How it Works</Link></li>
+            <li><Link href="/how-it-works" className="hover:text-primary transition-colors">How it Works</Link></li>
             <li><Link href="/faq" className="hover:text-primary transition-colors">FAQs</Link></li>
             <li><Link href="/contact" className="hover:text-primary transition-colors">Contact Us</Link></li>
           </ul>

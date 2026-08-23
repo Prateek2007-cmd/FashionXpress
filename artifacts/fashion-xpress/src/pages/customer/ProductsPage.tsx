@@ -26,13 +26,9 @@ export function ProductsPage() {
   const [brandId, setBrandId] = useState<number | undefined>(undefined);
   const [color, setColor] = useState<string | undefined>(undefined);
   const [occasion, setOccasion] = useState<string | undefined>(undefined);
-  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [collectionTitle, setCollectionTitle] = useState<string>('The Collection');
 
-  const searchParams = new URLSearchParams(window.location.search);
-  const filterParam = searchParams.get('filter');
-  const [discountFilter, setDiscountFilter] = useState<string>(
-    filterParam === 'price-drop' ? 'price-drop' : 'all'
-  );
+  const [discountFilter, setDiscountFilter] = useState<string>('all');
 
   const { isAuthenticated, token } = useAuth();
   const [, setLocation] = useLocation();
@@ -41,6 +37,60 @@ export function ProductsPage() {
 
   const { data: categories } = useListCategories();
   const { data: brands } = useListBrands();
+
+  // Sync URL search params on mount and navigation
+  React.useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const catParam = params.get('category');
+    const searchParam = params.get('search');
+    const filterParam = params.get('filter');
+
+    if (filterParam === 'price-drop') {
+      setDiscountFilter('price-drop');
+      setCollectionTitle('Price Drop Collection');
+    } else if (filterParam === 'new') {
+      setDiscountFilter('all');
+      setCollectionTitle('New Arrivals');
+    }
+
+    if (searchParam) {
+      setSearch(searchParam);
+    }
+
+    if (catParam) {
+      const lower = catParam.toLowerCase();
+      if (lower === 'men' || lower === 'mens' || lower === 'mens-ethnic') {
+        setCollectionTitle("Men's Collection");
+      } else if (lower === 'women' || lower === 'womens' || lower === 'womens-ethnic' || lower === 'sarees') {
+        setCollectionTitle("Women's Collection");
+      } else if (lower === 'accessories') {
+        setCollectionTitle('Accessories');
+      }
+
+      if (categories && Array.isArray(categories)) {
+        const match = categories.find(c =>
+          c.slug.toLowerCase() === lower ||
+          c.id.toString() === catParam ||
+          c.name.toLowerCase().includes(lower)
+        );
+        if (match) {
+          setCategoryId(match.id);
+        } else if (lower.includes('men')) {
+          const menMatch = categories.find(c => c.name.toLowerCase().includes('men') || c.slug.includes('men'));
+          if (menMatch) setCategoryId(menMatch.id);
+          else setSearch('Men');
+        } else if (lower.includes('women')) {
+          const womenMatch = categories.find(c => c.name.toLowerCase().includes('women') || c.slug.includes('women') || c.name.toLowerCase().includes('saree'));
+          if (womenMatch) setCategoryId(womenMatch.id);
+          else setSearch('Women');
+        } else if (lower.includes('accessori')) {
+          const accMatch = categories.find(c => c.name.toLowerCase().includes('accessori') || c.slug.includes('accessori'));
+          if (accMatch) setCategoryId(accMatch.id);
+          else setSearch('Accessories');
+        }
+      }
+    }
+  }, [categories]);
   const { data: productsData, isLoading } = useListProducts({
     search: search || undefined,
     categoryId,
@@ -129,7 +179,18 @@ export function ProductsPage() {
                 <Sparkles className="w-3.5 h-3.5" /> Curated For You
               </div>
               <h1 className="text-5xl md:text-6xl font-serif font-black text-white leading-tight mb-4">
-                The <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-amber-300 to-primary">Collection</span>
+                {collectionTitle.includes(' ') ? (
+                  <>
+                    {collectionTitle.split(' ').slice(0, -1).join(' ')}{' '}
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-amber-300 to-primary">
+                      {collectionTitle.split(' ').slice(-1)[0]}
+                    </span>
+                  </>
+                ) : (
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-amber-300 to-primary">
+                    {collectionTitle}
+                  </span>
+                )}
               </h1>
               <p className="text-white/60 text-lg max-w-xl mx-auto">
                 Hand-picked premium pieces brought to your doorstep by our personal Fashion Executives.

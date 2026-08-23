@@ -23,6 +23,10 @@ import { AccountPage } from "./pages/customer/AccountPage";
 import { WishlistPage } from "./pages/customer/WishlistPage";
 import { CartPage } from "./pages/customer/CartPage";
 import { PartnerWithUsPage } from "./pages/customer/PartnerWithUsPage";
+import { HowItWorksPage } from "./pages/customer/HowItWorksPage";
+import { FaqPage } from "./pages/customer/FaqPage";
+import { ContactPage } from "./pages/customer/ContactPage";
+import { LegalPage } from "./pages/customer/LegalPage";
 
 // Admin Pages
 import { AdminDashboard } from "./pages/admin/AdminDashboard";
@@ -69,6 +73,14 @@ function CustomerRoutes() {
         <Route path="/wishlist" component={WishlistPage} />
         <Route path="/home-visit-cart" component={CartPage} />
         <Route path="/partner" component={PartnerWithUsPage} />
+        <Route path="/how-it-works" component={HowItWorksPage} />
+        <Route path="/about" component={HowItWorksPage} />
+        <Route path="/faq" component={FaqPage} />
+        <Route path="/faqs" component={FaqPage} />
+        <Route path="/contact" component={ContactPage} />
+        <Route path="/contact-us" component={ContactPage} />
+        <Route path="/privacy">{() => <LegalPage type="privacy" />}</Route>
+        <Route path="/terms">{() => <LegalPage type="terms" />}</Route>
         <Route component={NotFound} />
       </Switch>
     </CustomerLayout>
