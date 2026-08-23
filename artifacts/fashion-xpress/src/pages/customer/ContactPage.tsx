@@ -78,7 +78,7 @@ export function ContactPage() {
                 </div>
                 <div>
                   <div className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Direct Call Support</div>
-                  <div className="text-white font-medium text-base">+91 98765 43210 (Mon–Sun, 9am–9pm)</div>
+                  <div className="text-white font-medium text-base">+91 63048 47223 (Mon–Sun, 9am–9pm)</div>
                 </div>
               </div>
 
@@ -98,7 +98,7 @@ export function ContactPage() {
                 </div>
                 <div>
                   <div className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Flagship Experience Center</div>
-                  <div className="text-white font-medium text-base">Level 42, Luxury Tower, UB City, Bengaluru 560001</div>
+                  <div className="text-white font-medium text-base">6-7 Ground Floor, Bhutapur, Adilabad, Telangana 504001</div>
                 </div>
               </div>
             </div>
