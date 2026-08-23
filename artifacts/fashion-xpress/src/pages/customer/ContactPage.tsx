@@ -98,7 +98,7 @@ export function ContactPage() {
                 </div>
                 <div>
                   <div className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Flagship Experience Center</div>
-                  <div className="text-white font-medium text-base">6-7 Ground Floor, Bhutapur, Adilabad, Telangana 504001</div>
+                  <div className="text-white font-medium text-base">6-7 Ground Floor, Bhuktapur, Adilabad, Telangana 504001</div>
                 </div>
               </div>
             </div>

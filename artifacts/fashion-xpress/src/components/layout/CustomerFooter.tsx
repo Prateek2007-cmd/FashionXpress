@@ -54,7 +54,7 @@ export function CustomerFooter() {
           <ul className="space-y-4 text-sm text-muted-foreground">
             <li>concierge@fashionxpress.com</li>
             <li>+91 63048 47223</li>
-            <li>6-7 Ground Floor, Bhutapur</li>
+            <li>6-7 Ground Floor, Bhuktapur</li>
             <li>Adilabad, Telangana 504001</li>
           </ul>
         </div>
