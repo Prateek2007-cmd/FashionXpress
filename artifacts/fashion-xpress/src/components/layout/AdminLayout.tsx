@@ -37,7 +37,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
             alt="The Fashion Xpress"
             className="h-9 w-9 object-contain rounded-lg shrink-0"
           />
-          <span className="font-serif text-sm text-white font-bold tracking-wide">The Fashion Xpress</span>
+          <span className="font-brand text-xs text-white font-bold tracking-[0.15em] uppercase">The Fashion Xpress</span>
         </div>
         <button
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -67,7 +67,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
               alt="The Fashion Xpress"
               className="h-11 w-11 object-contain rounded-xl shrink-0"
             />
-            <span className="font-serif text-base text-white font-bold tracking-wide leading-tight">
+            <span className="font-brand text-sm text-white font-bold tracking-[0.15em] uppercase leading-tight">
               The Fashion Xpress
             </span>
           </div>

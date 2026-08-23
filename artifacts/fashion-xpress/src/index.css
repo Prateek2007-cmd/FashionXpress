@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800;900&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
 @import 'tailwindcss';
 @import 'tw-animate-css';
 @plugin "@tailwindcss/typography";
@@ -37,6 +37,7 @@
 
   --font-sans: var(--app-font-sans);
   --font-serif: var(--app-font-serif);
+  --font-brand: var(--app-font-brand);
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -77,6 +78,7 @@
   --radius: 0.5rem;
   --app-font-sans: 'Plus Jakarta Sans', sans-serif;
   --app-font-serif: 'Playfair Display', serif;
+  --app-font-brand: 'Cinzel', serif;
 }
 
 /* ── DARK MODE ── */
@@ -113,6 +115,11 @@
   --radius: 0.5rem;
   --app-font-sans: 'Plus Jakarta Sans', sans-serif;
   --app-font-serif: 'Playfair Display', serif;
+  --app-font-brand: 'Cinzel', serif;
+}
+
+.font-brand {
+  font-family: 'Cinzel', serif;
 }
 
 .dark option {

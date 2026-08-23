@@ -27,15 +27,17 @@ export function CustomerNavbar() {
       <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
 
         {/* Logo + Brand Name */}
-        <Link href="/" className="flex items-center gap-3">
+        <Link href="/" className="flex items-center gap-3 group">
           <img
             src="/logo.png"
             alt="The Fashion Xpress"
-            className="h-12 w-12 object-contain rounded-xl shrink-0"
+            className="h-12 w-12 object-contain rounded-xl shrink-0 group-hover:scale-105 transition-transform"
           />
-          <span className="font-serif text-base font-bold text-foreground tracking-wide hidden sm:block">
-            The Fashion Xpress
-          </span>
+          <div className="hidden sm:block leading-tight">
+            <span className="font-brand text-sm sm:text-base font-bold uppercase tracking-[0.18em] text-foreground block">
+              The Fashion Xpress
+            </span>
+          </div>
         </Link>
 
         {/* Desktop Links */}
