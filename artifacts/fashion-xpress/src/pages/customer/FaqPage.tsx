@@ -48,11 +48,6 @@ const FAQS: FaqItem[] = [
     category: "Safety & Security",
     question: "How are the Fashion Executives verified?",
     answer: "All Fashion Executives undergo comprehensive background checks, identity verification, and professional etiquette training to guarantee complete safety, privacy, and peace of mind during your home visit."
-  },
-  {
-    category: "Returns & Exchanges",
-    question: "What if I want to return an item after the executive leaves?",
-    answer: "We offer a 7-day hassle-free doorstep exchange or return guarantee. Simply visit your Account page or message our Concierge on WhatsApp to schedule an instant pickup."
   }
 ];
 
@@ -60,7 +55,7 @@ export function FaqPage() {
   const [activeCategory, setActiveCategory] = useState<string>('All');
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
-  const categories = ['All', 'Home Visit & Trials', 'Orders & Payments', 'Quality & Authenticity', 'Returns & Exchanges'];
+  const categories = ['All', 'Home Visit & Trials', 'Orders & Payments', 'Quality & Authenticity', 'Safety & Security'];
 
   const filteredFaqs = activeCategory === 'All'
     ? FAQS

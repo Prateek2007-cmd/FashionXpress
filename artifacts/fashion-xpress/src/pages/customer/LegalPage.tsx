@@ -71,9 +71,9 @@ export function LegalPage({ type = 'terms' }: LegalPageProps) {
             </div>
 
             <div className="bg-card/40 border border-white/5 rounded-2xl p-8 space-y-4">
-              <h2 className="text-xl font-serif text-white">3. Returns & Exchanges</h2>
+              <h2 className="text-xl font-serif text-white">3. On-Spot Try & Selection Policy</h2>
               <p>
-                Items purchased during a visit may be returned or exchanged within 7 days provided the original tags, security seals, and garment condition remain unaltered.
+                Customers are encouraged to try all garments during the home visit. You only pay for items you choose to keep before the executive departs. Unselected pieces are taken back immediately at no cost.
               </p>
             </div>
 
