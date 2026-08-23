@@ -29,12 +29,11 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen flex flex-col md:flex-row bg-black relative">
       {/* Mobile Header */}
       <header className="h-16 border-b border-white/5 bg-card/50 flex items-center justify-between px-4 md:hidden z-40 w-full shrink-0">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <img
             src="/logo.png"
             alt="The Fashion Xpress"
-            className="h-9 w-9 object-contain rounded-lg"
-            style={{ mixBlendMode: 'screen' }}
+            className="h-9 w-9 object-contain rounded-lg shrink-0"
           />
           <span className="font-serif text-sm text-white font-bold tracking-wide">The Fashion Xpress</span>
         </div>
@@ -56,7 +55,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 bottom-0 left-0 w-64 border-r border-white/5 bg-black/95 md:bg-card/30 flex flex-col z-50 transition-transform duration-300 md:translate-x-0 md:static shrink-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        className={`fixed top-0 bottom-0 left-0 w-72 border-r border-white/5 bg-black/95 md:bg-card/30 flex flex-col z-50 transition-transform duration-300 md:translate-x-0 md:static shrink-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
           }`}
       >
         <div className="h-20 flex items-center justify-between px-5 border-b border-white/5 shrink-0">
@@ -64,8 +63,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
             <img
               src="/logo.png"
               alt="The Fashion Xpress"
-              className="h-11 w-11 object-contain rounded-xl"
-              style={{ mixBlendMode: 'screen' }}
+              className="h-11 w-11 object-contain rounded-xl shrink-0"
             />
             <span className="font-serif text-base text-white font-bold tracking-wide leading-tight">
               The Fashion Xpress
