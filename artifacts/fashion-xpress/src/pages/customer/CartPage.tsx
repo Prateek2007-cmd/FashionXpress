@@ -82,7 +82,7 @@ export function CartPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-6 py-12">
-      <h1 className="text-4xl font-serif text-white mb-2">Store Pick-up Selection</h1>
+      <h1 className="text-4xl font-serif text-foreground mb-2">Store Pick-up Selection</h1>
       <p className="text-muted-foreground mb-12">Review the items you've selected for in-store pickup.</p>
 
       {!cartItems || cartItems.length === 0 ? (
@@ -105,7 +105,7 @@ export function CartPage() {
                 </div>
                 <div className="flex-1 flex flex-col py-1">
                   <div className="text-xs text-muted-foreground tracking-widest uppercase mb-1">{item.product.brandName}</div>
-                  <Link href={`/products/${item.product.id}`} className="text-lg font-serif text-white hover:text-primary transition-colors">
+                  <Link href={`/products/${item.product.id}`} className="text-lg font-serif text-foreground hover:text-primary transition-colors">
                     {item.product.name}
                   </Link>
                   <div className="text-sm text-muted-foreground mt-1">
@@ -113,7 +113,7 @@ export function CartPage() {
                   </div>
                   
                   <div className="mt-auto flex items-center justify-between">
-                    <div className="text-white/90">{formatPrice(item.product.sellingPrice)}</div>
+                    <div className="text-foreground/90">{formatPrice(item.product.sellingPrice)}</div>
                     <button 
                       onClick={() => handleRemove(item.productId)}
                       disabled={removingId === item.productId}
@@ -133,16 +133,16 @@ export function CartPage() {
 
           <div className="w-full lg:w-96">
             <div className="bg-card border border-white/5 rounded-2xl p-8 sticky top-24">
-              <h3 className="font-serif text-xl text-white mb-6">Pick-up Summary</h3>
+              <h3 className="font-serif text-xl text-foreground mb-6">Pick-up Summary</h3>
               
               <div className="space-y-4 mb-8">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Items selected</span>
-                  <span className="text-white font-medium">{cartItems.length}</span>
+                  <span className="text-foreground font-medium">{cartItems.length}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Estimated Value</span>
-                  <span className="text-white font-medium">{formatPrice(totalEstimate)}</span>
+                  <span className="text-foreground font-medium">{formatPrice(totalEstimate)}</span>
                 </div>
                 <div className="flex justify-between text-sm pt-4 border-t border-white/5">
                   <span className="text-muted-foreground">Upfront Payment</span>
@@ -175,19 +175,19 @@ export function CartPage() {
       {/* Confirmation Modal */}
       {confirmedOrder && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="bg-card border border-white/10 rounded-2xl w-full max-w-md overflow-hidden relative p-8 text-center shadow-2xl">
+          <div className="bg-card border border-border rounded-2xl w-full max-w-md overflow-hidden relative p-8 text-center shadow-2xl">
             <div className="w-16 h-16 bg-primary/10 border border-primary/20 rounded-full flex items-center justify-center mx-auto mb-6">
               <Check className="w-8 h-8 text-primary" />
             </div>
             
-            <h2 className="font-serif text-2xl text-white mb-3">Reservation Confirmed!</h2>
+            <h2 className="font-serif text-2xl text-foreground mb-3">Reservation Confirmed!</h2>
             <p className="text-muted-foreground text-sm mb-6 leading-relaxed">
               Your order has been confirmed successfully! You can collect your items from the **Merchant Store**.
             </p>
             
-            <div className="bg-white/5 border border-white/10 rounded-lg p-4 mb-6">
+            <div className="bg-muted/50 border border-border rounded-lg p-4 mb-6">
               <span className="text-xs text-muted-foreground uppercase tracking-widest block mb-1">Order ID / Code</span>
-              <span className="font-mono text-xl font-bold text-white tracking-wider">{confirmedOrder.orderNumber}</span>
+              <span className="font-mono text-xl font-bold text-foreground tracking-wider">{confirmedOrder.orderNumber}</span>
             </div>
             
             <Button 

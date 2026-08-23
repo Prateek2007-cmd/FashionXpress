@@ -115,6 +115,11 @@
   --app-font-serif: 'Playfair Display', serif;
 }
 
+.dark option {
+  background-color: hsl(0 0% 10%) !important;
+  color: hsl(60 9% 98%) !important;
+}
+
 @layer base {
   * {
     @apply border-border;
@@ -170,6 +175,10 @@
     background-color: hsl(0 0% 100%) !important;
     color: hsl(0 0% 8%) !important;
     border-color: hsl(0 0% 82%) !important;
+  }
+  option {
+    background-color: hsl(0 0% 100%) !important;
+    color: hsl(0 0% 8%) !important;
   }
   input::placeholder, textarea::placeholder {
     color: hsl(0 0% 55%) !important;

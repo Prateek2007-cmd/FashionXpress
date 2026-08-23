@@ -87,7 +87,7 @@ export function ProductDetailPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-12">
-      <Link href="/products" className="inline-flex items-center text-sm tracking-widest uppercase text-muted-foreground hover:text-white mb-8 transition-colors">
+      <Link href="/products" className="inline-flex items-center text-sm tracking-widest uppercase text-muted-foreground hover:text-foreground mb-8 transition-colors">
         <ArrowLeft className="w-4 h-4 mr-2" /> Back to Collection
       </Link>
 
@@ -113,14 +113,14 @@ export function ProductDetailPage() {
         {/* Details */}
         <div className="flex flex-col">
           <div className="text-sm text-primary tracking-widest uppercase mb-2">{product.brandName}</div>
-          <h1 className="text-4xl font-serif text-white mb-4 leading-tight">{product.name}</h1>
+          <h1 className="text-4xl font-serif text-foreground mb-4 leading-tight">{product.name}</h1>
           <div className="flex items-baseline gap-3 mb-8">
-            <span className="text-3xl font-serif text-white font-semibold">{formatPrice(product.sellingPrice)}</span>
+            <span className="text-3xl font-serif text-foreground font-semibold">{formatPrice(product.sellingPrice)}</span>
             {product.mrp > product.sellingPrice && (
               <span className="text-lg text-muted-foreground line-through font-light">{formatPrice(product.mrp)}</span>
             )}
             {product.mrp > product.sellingPrice && (
-              <span className="px-2.5 py-1 bg-red-600/90 text-white text-xs font-bold rounded-md tracking-wider uppercase shadow">
+              <span className="px-2.5 py-1 bg-red-600/90 text-foreground text-xs font-bold rounded-md tracking-wider uppercase shadow">
                 {Math.round(((product.mrp - product.sellingPrice) / product.mrp) * 100)}% OFF
               </span>
             )}
@@ -133,15 +133,15 @@ export function ProductDetailPage() {
           <div className="grid grid-cols-2 gap-6 mb-10 border-y border-white/5 py-8">
             <div>
               <div className="text-xs text-muted-foreground uppercase tracking-widest mb-1">Color</div>
-              <div className="text-white capitalize">{product.color}</div>
+              <div className="text-foreground capitalize">{product.color}</div>
             </div>
             <div>
               <div className="text-xs text-muted-foreground uppercase tracking-widest mb-1">Fabric</div>
-              <div className="text-white">{product.fabric}</div>
+              <div className="text-foreground">{product.fabric}</div>
             </div>
             <div>
               <div className="text-xs text-muted-foreground uppercase tracking-widest mb-1">Occasion</div>
-              <div className="text-white capitalize">{product.occasion}</div>
+              <div className="text-foreground capitalize">{product.occasion}</div>
             </div>
             <div>
               <div className="text-xs text-muted-foreground uppercase tracking-widest flex items-center gap-1 mb-1">
@@ -158,7 +158,7 @@ export function ProductDetailPage() {
                     className={`px-3 py-1.5 text-xs border rounded transition-colors ${
                       selectedSize === s 
                         ? 'bg-primary text-primary-foreground border-primary' 
-                        : 'border-white/10 bg-white/5 text-white hover:border-white/30'
+                        : 'border-border bg-muted/50 text-foreground hover:border-white/30'
                     }`}
                   >
                     {s}
@@ -192,7 +192,7 @@ export function ProductDetailPage() {
               <Button 
                 size="lg" 
                 variant="outline" 
-                className="h-14 px-8 border-white/20 text-white hover:bg-white/5 hover:text-white"
+                className="h-14 px-8 border-border text-foreground hover:bg-muted/50 hover:text-foreground"
                 onClick={handleWishlist}
                 disabled={addingToWishlist}
               >

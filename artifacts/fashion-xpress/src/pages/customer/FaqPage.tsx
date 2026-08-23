@@ -71,10 +71,10 @@ export function FaqPage() {
             <HelpCircle className="w-3.5 h-3.5" />
             Support & Knowledge Base
           </div>
-          <h1 className="text-4xl md:text-6xl font-serif font-black text-white mb-4">
+          <h1 className="text-4xl md:text-6xl font-serif font-black text-foreground mb-4">
             Frequently Asked <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-amber-300 to-primary">Questions</span>
           </h1>
-          <p className="text-white/70 text-lg max-w-2xl mx-auto">
+          <p className="text-foreground/70 text-lg max-w-2xl mx-auto">
             Everything you need to know about our personal home visits, try-before-you-buy service, and luxury fashion experience.
           </p>
         </div>
@@ -91,7 +91,7 @@ export function FaqPage() {
               className={`px-5 py-2.5 rounded-full text-xs font-semibold uppercase tracking-wider transition-all ${
                 activeCategory === cat
                   ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20'
-                  : 'bg-card border border-white/10 text-muted-foreground hover:text-white hover:border-white/20'
+                  : 'bg-card border border-border text-muted-foreground hover:text-foreground hover:border-border'
               }`}
             >
               {cat}
@@ -110,10 +110,10 @@ export function FaqPage() {
               >
                 <button
                   onClick={() => setOpenIndex(isOpen ? null : idx)}
-                  className="w-full p-6 text-left flex items-center justify-between gap-4 font-serif text-lg text-white"
+                  className="w-full p-6 text-left flex items-center justify-between gap-4 font-serif text-lg text-foreground"
                 >
                   <span className="font-semibold">{faq.question}</span>
-                  <div className={`w-8 h-8 rounded-full bg-white/5 flex items-center justify-center flex-shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-180 bg-primary/20 text-primary' : 'text-muted-foreground'}`}>
+                  <div className={`w-8 h-8 rounded-full bg-muted/50 flex items-center justify-center flex-shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-180 bg-primary/20 text-primary' : 'text-muted-foreground'}`}>
                     <ChevronDown className="w-4 h-4" />
                   </div>
                 </button>
@@ -129,7 +129,7 @@ export function FaqPage() {
 
         {/* Quick CTA Block */}
         <div className="mt-16 bg-gradient-to-br from-primary/10 via-card to-purple-500/5 border border-primary/20 rounded-3xl p-8 md:p-12 text-center shadow-xl">
-          <h3 className="text-2xl font-serif text-white mb-2">Still have questions?</h3>
+          <h3 className="text-2xl font-serif text-foreground mb-2">Still have questions?</h3>
           <p className="text-muted-foreground text-sm mb-6 max-w-md mx-auto">
             Our luxury styling concierge is available 7 days a week to assist you with special requests.
           </p>
@@ -138,7 +138,7 @@ export function FaqPage() {
               href="https://wa.me/916304847223"
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 px-6 h-12 bg-green-600 hover:bg-green-700 text-white rounded-xl font-semibold text-sm transition-colors shadow-lg"
+              className="inline-flex items-center gap-2 px-6 h-12 bg-green-600 hover:bg-green-700 text-foreground rounded-xl font-semibold text-sm transition-colors shadow-lg"
             >
               <MessageCircle className="w-4 h-4" /> Chat on WhatsApp
             </a>

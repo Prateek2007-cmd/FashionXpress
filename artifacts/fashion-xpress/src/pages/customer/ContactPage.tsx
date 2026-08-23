@@ -34,10 +34,10 @@ export function ContactPage() {
             <Mail className="w-3.5 h-3.5" />
             Concierge & Support
           </div>
-          <h1 className="text-4xl md:text-6xl font-serif font-black text-white mb-4">
+          <h1 className="text-4xl md:text-6xl font-serif font-black text-foreground mb-4">
             Get in <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-amber-300 to-primary">Touch</span>
           </h1>
-          <p className="text-white/70 text-lg max-w-2xl mx-auto">
+          <p className="text-foreground/70 text-lg max-w-2xl mx-auto">
             Whether you need personal styling advice, assistance with your Home Visit, or partnership inquiries, our team is here for you.
           </p>
         </div>
@@ -50,7 +50,7 @@ export function ContactPage() {
           {/* Left Info Column */}
           <div className="space-y-8">
             <div>
-              <h2 className="text-2xl md:text-3xl font-serif text-white mb-3">Reach Our Styling Concierge</h2>
+              <h2 className="text-2xl md:text-3xl font-serif text-foreground mb-3">Reach Our Styling Concierge</h2>
               <p className="text-muted-foreground text-sm leading-relaxed">
                 Connect with our dedicated luxury customer relations team for instantaneous assistance or custom garment requests.
               </p>
@@ -68,7 +68,7 @@ export function ContactPage() {
                 </div>
                 <div>
                   <div className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Instant Support</div>
-                  <div className="text-white font-medium text-base">+91 63048 47223 (WhatsApp Concierge)</div>
+                  <div className="text-foreground font-medium text-base">+91 63048 47223 (WhatsApp Concierge)</div>
                 </div>
               </a>
 
@@ -78,7 +78,7 @@ export function ContactPage() {
                 </div>
                 <div>
                   <div className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Direct Call Support</div>
-                  <div className="text-white font-medium text-base">+91 63048 47223 (Mon–Sun, 9am–9pm)</div>
+                  <div className="text-foreground font-medium text-base">+91 63048 47223 (Mon–Sun, 9am–9pm)</div>
                 </div>
               </div>
 
@@ -88,7 +88,7 @@ export function ContactPage() {
                 </div>
                 <div>
                   <div className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Email Enquiries</div>
-                  <div className="text-white font-medium text-base">concierge@fashionxpress.com</div>
+                  <div className="text-foreground font-medium text-base">concierge@fashionxpress.com</div>
                 </div>
               </div>
 
@@ -98,20 +98,20 @@ export function ContactPage() {
                 </div>
                 <div>
                   <div className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Flagship Experience Center</div>
-                  <div className="text-white font-medium text-base">6-7 Ground Floor, Bhuktapur, Adilabad, Telangana 504001</div>
+                  <div className="text-foreground font-medium text-base">6-7 Ground Floor, Bhuktapur, Adilabad, Telangana 504001</div>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Right Form Column */}
-          <div className="bg-card/60 backdrop-blur-xl border border-white/10 rounded-3xl p-8 shadow-2xl">
+          <div className="bg-card/60 backdrop-blur-xl border border-border rounded-3xl p-8 shadow-2xl">
             {submitted ? (
               <div className="py-16 text-center space-y-4">
                 <div className="w-16 h-16 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center mx-auto text-green-400">
                   <CheckCircle2 className="w-8 h-8" />
                 </div>
-                <h3 className="text-2xl font-serif text-white">Thank You!</h3>
+                <h3 className="text-2xl font-serif text-foreground">Thank You!</h3>
                 <p className="text-muted-foreground text-sm max-w-sm mx-auto">
                   Your message has been received. Our concierge executive will contact you shortly.
                 </p>
@@ -122,7 +122,7 @@ export function ContactPage() {
             ) : (
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div>
-                  <h3 className="text-xl font-serif text-white mb-1">Send a Message</h3>
+                  <h3 className="text-xl font-serif text-foreground mb-1">Send a Message</h3>
                   <p className="text-xs text-muted-foreground">Fill in your request below and we will get back to you promptly.</p>
                 </div>
 
@@ -132,7 +132,7 @@ export function ContactPage() {
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     placeholder="Enter your name"
-                    className="h-12 bg-white/5 border-white/10 rounded-xl"
+                    className="h-12 bg-muted/50 border-border rounded-xl"
                   />
                 </div>
 
@@ -145,7 +145,7 @@ export function ContactPage() {
                       placeholder="10-digit number"
                       maxLength={10}
                       inputMode="numeric"
-                      className="h-12 bg-white/5 border-white/10 rounded-xl"
+                      className="h-12 bg-muted/50 border-border rounded-xl"
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -155,7 +155,7 @@ export function ContactPage() {
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       placeholder="name@example.com"
-                      className="h-12 bg-white/5 border-white/10 rounded-xl"
+                      className="h-12 bg-muted/50 border-border rounded-xl"
                     />
                   </div>
                 </div>
@@ -166,7 +166,7 @@ export function ContactPage() {
                     value={formData.subject}
                     onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
                     placeholder="e.g. Special Wedding Fitting / Order Enquiry"
-                    className="h-12 bg-white/5 border-white/10 rounded-xl"
+                    className="h-12 bg-muted/50 border-border rounded-xl"
                   />
                 </div>
 
@@ -177,7 +177,7 @@ export function ContactPage() {
                     value={formData.message}
                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                     placeholder="Describe your enquiry, preferred timing, or special wardrobe preferences..."
-                    className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm text-white placeholder:text-muted-foreground/50 focus:border-primary/50 focus:outline-none"
+                    className="w-full bg-muted/50 border border-border rounded-xl p-3 text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-primary/50 focus:outline-none"
                   />
                 </div>
 

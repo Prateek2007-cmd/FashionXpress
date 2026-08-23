@@ -72,7 +72,7 @@ export function PartnerWithUsPage() {
             <div className="inline-block px-4 py-1.5 bg-primary/10 border border-primary/20 rounded-full text-primary text-sm font-medium tracking-wide mb-6">
               Grow Your Business
             </div>
-            <h1 className="text-4xl md:text-5xl font-serif text-white mb-6 leading-tight">
+            <h1 className="text-4xl md:text-5xl font-serif text-foreground mb-6 leading-tight">
               {content?.title || (
                 <>Partner With <br /><span className="text-primary">The Fashion Xpress</span></>
               )}
@@ -82,7 +82,7 @@ export function PartnerWithUsPage() {
             </p>
           </div>
 
-          <div className="relative rounded-2xl overflow-hidden aspect-[4/3] border border-white/10 group">
+          <div className="relative rounded-2xl overflow-hidden aspect-[4/3] border border-border group">
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10" />
             <img 
               src={content?.imageUrl || "https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?q=80&w=2070&auto=format&fit=crop"} 
@@ -93,9 +93,9 @@ export function PartnerWithUsPage() {
               <div className="w-12 h-12 rounded-full bg-primary/20 backdrop-blur-md flex items-center justify-center border border-primary/30">
                 <ShoppingBag className="w-5 h-5 text-primary" />
               </div>
-              <div className="text-white">
+              <div className="text-foreground">
                 <div className="font-semibold">Premium Retail</div>
-                <div className="text-sm text-white/70">Elevate your reach</div>
+                <div className="text-sm text-foreground/70">Elevate your reach</div>
               </div>
             </div>
           </div>
@@ -107,35 +107,35 @@ export function PartnerWithUsPage() {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
-          <div className="bg-card/30 backdrop-blur-md border border-white/10 rounded-2xl p-8 md:p-12 shadow-2xl">
+          <div className="bg-card/30 backdrop-blur-md border border-border rounded-2xl p-8 md:p-12 shadow-2xl">
             <div className="mb-8 text-center">
               <Store className="w-10 h-10 text-primary mx-auto mb-4 opacity-80" />
-              <h2 className="text-2xl font-serif text-white mb-2">Shop Details</h2>
+              <h2 className="text-2xl font-serif text-foreground mb-2">Shop Details</h2>
               <p className="text-muted-foreground">Tell us about your boutique to get started.</p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-white/90 uppercase tracking-widest text-xs">
+                <label className="text-sm font-medium text-foreground/90 uppercase tracking-widest text-xs">
                   Name of Shop
                 </label>
                 <Input 
                   required
                   placeholder="e.g. Elegance Boutique"
-                  className="bg-black/40 border-white/10 focus:border-primary/50 text-white h-12"
+                  className="bg-card border-border focus:border-primary/50 text-foreground h-12"
                   value={formData.shopName}
                   onChange={(e) => setFormData({...formData, shopName: e.target.value})}
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium text-white/90 uppercase tracking-widest text-xs">
+                <label className="text-sm font-medium text-foreground/90 uppercase tracking-widest text-xs">
                   What Do You Sell?
                 </label>
                 <Textarea 
                   required
                   placeholder="e.g. Premium women's dresses, designer ethnic wear, and luxury accessories..."
-                  className="bg-black/40 border-white/10 focus:border-primary/50 text-white min-h-[120px] resize-none"
+                  className="bg-card border-border focus:border-primary/50 text-foreground min-h-[120px] resize-none"
                   value={formData.productsSold}
                   onChange={(e) => setFormData({...formData, productsSold: e.target.value})}
                 />

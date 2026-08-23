@@ -50,10 +50,10 @@ export function HowItWorksPage() {
             <Sparkles className="w-3.5 h-3.5" />
             The Luxury Experience
           </div>
-          <h1 className="text-4xl md:text-6xl font-serif font-black text-white mb-4">
+          <h1 className="text-4xl md:text-6xl font-serif font-black text-foreground mb-4">
             How It <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-amber-300 to-primary">Works</span>
           </h1>
-          <p className="text-white/70 text-lg max-w-2xl mx-auto">
+          <p className="text-foreground/70 text-lg max-w-2xl mx-auto">
             Experience the future of boutique shopping—where the entire showroom visits your home with zero pressure and zero upfront cost.
           </p>
         </div>
@@ -78,7 +78,7 @@ export function HowItWorksPage() {
                       STEP {item.step}
                     </span>
                   </div>
-                  <h3 className="text-2xl font-serif text-white mb-3">{item.title}</h3>
+                  <h3 className="text-2xl font-serif text-foreground mb-3">{item.title}</h3>
                   <p className="text-muted-foreground text-sm leading-relaxed">{item.desc}</p>
                 </div>
               </div>
@@ -88,8 +88,8 @@ export function HowItWorksPage() {
 
         {/* CTA Box */}
         <div className="mt-16 text-center bg-gradient-to-br from-primary/10 via-card to-purple-500/5 border border-primary/20 rounded-3xl p-10 md:p-14 shadow-2xl">
-          <h2 className="text-3xl md:text-4xl font-serif text-white mb-4">Ready to Experience Personal Doorstep Shopping?</h2>
-          <p className="text-white/70 text-base max-w-lg mx-auto mb-8">
+          <h2 className="text-3xl md:text-4xl font-serif text-foreground mb-4">Ready to Experience Personal Doorstep Shopping?</h2>
+          <p className="text-foreground/70 text-base max-w-lg mx-auto mb-8">
             Book your consultation now. Our Fashion Executive will arrive with curated pieces within 45–60 minutes.
           </p>
           <Link href="/book-visit">

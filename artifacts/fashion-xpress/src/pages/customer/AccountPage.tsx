@@ -24,25 +24,25 @@ export function AccountPage() {
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-12">
-      <h1 className="text-4xl font-serif text-white mb-8">My Account</h1>
+      <h1 className="text-4xl font-serif text-foreground mb-8">My Account</h1>
 
       <div className="flex flex-col md:flex-row gap-12">
         <aside className="w-full md:w-64 space-y-2">
           <button 
             onClick={() => setActiveTab('profile')}
-            className={`w-full text-left px-4 py-3 rounded-md text-sm tracking-widest uppercase transition-colors ${activeTab === 'profile' ? 'bg-primary/10 text-primary border border-primary/20' : 'text-muted-foreground hover:bg-white/5 hover:text-white'}`}
+            className={`w-full text-left px-4 py-3 rounded-md text-sm tracking-widest uppercase transition-colors ${activeTab === 'profile' ? 'bg-primary/10 text-primary border border-primary/20' : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'}`}
           >
             <div className="flex items-center gap-3"><UserIcon className="w-4 h-4" /> Profile & Sizing</div>
           </button>
           <button 
             onClick={() => setActiveTab('bookings')}
-            className={`w-full text-left px-4 py-3 rounded-md text-sm tracking-widest uppercase transition-colors ${activeTab === 'bookings' ? 'bg-primary/10 text-primary border border-primary/20' : 'text-muted-foreground hover:bg-white/5 hover:text-white'}`}
+            className={`w-full text-left px-4 py-3 rounded-md text-sm tracking-widest uppercase transition-colors ${activeTab === 'bookings' ? 'bg-primary/10 text-primary border border-primary/20' : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'}`}
           >
             <div className="flex items-center gap-3"><Calendar className="w-4 h-4" /> Visit History</div>
           </button>
           <button 
             onClick={() => setActiveTab('orders')}
-            className={`w-full text-left px-4 py-3 rounded-md text-sm tracking-widest uppercase transition-colors ${activeTab === 'orders' ? 'bg-primary/10 text-primary border border-primary/20' : 'text-muted-foreground hover:bg-white/5 hover:text-white'}`}
+            className={`w-full text-left px-4 py-3 rounded-md text-sm tracking-widest uppercase transition-colors ${activeTab === 'orders' ? 'bg-primary/10 text-primary border border-primary/20' : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'}`}
           >
             <div className="flex items-center gap-3"><Package className="w-4 h-4" /> Custom Orders</div>
           </button>
@@ -52,26 +52,26 @@ export function AccountPage() {
           {activeTab === 'profile' && (
             <div className="space-y-10">
               <div className="bg-card border border-white/5 rounded-2xl p-8">
-                <h3 className="font-serif text-xl text-white mb-6">Personal Details</h3>
+                <h3 className="font-serif text-xl text-foreground mb-6">Personal Details</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div>
                     <label className="text-xs text-muted-foreground uppercase tracking-widest mb-1 block">Full Name</label>
-                    <div className="text-white text-lg">{profile?.name}</div>
+                    <div className="text-foreground text-lg">{profile?.name}</div>
                   </div>
                   <div>
                     <label className="text-xs text-muted-foreground uppercase tracking-widest mb-1 block">Email</label>
-                    <div className="text-white text-lg">{profile?.email}</div>
+                    <div className="text-foreground text-lg">{profile?.email}</div>
                   </div>
                   <div>
                     <label className="text-xs text-muted-foreground uppercase tracking-widest mb-1 block">Phone</label>
-                    <div className="text-white text-lg">{profile?.phone || 'Not provided'}</div>
+                    <div className="text-foreground text-lg">{profile?.phone || 'Not provided'}</div>
                   </div>
                 </div>
               </div>
 
               <div className="bg-card border border-white/5 rounded-2xl p-8">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="font-serif text-xl text-white">Measurements & Fit</h3>
+                  <h3 className="font-serif text-xl text-foreground">Measurements & Fit</h3>
                   <Button variant="outline" size="sm" className="text-xs tracking-widest uppercase">Edit</Button>
                 </div>
                 
@@ -79,19 +79,19 @@ export function AccountPage() {
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
                     <div>
                       <label className="text-xs text-muted-foreground uppercase tracking-widest mb-1 block">Top Size</label>
-                      <div className="text-white text-lg">{measurements.topSize || '-'}</div>
+                      <div className="text-foreground text-lg">{measurements.topSize || '-'}</div>
                     </div>
                     <div>
                       <label className="text-xs text-muted-foreground uppercase tracking-widest mb-1 block">Bottom Size</label>
-                      <div className="text-white text-lg">{measurements.bottomSize || '-'}</div>
+                      <div className="text-foreground text-lg">{measurements.bottomSize || '-'}</div>
                     </div>
                     <div>
                       <label className="text-xs text-muted-foreground uppercase tracking-widest mb-1 block">Height</label>
-                      <div className="text-white text-lg">{measurements.heightCm ? `${measurements.heightCm} cm` : '-'}</div>
+                      <div className="text-foreground text-lg">{measurements.heightCm ? `${measurements.heightCm} cm` : '-'}</div>
                     </div>
                     <div>
                       <label className="text-xs text-muted-foreground uppercase tracking-widest mb-1 block">Pref. Fit</label>
-                      <div className="text-white text-lg capitalize">{measurements.preferredFit || '-'}</div>
+                      <div className="text-foreground text-lg capitalize">{measurements.preferredFit || '-'}</div>
                     </div>
                   </div>
                 ) : (
@@ -103,7 +103,7 @@ export function AccountPage() {
 
           {activeTab === 'bookings' && (
             <div>
-              <h3 className="font-serif text-xl text-white mb-6">Past & Upcoming Visits</h3>
+              <h3 className="font-serif text-xl text-foreground mb-6">Past & Upcoming Visits</h3>
               
               {loadingBookings ? (
                 <div className="py-12 flex justify-center"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>
@@ -118,9 +118,9 @@ export function AccountPage() {
                       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-4">
                         <div>
                           <div className="text-primary font-mono tracking-widest text-sm mb-1">{booking.bookingCode}</div>
-                          <div className="text-white font-medium">{formatDate(booking.preferredDate)} at {booking.preferredTime}</div>
+                          <div className="text-foreground font-medium">{formatDate(booking.preferredDate)} at {booking.preferredTime}</div>
                         </div>
-                        <div className="inline-flex px-3 py-1 rounded bg-white/5 border border-white/10 text-xs tracking-widest uppercase text-white/80 self-start">
+                        <div className="inline-flex px-3 py-1 rounded bg-muted/50 border border-border text-xs tracking-widest uppercase text-foreground/80 self-start">
                           {booking.status.replace('_', ' ')}
                         </div>
                       </div>
@@ -137,7 +137,7 @@ export function AccountPage() {
           )}
           {activeTab === 'orders' && (
             <div>
-              <h3 className="font-serif text-xl text-white mb-6">Custom Orders</h3>
+              <h3 className="font-serif text-xl text-foreground mb-6">Custom Orders</h3>
               <OrdersList />
             </div>
           )}
@@ -171,7 +171,7 @@ function OrdersList() {
                 <span className="font-serif font-bold text-primary text-xs bg-primary/10 px-2.5 py-1 rounded">
                   S.No: {idx + 1}
                 </span>
-                <span className="font-mono font-bold text-white text-md">
+                <span className="font-mono font-bold text-foreground text-md">
                   {order.orderNumber}
                 </span>
                 <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
@@ -186,7 +186,7 @@ function OrdersList() {
                 </span>
               </div>
               <div className="flex items-center gap-4">
-                <span className="font-medium text-white/90 text-sm">Total: {formatPrice(order.totalAmount)}</span>
+                <span className="font-medium text-foreground/90 text-sm">Total: {formatPrice(order.totalAmount)}</span>
                 <div>
                   {order.status === 'approved' ? (
                     <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded bg-green-500/10 border border-green-500/20 text-xs text-green-500 font-medium capitalize">
@@ -221,17 +221,17 @@ function OrdersList() {
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h4 className="text-white text-sm font-medium truncate">{item.product?.name}</h4>
+                        <h4 className="text-foreground text-sm font-medium truncate">{item.product?.name}</h4>
                         <div className="text-xs text-muted-foreground mt-0.5">
-                          Brand/Merchant: <strong className="text-white">{item.product?.brandName}</strong>
+                          Brand/Merchant: <strong className="text-foreground">{item.product?.brandName}</strong>
                         </div>
                         <div className="flex gap-3 text-xs text-muted-foreground mt-1">
-                          <span>Size: <strong className="text-white">{item.size}</strong></span>
-                          <span>Color: <strong className="text-white">{item.color}</strong></span>
-                          <span>Qty: <strong className="text-white">{item.quantity}</strong></span>
+                          <span>Size: <strong className="text-foreground">{item.size}</strong></span>
+                          <span>Color: <strong className="text-foreground">{item.color}</strong></span>
+                          <span>Qty: <strong className="text-foreground">{item.quantity}</strong></span>
                         </div>
                       </div>
-                      <div className="text-white text-sm font-medium">{formatPrice(parseFloat(item.priceAtSale))}</div>
+                      <div className="text-foreground text-sm font-medium">{formatPrice(parseFloat(item.priceAtSale))}</div>
                     </div>
                   ))}
                 </div>
@@ -242,7 +242,7 @@ function OrdersList() {
                 <span className="text-xs uppercase tracking-widest text-muted-foreground font-semibold block mb-2 font-serif">Pickup Details</span>
                 <div className="space-y-2">
                   <div className="text-xs text-muted-foreground">Store Address / Location</div>
-                  <div className="text-sm text-white flex items-start gap-1">
+                  <div className="text-sm text-foreground flex items-start gap-1">
                     <MapPin className="w-3.5 h-3.5 mt-0.5 text-primary flex-shrink-0" />
                     <span>{order.shippingAddress}</span>
                   </div>
@@ -250,7 +250,7 @@ function OrdersList() {
                 {order.specialRequirements && (
                   <div className="space-y-1 pt-2 border-t border-white/5">
                     <div className="text-xs text-muted-foreground">Your Notes</div>
-                    <div className="text-xs text-white italic">"{order.specialRequirements}"</div>
+                    <div className="text-xs text-foreground italic">"{order.specialRequirements}"</div>
                   </div>
                 )}
               </div>

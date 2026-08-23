@@ -53,7 +53,7 @@ export function WishlistPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-12">
-      <h1 className="text-4xl font-serif text-white mb-2">Saved Pieces</h1>
+      <h1 className="text-4xl font-serif text-foreground mb-2">Saved Pieces</h1>
       <p className="text-muted-foreground mb-12">Your personal curation of luxury fashion.</p>
 
       {!wishlist || wishlist.length === 0 ? (
@@ -77,8 +77,8 @@ export function WishlistPage() {
               </Link>
               <div className="p-4 flex-grow flex flex-col">
                 <div className="text-xs text-muted-foreground tracking-widest uppercase mb-1">{item.product.brandName}</div>
-                <h3 className="text-white font-serif mb-1 truncate">{item.product.name}</h3>
-                <div className="text-white/80 mb-4">{formatPrice(item.product.sellingPrice)}</div>
+                <h3 className="text-foreground font-serif mb-1 truncate">{item.product.name}</h3>
+                <div className="text-foreground/80 mb-4">{formatPrice(item.product.sellingPrice)}</div>
                 
                 <div className="flex gap-2 mt-auto pt-4 border-t border-white/5">
                   <Button 

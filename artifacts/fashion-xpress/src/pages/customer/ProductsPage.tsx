@@ -368,10 +368,10 @@ export function ProductsPage() {
                       {/* Wishlist button — always visible */}
                       <button
                         onClick={(e) => handleAddToWishlist(e, product.id, product.name)}
-                        className={`absolute top-3 ${discountPercent > 0 ? 'top-12' : 'top-3'} right-3 w-8 h-8 rounded-full flex items-center justify-center transition-all shadow-lg z-10 ${wishlisted ? 'bg-red-500 border-red-400/30' : 'bg-black/60 backdrop-blur-sm border border-white/20 hover:bg-red-500/20'}`}
+                        className={`absolute top-3 ${discountPercent > 0 ? 'top-12' : 'top-3'} right-3 w-8 h-8 rounded-full flex items-center justify-center transition-all shadow-lg z-10 ${wishlisted ? 'bg-red-500 border-red-400/30' : 'bg-card backdrop-blur-sm border border-border hover:bg-red-500/20'}`}
                         style={{ top: discountPercent > 0 ? '3.2rem' : '0.75rem' }}
                       >
-                        <Heart className={`w-4 h-4 ${wishlisted ? 'fill-white text-white' : 'text-foreground/80'}`} />
+                        <Heart className={`w-4 h-4 ${wishlisted ? 'fill-white text-foreground' : 'text-foreground/80'}`} />
                       </button>
 
                       {/* Quick actions on hover */}
@@ -414,7 +414,7 @@ export function ProductsPage() {
                         onClick={(e) => handleAddToWishlist(e, product.id, product.name)}
                         className={`h-10 px-3 flex items-center justify-center rounded-xl border transition-colors ${wishlisted ? 'bg-red-500/10 border-red-500/20' : 'bg-foreground/5 border-border hover:bg-white/10'}`}
                       >
-                        <Heart className={`w-4 h-4 ${wishlisted ? 'fill-red-400 text-red-400' : 'text-white'}`} />
+                        <Heart className={`w-4 h-4 ${wishlisted ? 'fill-red-400 text-red-400' : 'text-foreground'}`} />
                       </button>
                     </div>
                   </div>

@@ -310,7 +310,7 @@ export function BookVisitPage() {
                       <Input
                         {...register('name')}
                         placeholder="Enter your full name"
-                        className={`h-12 bg-foreground/5 border-border text-white placeholder:text-muted-foreground/50 focus:border-primary/50 rounded-xl ${errors.name ? 'border-destructive' : ''}`}
+                        className={`h-12 bg-foreground/5 border-border text-foreground placeholder:text-muted-foreground/50 focus:border-primary/50 rounded-xl ${errors.name ? 'border-destructive' : ''}`}
                       />
                       {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
                     </div>
@@ -333,7 +333,7 @@ export function BookVisitPage() {
                           e.target.value = digits;
                           register('phone').onChange(e);
                         }}
-                        className={`h-12 bg-foreground/5 border-border text-white placeholder:text-muted-foreground/50 focus:border-primary/50 rounded-xl ${errors.phone ? 'border-destructive' : ''}`}
+                        className={`h-12 bg-foreground/5 border-border text-foreground placeholder:text-muted-foreground/50 focus:border-primary/50 rounded-xl ${errors.phone ? 'border-destructive' : ''}`}
                       />
                       {errors.phone && <p className="text-xs text-destructive">{errors.phone.message}</p>}
                     </div>
@@ -368,7 +368,7 @@ export function BookVisitPage() {
                     <Input
                       {...register('addressText')}
                       placeholder="House No, Street, Landmark, City, Pincode"
-                      className={`h-12 bg-foreground/5 border-border text-white placeholder:text-muted-foreground/50 focus:border-primary/50 rounded-xl ${errors.addressText ? 'border-destructive' : ''}`}
+                      className={`h-12 bg-foreground/5 border-border text-foreground placeholder:text-muted-foreground/50 focus:border-primary/50 rounded-xl ${errors.addressText ? 'border-destructive' : ''}`}
                     />
                     {errors.addressText && <p className="text-xs text-destructive">{errors.addressText.message}</p>}
                   </div>
