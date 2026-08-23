@@ -43,11 +43,11 @@ export function LandingPage() {
           {[...Array(4)].map((_, i) => (
             <span key={i} className="flex items-center gap-8">
               <span className="flex items-center gap-2"><Flame className="w-3 h-3 text-red-400" /><span className="text-red-400">PRICE DROP: 30–60% OFF LIVE NOW</span></span>
-              <span className="text-white/30">•</span>
+              <span className="text-foreground/30">•</span>
               <span className="flex items-center gap-2"><Sparkles className="w-3 h-3" />HOME VISIT SERVICE NOW ACTIVE IN SELECT PINCODES</span>
-              <span className="text-white/30">•</span>
+              <span className="text-foreground/30">•</span>
               <span className="flex items-center gap-2"><Star className="w-3 h-3 text-amber-400" />FASHION AT YOUR DOORSTEP — BOOK NOW, PAY LATER</span>
-              <span className="text-white/30">•</span>
+              <span className="text-foreground/30">•</span>
             </span>
           ))}
         </div>
@@ -81,7 +81,7 @@ export function LandingPage() {
           </motion.div>
 
           {/* Headline */}
-          <motion.h1 initial={{ opacity: 0, y: 32 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease: EASE, delay: 0.2 }} className="text-6xl md:text-8xl font-serif font-black text-white leading-[0.95] mb-6">
+          <motion.h1 initial={{ opacity: 0, y: 32 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease: EASE, delay: 0.2 }} className="text-6xl md:text-8xl font-serif font-black text-foreground leading-[0.95] mb-6">
             The Store
             <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-amber-300 to-primary animate-[shimmer_3s_ease_infinite] bg-[length:200%_auto]">
@@ -89,9 +89,9 @@ export function LandingPage() {
             </span>
           </motion.h1>
 
-          <motion.p initial={{ opacity: 0, y: 32 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease: EASE, delay: 0.35 }} className="text-lg md:text-xl text-white/65 max-w-2xl mx-auto mb-10 leading-relaxed font-light">
+          <motion.p initial={{ opacity: 0, y: 32 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease: EASE, delay: 0.35 }} className="text-lg md:text-xl text-foreground/70 max-w-2xl mx-auto mb-10 leading-relaxed font-light">
             Skip the mall. Our Fashion Executive visits your home with a curated selection —
-            <span className="text-white/90 font-semibold"> try everything, pay only for what you love.</span>
+            <span className="text-foreground/90 font-semibold"> try everything, pay only for what you love.</span>
           </motion.p>
 
           {/* CTA Group */}
@@ -113,7 +113,7 @@ export function LandingPage() {
 
             {/* Secondary CTA */}
             <Link href="/products">
-              <button className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-white transition-colors font-medium group">
+              <button className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors font-medium group">
                 <ShoppingBag className="w-4 h-4" />
                 Browse the Collection
                 <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
@@ -121,9 +121,9 @@ export function LandingPage() {
             </Link>
 
             {/* Promise note */}
-            <div className="flex items-center gap-2 px-5 py-2.5 bg-card/30 backdrop-blur-md border border-white/8 rounded-xl text-xs text-muted-foreground">
+            <div className="flex items-center gap-2 px-5 py-2.5 bg-card/30 backdrop-blur-md border border-border rounded-xl text-xs text-muted-foreground">
               <MapPin className="w-3.5 h-3.5 text-primary" />
-              <span><strong className="text-white">Our Promise:</strong> Executive arrives within 45–60 minutes of booking</span>
+              <span><strong className="text-foreground">Our Promise:</strong> Executive arrives within 45–60 minutes of booking</span>
             </div>
           </motion.div>
 
@@ -131,16 +131,16 @@ export function LandingPage() {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.7, delay: 0.6 }} className="flex items-center justify-center gap-6 flex-wrap">
             <div className="flex -space-x-2">
               {['R', 'A', 'P', 'S', 'M'].map((l, i) => (
-                <div key={i} className="w-9 h-9 rounded-full bg-gradient-to-br from-primary/50 to-purple-500/50 border-2 border-background flex items-center justify-center text-xs font-bold text-white shadow-lg">{l}</div>
+                <div key={i} className="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-purple-600 border-2 border-background flex items-center justify-center text-xs font-bold text-primary-foreground shadow-lg">{l}</div>
               ))}
             </div>
             <div className="text-left">
               <div className="flex gap-0.5 mb-0.5">{[...Array(5)].map((_, i) => <Star key={i} className="w-3.5 h-3.5 fill-primary text-primary" />)}</div>
-              <p className="text-xs text-muted-foreground"><span className="text-white font-bold">2,400+</span> happy customers this month</p>
+              <p className="text-xs text-muted-foreground"><span className="text-foreground font-bold">2,400+</span> happy customers this month</p>
             </div>
-            <div className="w-px h-8 bg-white/10 hidden sm:block" />
+            <div className="w-px h-8 bg-border hidden sm:block" />
             <div className="text-xs text-muted-foreground">
-              <span className="text-white font-bold">50+</span> premium brands available
+              <span className="text-foreground font-bold">50+</span> premium brands available
             </div>
           </motion.div>
         </div>
@@ -148,14 +148,14 @@ export function LandingPage() {
         {/* Scroll indicator */}
         <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce opacity-40">
           <div className="w-px h-10 bg-gradient-to-b from-transparent to-white/50" />
-          <span className="text-[9px] tracking-[0.3em] text-white/50 uppercase">Scroll</span>
+          <span className="text-[9px] tracking-[0.3em] text-foreground/50 uppercase">Scroll</span>
         </div>
       </section>
 
       {/* ── STATS STRIP ── */}
-      <section className="py-8 border-y border-white/5 bg-card/20 backdrop-blur-sm">
+      <section className="py-8 border-y border-border bg-card/20 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 divide-x divide-white/5">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 divide-x divide-border">
             {STATS.map(({ value, label }, i) => (
               <motion.div key={i} initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: 0.1 * i }} className="text-center px-4 py-2">
                 <div className="text-2xl md:text-3xl font-serif font-black text-transparent bg-clip-text bg-gradient-to-r from-primary to-amber-300 mb-1">{value}</div>
@@ -171,7 +171,7 @@ export function LandingPage() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <motion.p initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7, ease: EASE }} className="text-primary text-xs uppercase tracking-[0.25em] font-bold mb-3">Why Fashion Xpress</motion.p>
-            <motion.h2 initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7, ease: EASE, delay: 0.1 }} className="text-4xl md:text-5xl font-serif text-white mb-4">Luxury, At Your Doorstep</motion.h2>
+            <motion.h2 initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7, ease: EASE, delay: 0.1 }} className="text-4xl md:text-5xl font-serif text-foreground mb-4">Luxury, At Your Doorstep</motion.h2>
             <div className="w-12 h-px bg-primary mx-auto" />
           </div>
 
@@ -183,13 +183,13 @@ export function LandingPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.12 }}
-                className={`group relative p-7 rounded-3xl bg-card/30 border border-white/5 hover:border-white/15 hover:-translate-y-2 transition-all duration-400 shadow-xl overflow-hidden cursor-default`}
+                className={`group relative p-7 rounded-3xl bg-card/30 border border-border hover:border-white/15 hover:-translate-y-2 transition-all duration-400 shadow-xl overflow-hidden cursor-default`}
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent pointer-events-none" />
                 <div className={`w-14 h-14 rounded-2xl ${bg} border flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
                   <Icon className={`w-7 h-7 ${color}`} />
                 </div>
-                <h3 className="text-white font-serif text-lg font-bold mb-2">{label}</h3>
+                <h3 className="text-foreground font-serif text-lg font-bold mb-2">{label}</h3>
                 <p className="text-muted-foreground text-sm leading-relaxed">{sub}</p>
               </motion.div>
             ))}
@@ -198,13 +198,13 @@ export function LandingPage() {
       </section>
 
       {/* ── HOW IT WORKS ── */}
-      <section className="py-24 px-6 bg-card/15 border-y border-white/5 relative overflow-hidden">
+      <section className="py-24 px-6 bg-card/15 border-y border-border relative overflow-hidden">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[300px] bg-primary/3 rounded-full blur-[120px] pointer-events-none" />
 
         <div className="max-w-7xl mx-auto relative z-10">
           <div className="text-center mb-16">
             <motion.p initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7, ease: EASE }} className="text-primary text-xs uppercase tracking-[0.25em] font-bold mb-3">The Experience</motion.p>
-            <motion.h2 initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7, ease: EASE, delay: 0.1 }} className="text-4xl md:text-5xl font-serif text-white mb-4">How It Works</motion.h2>
+            <motion.h2 initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7, ease: EASE, delay: 0.1 }} className="text-4xl md:text-5xl font-serif text-foreground mb-4">How It Works</motion.h2>
             <div className="w-12 h-px bg-primary mx-auto" />
           </div>
 
@@ -220,17 +220,17 @@ export function LandingPage() {
               >
                 {/* Connector line */}
                 {i < HOW_IT_WORKS.length - 1 && (
-                  <div className="hidden lg:block absolute top-10 left-[calc(100%-8px)] w-full h-px border-t border-dashed border-white/10 z-0" />
+                  <div className="hidden lg:block absolute top-10 left-[calc(100%-8px)] w-full h-px border-t border-dashed border-border z-0" />
                 )}
 
-                <div className="relative z-10 p-7 rounded-3xl bg-card/40 border border-white/5 hover:border-primary/20 transition-all duration-300 shadow-xl group-hover:shadow-primary/5 group-hover:shadow-2xl h-full">
+                <div className="relative z-10 p-7 rounded-3xl bg-card/40 border border-border hover:border-primary/20 transition-all duration-300 shadow-xl group-hover:shadow-primary/5 group-hover:shadow-2xl h-full">
                   {/* Step number watermark */}
-                  <div className="absolute top-5 right-6 text-7xl font-serif font-black text-white/[0.04] leading-none select-none">{n}</div>
+                  <div className="absolute top-5 right-6 text-7xl font-serif font-black text-foreground/[0.04] leading-none select-none">{n}</div>
 
                   <div className="w-14 h-14 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-6 group-hover:bg-primary/15 transition-colors">
                     <Icon className="w-6 h-6 text-primary" />
                   </div>
-                  <h3 className="text-white font-serif text-lg font-bold mb-3">{title}</h3>
+                  <h3 className="text-foreground font-serif text-lg font-bold mb-3">{title}</h3>
                   <p className="text-muted-foreground text-sm leading-relaxed">{desc}</p>
                 </div>
               </motion.div>
