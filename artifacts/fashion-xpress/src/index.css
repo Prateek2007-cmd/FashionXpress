@@ -184,13 +184,7 @@
     color: hsl(0 0% 55%) !important;
   }
 
-  /* Dark backgrounds used by hero sections — keep them dark so white hero text stays visible */
-  .bg-black,
-  .bg-black\/95,
-  .bg-black\/90,
-  .bg-black\/80 {
-    /* These are intentional dark overlays — don't override */
-  }
+  /* Dark backgrounds used by hero sections (bg-black, bg-black/90, etc) are kept as intentional dark overlays */
 
   /* Sidebar backgrounds */
   .bg-card\/30 {
