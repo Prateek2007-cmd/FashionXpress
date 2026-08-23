@@ -1,11 +1,13 @@
 import React from 'react';
 import { Link, useLocation, Redirect } from 'wouter';
-import { Calendar, CheckCircle, LogOut } from 'lucide-react';
+import { Calendar, CheckCircle, LogOut, Sun, Moon } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { useTheme } from '@/context/ThemeContext';
 
 export function ExecutiveLayout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
   const { logout, isAuthenticated, isLoading, user } = useAuth();
+  const { theme, toggleTheme } = useTheme();
 
   if (isLoading) return <div className="min-h-screen bg-black flex items-center justify-center"><div className="w-8 h-8 rounded-full border-4 border-primary border-t-transparent animate-spin"></div></div>;
   if (!isAuthenticated) return <Redirect to="/login" />;
@@ -49,7 +51,13 @@ export function ExecutiveLayout({ children }: { children: React.ReactNode }) {
           })}
         </nav>
 
-        <div className="p-4 border-t border-white/5">
+        <div className="p-4 border-t border-border space-y-2">
+          <button
+            onClick={toggleTheme}
+            className="flex items-center gap-3 px-4 py-3 w-full rounded-md text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-white/5 transition-colors"
+          >
+            {theme === 'dark' ? <><Sun className="w-4 h-4 text-amber-400" /> Switch to Light Mode</> : <><Moon className="w-4 h-4 text-blue-500" /> Switch to Dark Mode</>}
+          </button>
           <button 
             onClick={logout}
             className="flex items-center gap-3 px-4 py-3 w-full rounded-md text-sm font-medium text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"

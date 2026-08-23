@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'wouter';
 import { useAuth } from '@/context/AuthContext';
+import { useTheme } from '@/context/ThemeContext';
 import { useListWishlist, useListHomeVisitCart } from '@workspace/api-client-react';
-import { User, LogOut, Heart, ShoppingBag, Menu, X } from 'lucide-react';
+import { User, LogOut, Heart, ShoppingBag, Menu, X, Sun, Moon } from 'lucide-react';
 import { Button } from '../ui/button';
 
 export function CustomerNavbar() {
   const { user, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const [location] = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -75,6 +77,15 @@ export function CustomerNavbar() {
                   <Button variant="outline" size="sm" className="text-xs uppercase tracking-wider">Executive</Button>
                 </Link>
               )}
+              <button
+                onClick={toggleTheme}
+                className="p-2 hover:text-primary transition-colors"
+                title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+              >
+                {theme === 'dark'
+                  ? <Sun className="w-5 h-5 text-amber-400" />
+                  : <Moon className="w-5 h-5 text-blue-500" />}
+              </button>
               <Button variant="ghost" size="icon" onClick={logout} title="Sign Out">
                 <LogOut className="w-5 h-5 text-muted-foreground hover:text-destructive" />
               </Button>
@@ -120,6 +131,9 @@ export function CustomerNavbar() {
               </Link>
               <Link href="/account" onClick={() => setIsMobileMenuOpen(false)}><User className="w-5 h-5" /></Link>
               <button onClick={logout}><LogOut className="w-5 h-5 text-destructive" /></button>
+              <button onClick={toggleTheme} title={theme === 'dark' ? 'Light' : 'Dark'}>
+                {theme === 'dark' ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5 text-blue-500" />}
+              </button>
             </div>
           ) : (
             <Link href="/login" onClick={() => setIsMobileMenuOpen(false)} className="mt-4">
