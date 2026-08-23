@@ -1,10 +1,19 @@
-import { Switch, Route, Router as WouterRouter } from "wouter";
+import React, { useEffect } from 'react';
+import { Switch, Route, Router as WouterRouter, useLocation } from "wouter";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import NotFound from '@/pages/not-found';
 import { AuthProvider } from '@/context/AuthContext';
 import './setup-fetch';
+
+function ScrollToTop() {
+  const [pathname] = useLocation();
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }, [pathname]);
+  return null;
+}
 
 // Layouts
 import { CustomerLayout } from "./components/layout/CustomerLayout";
@@ -158,6 +167,7 @@ function App() {
       <AuthProvider>
         <TooltipProvider>
           <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
+            <ScrollToTop />
             <AppRouter />
           </WouterRouter>
           <Toaster />

@@ -79,6 +79,10 @@ export function BookVisitPage() {
   });
 
   React.useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  React.useEffect(() => {
     if (user) {
       reset({ name: user.name || '', phone: user.phone || '', addressText: '' });
     }
