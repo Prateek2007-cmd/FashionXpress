@@ -303,9 +303,17 @@ export function ProductsPage() {
       {/* ── PRODUCT GRID ── */}
       <div className="max-w-7xl mx-auto px-6 py-12">
         {isLoading ? (
-          <div className="flex flex-col items-center justify-center py-32 gap-4">
-            <Loader2 className="w-10 h-10 animate-spin text-primary" />
-            <p className="text-xs text-muted-foreground uppercase tracking-widest">Loading Collection…</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {[...Array(12)].map((_, i) => (
+              <div key={i} className="animate-pulse">
+                <div className="aspect-[3/4] bg-muted rounded-2xl mb-4" />
+                <div className="px-1 space-y-2">
+                  <div className="h-3 bg-muted rounded w-1/3" />
+                  <div className="h-4 bg-muted rounded w-4/5" />
+                  <div className="h-4 bg-muted rounded w-2/5" />
+                </div>
+              </div>
+            ))}
           </div>
         ) : !filteredProducts.length ? (
           <div className="text-center py-32 border border-border border-dashed rounded-3xl bg-card/10">
