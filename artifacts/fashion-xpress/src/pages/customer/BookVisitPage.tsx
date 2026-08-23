@@ -164,21 +164,21 @@ export function BookVisitPage() {
             </div>
           </div>
 
-          <h2 className="text-4xl font-serif text-white mb-2">Booking Confirmed!</h2>
+          <h2 className="text-4xl font-serif text-foreground mb-2">Booking Confirmed!</h2>
           <p className="text-muted-foreground mb-8 text-lg">Your personal Fashion Executive is on the way. Get ready for a premium at-home styling experience.</p>
 
           {/* Booking ID box */}
           <div className="bg-card/60 backdrop-blur-xl border border-green-500/20 rounded-2xl py-6 px-6 mb-6">
             <p className="text-[10px] text-muted-foreground uppercase tracking-[0.25em] font-bold mb-3">Booking Reference ID</p>
             <p className="text-3xl font-mono text-green-400 tracking-[0.2em] font-bold">{successCode}</p>
-            <div className="mt-4 pt-4 border-t border-white/5 flex items-center justify-center gap-2 text-xs text-primary font-semibold animate-pulse">
+            <div className="mt-4 pt-4 border-t border-border flex items-center justify-center gap-2 text-xs text-primary font-semibold animate-pulse">
               <Clock className="w-3.5 h-3.5" />
               Redirecting to Collection in {countdown}s…
             </div>
           </div>
 
           {/* What's next */}
-          <div className="bg-card/30 border border-white/5 rounded-2xl p-5 mb-6 text-left space-y-3">
+          <div className="bg-card/30 border border-border rounded-2xl p-5 mb-6 text-left space-y-3">
             <p className="text-xs text-muted-foreground uppercase tracking-widest font-bold mb-3">What happens next</p>
             {[
               { icon: Clock, text: "Executive arrives within 45–60 minutes", color: "text-amber-400" },
@@ -186,10 +186,10 @@ export function BookVisitPage() {
               { icon: Star, text: "Try on at home, keep only what you love", color: "text-purple-400" },
             ].map(({ icon: Icon, text, color }, i) => (
               <div key={i} className="flex items-center gap-3 text-sm">
-                <div className={`w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center flex-shrink-0 ${color}`}>
+                <div className={`w-7 h-7 rounded-lg bg-foreground/5 flex items-center justify-center flex-shrink-0 ${color}`}>
                   <Icon className="w-3.5 h-3.5" />
                 </div>
-                <span className="text-white/80">{text}</span>
+                <span className="text-foreground/80">{text}</span>
               </div>
             ))}
           </div>
@@ -199,7 +199,7 @@ export function BookVisitPage() {
             <a
               href={`https://wa.me/916304847223?text=Hi%2C+I+just+booked+a+Home+Visit+with+The+Fashion+Xpress.+Reference+ID%3A+${successCode}`}
               target="_blank" rel="noreferrer"
-              className="w-full flex items-center justify-center gap-2 h-12 bg-green-600 hover:bg-green-700 text-white rounded-xl font-semibold text-sm transition-all shadow-lg"
+              className="w-full flex items-center justify-center gap-2 h-12 bg-green-600 hover:bg-green-700 text-foreground rounded-xl font-semibold text-sm transition-all shadow-lg"
             >
               <MessageCircle className="w-4 h-4" /> Confirm via WhatsApp
             </a>
@@ -220,7 +220,7 @@ export function BookVisitPage() {
     <div className="min-h-screen">
 
       {/* ── HERO BANNER ── */}
-      <div className="relative overflow-hidden bg-gradient-to-b from-card/80 to-transparent border-b border-white/5 py-20 px-6">
+      <div className="relative overflow-hidden bg-gradient-to-b from-card/80 to-transparent border-b border-border py-20 px-6">
         {/* Glow effects */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-primary/5 rounded-full blur-[150px] pointer-events-none" />
         <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/5 rounded-full blur-[100px] pointer-events-none" />
@@ -236,14 +236,14 @@ export function BookVisitPage() {
               </div>
 
               <div>
-                <h1 className="text-5xl md:text-6xl font-serif font-black text-white leading-[1.05] mb-5">
+                <h1 className="text-5xl md:text-6xl font-serif font-black text-foreground leading-[1.05] mb-5">
                   Fashion Delivered
                   <br />
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-amber-300 to-primary">
                     To Your Door.
                   </span>
                 </h1>
-                <p className="text-lg text-white/70 leading-relaxed max-w-lg">
+                <p className="text-lg text-foreground/70 leading-relaxed max-w-lg">
                   Skip the malls. A personal Fashion Executive visits your home with a curated collection — you try, you choose, you pay only for what you love.
                 </p>
               </div>
@@ -255,7 +255,7 @@ export function BookVisitPage() {
                   { icon: Shield, label: "Zero Risk" },
                   { icon: Star, label: "Curated Styles" },
                 ].map(({ icon: Icon, label }, i) => (
-                  <div key={i} className="flex items-center gap-2 px-3 py-2 bg-white/[0.03] border border-white/10 rounded-xl text-xs text-white/80 font-semibold uppercase tracking-wider">
+                  <div key={i} className="flex items-center gap-2 px-3 py-2 bg-foreground/[0.03] border border-border rounded-xl text-xs text-foreground/80 font-semibold uppercase tracking-wider">
                     <Icon className="w-3.5 h-3.5 text-primary" /> {label}
                   </div>
                 ))}
@@ -265,18 +265,18 @@ export function BookVisitPage() {
               <div className="flex items-center gap-4 pt-2">
                 <div className="flex -space-x-2">
                   {['A', 'B', 'C', 'D'].map((l, i) => (
-                    <div key={i} className="w-8 h-8 rounded-full bg-gradient-to-br from-primary/40 to-purple-500/40 border-2 border-background flex items-center justify-center text-[10px] font-bold text-white">{l}</div>
+                    <div key={i} className="w-8 h-8 rounded-full bg-gradient-to-br from-primary/40 to-purple-500/40 border-2 border-background flex items-center justify-center text-[10px] font-bold text-foreground">{l}</div>
                   ))}
                 </div>
                 <div>
                   <div className="flex gap-0.5 mb-0.5">{[...Array(5)].map((_, i) => <Star key={i} className="w-3.5 h-3.5 fill-primary text-primary" />)}</div>
-                  <p className="text-xs text-muted-foreground"><span className="text-white font-semibold">2,400+</span> happy customers this month</p>
+                  <p className="text-xs text-muted-foreground"><span className="text-foreground font-semibold">2,400+</span> happy customers this month</p>
                 </div>
               </div>
             </div>
 
             {/* Right — Booking Form Card */}
-            <div className="bg-card/60 backdrop-blur-xl border border-white/10 rounded-3xl p-8 shadow-2xl relative">
+            <div className="bg-card/60 backdrop-blur-xl border border-border rounded-3xl p-8 shadow-2xl relative">
               {/* Glow inside card */}
               <div className="absolute top-0 right-0 w-40 h-40 bg-primary/5 rounded-full blur-[60px] -translate-y-1/3 translate-x-1/3 pointer-events-none" />
 
@@ -284,7 +284,7 @@ export function BookVisitPage() {
               <div className="flex items-center gap-3 mb-8">
                 {[{ n: 1, label: "Your Details" }, { n: 2, label: "Your Address" }].map(({ n, label }) => (
                   <React.Fragment key={n}>
-                    <div className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest transition-all ${step === n ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20' : 'bg-white/5 text-muted-foreground'}`}>
+                    <div className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest transition-all ${step === n ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20' : 'bg-foreground/5 text-muted-foreground'}`}>
                       <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black ${step === n ? 'bg-white/20 text-primary-foreground' : 'bg-white/10 text-muted-foreground'}`}>{n}</span>
                       {label}
                     </div>
@@ -298,7 +298,7 @@ export function BookVisitPage() {
                 {/* STEP 1 */}
                 <div className={step === 2 ? 'hidden' : 'space-y-6'}>
                   <div>
-                    <h3 className="text-xl font-serif text-white mb-1">Who are we visiting?</h3>
+                    <h3 className="text-xl font-serif text-foreground mb-1">Who are we visiting?</h3>
                     <p className="text-xs text-muted-foreground">We'll use these details to coordinate your visit.</p>
                   </div>
 
@@ -310,7 +310,7 @@ export function BookVisitPage() {
                       <Input
                         {...register('name')}
                         placeholder="Enter your full name"
-                        className={`h-12 bg-white/5 border-white/10 text-white placeholder:text-muted-foreground/50 focus:border-primary/50 rounded-xl ${errors.name ? 'border-destructive' : ''}`}
+                        className={`h-12 bg-foreground/5 border-border text-white placeholder:text-muted-foreground/50 focus:border-primary/50 rounded-xl ${errors.name ? 'border-destructive' : ''}`}
                       />
                       {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
                     </div>
@@ -333,7 +333,7 @@ export function BookVisitPage() {
                           e.target.value = digits;
                           register('phone').onChange(e);
                         }}
-                        className={`h-12 bg-white/5 border-white/10 text-white placeholder:text-muted-foreground/50 focus:border-primary/50 rounded-xl ${errors.phone ? 'border-destructive' : ''}`}
+                        className={`h-12 bg-foreground/5 border-border text-white placeholder:text-muted-foreground/50 focus:border-primary/50 rounded-xl ${errors.phone ? 'border-destructive' : ''}`}
                       />
                       {errors.phone && <p className="text-xs text-destructive">{errors.phone.message}</p>}
                     </div>
@@ -357,7 +357,7 @@ export function BookVisitPage() {
                 {/* STEP 2 */}
                 <div className={step === 1 ? 'hidden' : 'space-y-6'}>
                   <div>
-                    <h3 className="text-xl font-serif text-white mb-1">Where should we come?</h3>
+                    <h3 className="text-xl font-serif text-foreground mb-1">Where should we come?</h3>
                     <p className="text-xs text-muted-foreground">Share your complete address for accurate navigation.</p>
                   </div>
 
@@ -368,15 +368,15 @@ export function BookVisitPage() {
                     <Input
                       {...register('addressText')}
                       placeholder="House No, Street, Landmark, City, Pincode"
-                      className={`h-12 bg-white/5 border-white/10 text-white placeholder:text-muted-foreground/50 focus:border-primary/50 rounded-xl ${errors.addressText ? 'border-destructive' : ''}`}
+                      className={`h-12 bg-foreground/5 border-border text-white placeholder:text-muted-foreground/50 focus:border-primary/50 rounded-xl ${errors.addressText ? 'border-destructive' : ''}`}
                     />
                     {errors.addressText && <p className="text-xs text-destructive">{errors.addressText.message}</p>}
                   </div>
 
                   <div className="bg-primary/5 border border-primary/15 rounded-xl px-4 py-3 flex items-start gap-3">
                     <Clock className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                    <p className="text-xs text-white/70 leading-relaxed">
-                      <span className="text-white font-semibold">Our Promise:</span> A Fashion Executive will reach your location within <span className="text-primary font-bold">45–60 minutes</span> of booking confirmation.
+                    <p className="text-xs text-foreground/70 leading-relaxed">
+                      <span className="text-foreground font-semibold">Our Promise:</span> A Fashion Executive will reach your location within <span className="text-primary font-bold">45–60 minutes</span> of booking confirmation.
                     </p>
                   </div>
 
@@ -385,7 +385,7 @@ export function BookVisitPage() {
                       type="button"
                       variant="outline"
                       onClick={() => setStep(1)}
-                      className="flex-1 h-14 rounded-xl border-white/10 text-xs uppercase tracking-widest font-bold"
+                      className="flex-1 h-14 rounded-xl border-border text-xs uppercase tracking-widest font-bold"
                     >
                       ← Back
                     </Button>
@@ -414,16 +414,16 @@ export function BookVisitPage() {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-14">
             <p className="text-primary text-xs uppercase tracking-[0.25em] font-bold mb-3">Why Home Visit?</p>
-            <h2 className="text-3xl md:text-4xl font-serif text-white">Shopping, Reimagined</h2>
+            <h2 className="text-3xl md:text-4xl font-serif text-foreground">Shopping, Reimagined</h2>
             <div className="w-12 h-px bg-primary mx-auto mt-4" />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {FEATURES.map(({ icon: Icon, title, desc, color, bg }, i) => (
-              <div key={i} className="bg-card/30 border border-white/5 rounded-2xl p-6 hover:border-white/10 hover:-translate-y-1 transition-all duration-300 shadow-xl group">
+              <div key={i} className="bg-card/30 border border-border rounded-2xl p-6 hover:border-border hover:-translate-y-1 transition-all duration-300 shadow-xl group">
                 <div className={`w-12 h-12 rounded-2xl ${bg} border flex items-center justify-center mb-5 group-hover:scale-110 transition-transform`}>
                   <Icon className={`w-6 h-6 ${color}`} />
                 </div>
-                <h3 className="text-white font-serif text-lg mb-2">{title}</h3>
+                <h3 className="text-foreground font-serif text-lg mb-2">{title}</h3>
                 <p className="text-muted-foreground text-sm leading-relaxed">{desc}</p>
               </div>
             ))}
@@ -432,23 +432,23 @@ export function BookVisitPage() {
       </section>
 
       {/* ── HOW IT WORKS ── */}
-      <section className="py-20 px-6 bg-card/20 border-y border-white/5">
+      <section className="py-20 px-6 bg-card/20 border-y border-border">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-14">
             <p className="text-primary text-xs uppercase tracking-[0.25em] font-bold mb-3">The Process</p>
-            <h2 className="text-3xl md:text-4xl font-serif text-white">How It Works</h2>
+            <h2 className="text-3xl md:text-4xl font-serif text-foreground">How It Works</h2>
             <div className="w-12 h-px bg-primary mx-auto mt-4" />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             {STEPS_INFO.map(({ n, title, desc }, i) => (
               <div key={i} className="relative flex flex-col items-center md:items-start text-center md:text-left">
                 {i < STEPS_INFO.length - 1 && (
-                  <div className="hidden md:block absolute top-8 left-[calc(100%-12px)] w-full h-px border-t border-dashed border-white/10 z-0" />
+                  <div className="hidden md:block absolute top-8 left-[calc(100%-12px)] w-full h-px border-t border-dashed border-border z-0" />
                 )}
-                <div className="relative z-10 w-16 h-16 rounded-2xl bg-card border border-white/5 flex items-center justify-center mb-5 shadow-xl">
+                <div className="relative z-10 w-16 h-16 rounded-2xl bg-card border border-border flex items-center justify-center mb-5 shadow-xl">
                   <span className="text-2xl font-serif font-black text-primary">{n}</span>
                 </div>
-                <h4 className="text-white font-semibold text-base mb-1">{title}</h4>
+                <h4 className="text-foreground font-semibold text-base mb-1">{title}</h4>
                 <p className="text-muted-foreground text-sm leading-relaxed">{desc}</p>
               </div>
             ))}
@@ -469,11 +469,11 @@ export function BookVisitPage() {
                   <Award className="w-3.5 h-3.5" />
                   For Fashion Brands & Merchants
                 </div>
-                <h2 className="text-3xl md:text-4xl font-serif text-white mb-4">
+                <h2 className="text-3xl md:text-4xl font-serif text-foreground mb-4">
                   List Your Brand on <br />
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-amber-300">The Fashion Xpress</span>
                 </h2>
-                <p className="text-white/70 text-base leading-relaxed mb-6">
+                <p className="text-foreground/70 text-base leading-relaxed mb-6">
                   Partner with us to reach thousands of premium customers through our unique home-visit model. Your products, delivered by our executives, tried on at the customer's doorstep.
                 </p>
                 <div className="flex flex-wrap gap-3">
@@ -482,7 +482,7 @@ export function BookVisitPage() {
                     { icon: Zap, text: "Direct Revenue Share" },
                     { icon: Star, text: "Premium Brand Placement" },
                   ].map(({ icon: Icon, text }, i) => (
-                    <div key={i} className="flex items-center gap-2 px-3 py-2 bg-white/[0.04] border border-white/10 rounded-xl text-xs text-white/80 font-semibold">
+                    <div key={i} className="flex items-center gap-2 px-3 py-2 bg-foreground/[0.04] border border-border rounded-xl text-xs text-foreground/80 font-semibold">
                       <Icon className="w-3.5 h-3.5 text-primary" /> {text}
                     </div>
                   ))}

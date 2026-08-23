@@ -155,7 +155,7 @@ export function ProductsPage() {
     <div className="min-h-screen">
 
       {/* ── HERO BANNER ── */}
-      <div className="relative overflow-hidden border-b border-white/5 bg-gradient-to-b from-card/60 to-transparent py-16 px-6">
+      <div className="relative overflow-hidden border-b border-border bg-gradient-to-b from-card/60 to-transparent py-16 px-6">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[300px] bg-primary/5 rounded-full blur-[150px] pointer-events-none" />
         <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/5 rounded-full blur-[100px] pointer-events-none" />
 
@@ -165,11 +165,11 @@ export function ProductsPage() {
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-red-500/10 border border-red-500/20 rounded-full text-red-400 text-xs uppercase tracking-[0.2em] font-bold mb-6">
                 <Flame className="w-3.5 h-3.5" /> Live Sale — Up to 60% Off
               </div>
-              <h1 className="text-5xl md:text-6xl font-serif font-black text-white leading-tight mb-4">
+              <h1 className="text-5xl md:text-6xl font-serif font-black text-foreground leading-tight mb-4">
                 Price Drop<br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-400 via-orange-300 to-red-500">Collection</span>
               </h1>
-              <p className="text-white/60 text-lg max-w-xl mx-auto">
+              <p className="text-foreground/60 text-lg max-w-xl mx-auto">
                 Exclusive luxury pieces, dramatically reduced. Limited stock — first come, first served.
               </p>
             </>
@@ -178,7 +178,7 @@ export function ProductsPage() {
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/20 rounded-full text-primary text-xs uppercase tracking-[0.2em] font-bold mb-6">
                 <Sparkles className="w-3.5 h-3.5" /> Curated For You
               </div>
-              <h1 className="text-5xl md:text-6xl font-serif font-black text-white leading-tight mb-4">
+              <h1 className="text-5xl md:text-6xl font-serif font-black text-foreground leading-tight mb-4">
                 {collectionTitle.includes(' ') ? (
                   <>
                     {collectionTitle.split(' ').slice(0, -1).join(' ')}{' '}
@@ -192,7 +192,7 @@ export function ProductsPage() {
                   </span>
                 )}
               </h1>
-              <p className="text-white/70 text-lg max-w-2xl mx-auto leading-relaxed">
+              <p className="text-foreground/70 text-lg max-w-2xl mx-auto leading-relaxed">
                 Curated designer pieces and exclusive discounted styles with up to <span className="text-amber-300 font-semibold">30%–60% OFF</span>, brought directly to your doorstep by our personal Fashion Executives.
               </p>
             </>
@@ -206,7 +206,7 @@ export function ProductsPage() {
               { icon: Star, label: "Premium Brands", color: "text-amber-400" },
               { icon: ShoppingBag, label: "Try Before You Pay", color: "text-purple-400" },
             ].map(({ icon: Icon, label, color }, i) => (
-              <div key={i} className="flex items-center gap-2 px-4 py-2 bg-white/[0.03] border border-white/10 rounded-xl text-xs font-semibold text-white/80 uppercase tracking-wider shadow-sm">
+              <div key={i} className="flex items-center gap-2 px-4 py-2 bg-foreground/[0.03] border border-border rounded-xl text-xs font-semibold text-foreground/80 uppercase tracking-wider shadow-sm">
                 <Icon className={`w-3.5 h-3.5 ${color}`} /> {label}
               </div>
             ))}
@@ -215,7 +215,7 @@ export function ProductsPage() {
       </div>
 
       {/* ── FILTER BAR ── */}
-      <div className="sticky top-20 z-40 bg-background/95 backdrop-blur-xl border-b border-white/5 shadow-2xl">
+      <div className="sticky top-20 z-40 bg-background/95 backdrop-blur-xl border-b border-border shadow-2xl">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center gap-3 flex-wrap">
             {/* Search */}
@@ -223,7 +223,7 @@ export function ProductsPage() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 placeholder="Search pieces..."
-                className="pl-9 h-10 bg-white/5 border-white/10 text-white placeholder:text-muted-foreground/50 focus:border-primary/40 rounded-xl"
+                className="pl-9 h-10 bg-foreground/5 border-border text-foreground placeholder:text-muted-foreground/50 focus:border-primary/40 rounded-xl"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
@@ -232,7 +232,7 @@ export function ProductsPage() {
             {/* Filters row */}
             <div className="flex items-center gap-2 flex-wrap">
               <select
-                className="h-10 rounded-xl border border-red-500/30 bg-card/80 px-3 text-xs text-white focus:outline-none focus:ring-1 focus:ring-red-500 font-semibold uppercase tracking-wider"
+                className="h-10 rounded-xl border border-red-500/30 bg-card/80 px-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-red-500 font-semibold uppercase tracking-wider"
                 value={discountFilter}
                 onChange={(e) => setDiscountFilter(e.target.value)}
               >
@@ -243,7 +243,7 @@ export function ProductsPage() {
               </select>
 
               <select
-                className="h-10 rounded-xl border border-white/10 bg-card/80 px-3 text-xs text-white focus:outline-none focus:ring-1 focus:ring-primary"
+                className="h-10 rounded-xl border border-border bg-card/80 px-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
                 value={categoryId || ''}
                 onChange={(e) => setCategoryId(e.target.value ? Number(e.target.value) : undefined)}
               >
@@ -254,7 +254,7 @@ export function ProductsPage() {
               </select>
 
               <select
-                className="h-10 rounded-xl border border-white/10 bg-card/80 px-3 text-xs text-white focus:outline-none focus:ring-1 focus:ring-primary"
+                className="h-10 rounded-xl border border-border bg-card/80 px-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
                 value={brandId || ''}
                 onChange={(e) => setBrandId(e.target.value ? Number(e.target.value) : undefined)}
               >
@@ -265,7 +265,7 @@ export function ProductsPage() {
               </select>
 
               <select
-                className="h-10 rounded-xl border border-white/10 bg-card/80 px-3 text-xs text-white focus:outline-none focus:ring-1 focus:ring-primary"
+                className="h-10 rounded-xl border border-border bg-card/80 px-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
                 value={color || ''}
                 onChange={(e) => setColor(e.target.value || undefined)}
               >
@@ -274,7 +274,7 @@ export function ProductsPage() {
               </select>
 
               <select
-                className="h-10 rounded-xl border border-white/10 bg-card/80 px-3 text-xs text-white focus:outline-none focus:ring-1 focus:ring-primary"
+                className="h-10 rounded-xl border border-border bg-card/80 px-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
                 value={occasion || ''}
                 onChange={(e) => setOccasion(e.target.value || undefined)}
               >
@@ -294,7 +294,7 @@ export function ProductsPage() {
 
             {/* Results count */}
             <div className="ml-auto text-xs text-muted-foreground font-medium hidden md:block">
-              {isLoading ? '...' : <span><span className="text-white font-bold">{filteredProducts.length}</span> pieces found</span>}
+              {isLoading ? '...' : <span><span className="text-foreground font-bold">{filteredProducts.length}</span> pieces found</span>}
             </div>
           </div>
         </div>
@@ -308,11 +308,11 @@ export function ProductsPage() {
             <p className="text-xs text-muted-foreground uppercase tracking-widest">Loading Collection…</p>
           </div>
         ) : !filteredProducts.length ? (
-          <div className="text-center py-32 border border-white/5 border-dashed rounded-3xl bg-card/10">
-            <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center mx-auto mb-6">
+          <div className="text-center py-32 border border-border border-dashed rounded-3xl bg-card/10">
+            <div className="w-16 h-16 rounded-2xl bg-foreground/5 flex items-center justify-center mx-auto mb-6">
               <Search className="w-8 h-8 text-muted-foreground" />
             </div>
-            <h3 className="text-white font-serif text-2xl mb-2">No pieces found</h3>
+            <h3 className="text-foreground font-serif text-2xl mb-2">No pieces found</h3>
             <p className="text-muted-foreground mb-6">Try adjusting your filters or search terms.</p>
             <Button onClick={clearAllFilters} variant="outline" className="rounded-xl">
               Clear all filters
@@ -328,7 +328,7 @@ export function ProductsPage() {
                   <Link href={`/products/${product.id}`} className="block">
 
                     {/* Image container */}
-                    <div className="relative aspect-[3/4] bg-card/50 rounded-2xl overflow-hidden mb-4 border border-white/5 group-hover:border-primary/30 transition-all duration-500 shadow-xl group-hover:shadow-primary/10 group-hover:shadow-2xl">
+                    <div className="relative aspect-[3/4] bg-card/50 rounded-2xl overflow-hidden mb-4 border border-border group-hover:border-primary/30 transition-all duration-500 shadow-xl group-hover:shadow-primary/10 group-hover:shadow-2xl">
                       {product.images[0] ? (
                         <img
                           src={product.images[0]}
@@ -353,14 +353,14 @@ export function ProductsPage() {
                           </div>
                         )}
                         {product.stock === 0 && (
-                          <div className="bg-black/80 backdrop-blur-md px-2.5 py-1 text-[10px] uppercase tracking-widest text-muted-foreground border border-white/10 rounded-lg font-bold">
+                          <div className="bg-black/80 backdrop-blur-md px-2.5 py-1 text-[10px] uppercase tracking-widest text-muted-foreground border border-border rounded-lg font-bold">
                             Sold Out
                           </div>
                         )}
                       </div>
 
                       {discountPercent > 0 && (
-                        <div className="absolute top-3 right-3 bg-red-600 text-white text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg shadow-lg border border-red-400/30">
+                        <div className="absolute top-3 right-3 bg-red-600 text-foreground text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg shadow-lg border border-red-400/30">
                           {discountPercent}% OFF
                         </div>
                       )}
@@ -371,7 +371,7 @@ export function ProductsPage() {
                         className={`absolute top-3 ${discountPercent > 0 ? 'top-12' : 'top-3'} right-3 w-8 h-8 rounded-full flex items-center justify-center transition-all shadow-lg z-10 ${wishlisted ? 'bg-red-500 border-red-400/30' : 'bg-black/60 backdrop-blur-sm border border-white/20 hover:bg-red-500/20'}`}
                         style={{ top: discountPercent > 0 ? '3.2rem' : '0.75rem' }}
                       >
-                        <Heart className={`w-4 h-4 ${wishlisted ? 'fill-white text-white' : 'text-white/80'}`} />
+                        <Heart className={`w-4 h-4 ${wishlisted ? 'fill-white text-white' : 'text-foreground/80'}`} />
                       </button>
 
                       {/* Quick actions on hover */}
@@ -390,10 +390,10 @@ export function ProductsPage() {
                   <div className="px-1">
                     <div className="text-[10px] text-primary uppercase tracking-[0.15em] font-bold mb-1">{product.brandName}</div>
                     <Link href={`/products/${product.id}`}>
-                      <h3 className="text-white font-serif text-base mb-2 truncate hover:text-primary transition-colors cursor-pointer">{product.name}</h3>
+                      <h3 className="text-foreground font-serif text-base mb-2 truncate hover:text-primary transition-colors cursor-pointer">{product.name}</h3>
                     </Link>
                     <div className="flex items-center gap-2">
-                      <span className="text-white font-bold text-lg">{formatPrice(product.sellingPrice)}</span>
+                      <span className="text-foreground font-bold text-lg">{formatPrice(product.sellingPrice)}</span>
                       {product.mrp > product.sellingPrice && (
                         <span className="text-muted-foreground text-sm line-through">{formatPrice(product.mrp)}</span>
                       )}
@@ -412,7 +412,7 @@ export function ProductsPage() {
                       </button>
                       <button
                         onClick={(e) => handleAddToWishlist(e, product.id, product.name)}
-                        className={`h-10 px-3 flex items-center justify-center rounded-xl border transition-colors ${wishlisted ? 'bg-red-500/10 border-red-500/20' : 'bg-white/5 border-white/10 hover:bg-white/10'}`}
+                        className={`h-10 px-3 flex items-center justify-center rounded-xl border transition-colors ${wishlisted ? 'bg-red-500/10 border-red-500/20' : 'bg-foreground/5 border-border hover:bg-white/10'}`}
                       >
                         <Heart className={`w-4 h-4 ${wishlisted ? 'fill-red-400 text-red-400' : 'text-white'}`} />
                       </button>
