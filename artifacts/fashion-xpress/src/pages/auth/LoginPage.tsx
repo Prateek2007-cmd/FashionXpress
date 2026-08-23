@@ -3,7 +3,7 @@ import { Link, useLocation } from 'wouter';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { AlertCircle, Eye, EyeOff, ShieldCheck, Sparkles, Clock, Lock, User, UserCheck, Store, ShieldAlert } from 'lucide-react';
+import { AlertCircle, Eye, EyeOff, ShieldCheck, Clock, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useLogin } from '@workspace/api-client-react';
@@ -16,13 +16,6 @@ const loginSchema = z.object({
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
-const DEMO_ACCOUNTS = [
-  { label: 'Customer', email: 'customer@fashionxpress.in', pass: 'customer123', icon: User, badge: 'Standard User' },
-  { label: 'Admin', email: 'admin@fashionxpress.in', pass: 'admin123', icon: ShieldAlert, badge: 'Full Access' },
-  { label: 'Executive', email: 'executive@fashionxpress.in', pass: 'exec123', icon: UserCheck, badge: 'Field Agent' },
-  { label: 'Merchant', email: 'merchant@fashionxpress.in', pass: 'merchant123', icon: Store, badge: 'Partner' },
-];
-
 export function LoginPage() {
   const [, setLocation] = useLocation();
   const { login } = useAuth();
@@ -31,15 +24,9 @@ export function LoginPage() {
   const [showPassword, setShowPassword] = React.useState(false);
   const [rememberMe, setRememberMe] = React.useState(true);
 
-  const { register, handleSubmit, setValue, formState: { errors } } = useForm<LoginFormValues>({
+  const { register, handleSubmit, formState: { errors } } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema)
   });
-
-  const fillDemoAccount = (email: string, pass: string) => {
-    setValue('email', email, { shouldValidate: true });
-    setValue('password', pass, { shouldValidate: true });
-    setErrorMsg(null);
-  };
 
   const onSubmit = (data: LoginFormValues) => {
     setErrorMsg(null);
@@ -98,37 +85,6 @@ export function LoginPage() {
 
         {/* Main Card */}
         <div className="bg-card border border-border rounded-3xl p-8 shadow-2xl space-y-6">
-
-          {/* Quick Demo Login Switcher */}
-          <div className="bg-muted/40 border border-border rounded-2xl p-4 space-y-2.5">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold uppercase tracking-widest text-primary flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5" /> Quick Demo Fill
-              </span>
-              <span className="text-[10px] text-muted-foreground">1-Click credentials</span>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              {DEMO_ACCOUNTS.map((acc) => {
-                const Icon = acc.icon;
-                return (
-                  <button
-                    key={acc.label}
-                    type="button"
-                    onClick={() => fillDemoAccount(acc.email, acc.pass)}
-                    className="flex items-center gap-2.5 p-2.5 rounded-xl border border-border bg-card hover:border-primary/50 hover:bg-primary/5 transition-all text-left group"
-                  >
-                    <div className="w-7 h-7 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                      <Icon className="w-3.5 h-3.5 text-primary" />
-                    </div>
-                    <div className="min-w-0">
-                      <div className="text-xs font-bold text-foreground truncate">{acc.label}</div>
-                      <div className="text-[10px] text-muted-foreground truncate">{acc.badge}</div>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
 
           {/* Form */}
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
