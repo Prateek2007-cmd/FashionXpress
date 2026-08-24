@@ -35,22 +35,12 @@ app.use(cors({ origin: true, credentials: true }));
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
-// Serve uploaded files statically if they exist
-const uploadsPath = path.join(process.cwd(), "public", "uploads");
-if (fs.existsSync(uploadsPath)) {
-  app.use("/uploads", express.static(uploadsPath));
-}
-
-// Safely determine current directory without relying solely on import.meta.dirname
-const currentDir = typeof import.meta.dirname !== "undefined"
-  ? import.meta.dirname
-  : typeof __dirname !== "undefined"
-  ? __dirname
-  : process.cwd();
-
-const publicPath = path.resolve(currentDir, "../../fashion-xpress/dist/public");
-if (fs.existsSync(publicPath)) {
-  app.use(express.static(publicPath, { redirect: false }));
+// Serve uploaded files statically if they exist (local only)
+if (!process.env.VERCEL) {
+  const uploadsPath = path.join(process.cwd(), "public", "uploads");
+  if (fs.existsSync(uploadsPath)) {
+    app.use("/uploads", express.static(uploadsPath));
+  }
 }
 
 // API Routes
@@ -66,45 +56,19 @@ app.get("/", (_req: Request, res: Response) => {
   });
 });
 
-// SPA fallback for client-side routing when frontend bundle is colocated
+// Fallback handler for unmatched non-API routes
 app.use((req: Request, res: Response, next: NextFunction) => {
-  if (req.method !== "GET") {
-    next();
-    return;
-  }
-  if (req.path.startsWith("/api") || req.path.startsWith("/uploads")) {
+  if (req.method !== "GET" || req.path.startsWith("/api") || req.path.startsWith("/uploads")) {
     next();
     return;
   }
 
-  const candidatePaths = [
-    path.join(publicPath, "index.html"),
-    path.resolve(process.cwd(), "artifacts/fashion-xpress/dist/public/index.html"),
-    path.resolve(process.cwd(), "fashion-xpress/dist/public/index.html"),
-    path.resolve(process.cwd(), "dist/public/index.html"),
-    path.resolve(currentDir, "../fashion-xpress/dist/public/index.html"),
-  ];
-
-  const targetFile = candidatePaths.find((p) => fs.existsSync(p));
-
-  if (!targetFile) {
-    res.json({
-      name: "The Fashion Xpress API Server",
-      status: "active",
-      path: req.path,
-      endpoints: "/api",
-    });
-    return;
-  }
-
-  try {
-    const htmlContent = fs.readFileSync(targetFile, "utf-8");
-    res.setHeader("Content-Type", "text/html; charset=utf-8");
-    res.status(200).send(htmlContent);
-  } catch (err: any) {
-    logger.error({ err, targetFile }, "Error reading SPA index.html");
-    res.status(500).send("Error serving application");
-  }
+  res.json({
+    name: "The Fashion Xpress API Server",
+    status: "active",
+    path: req.path,
+    endpoints: "/api",
+  });
 });
 
 export default app;

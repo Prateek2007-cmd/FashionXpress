@@ -82642,14 +82642,11 @@ if (!process.env.VERCEL) {
 app.use((0, import_cors.default)({ origin: true, credentials: true }));
 app.use(import_express17.default.json({ limit: "50mb" }));
 app.use(import_express17.default.urlencoded({ extended: true, limit: "50mb" }));
-var uploadsPath = path2.join(process.cwd(), "public", "uploads");
-if (fs2.existsSync(uploadsPath)) {
-  app.use("/uploads", import_express17.default.static(uploadsPath));
-}
-var currentDir = typeof import.meta.dirname !== "undefined" ? import.meta.dirname : typeof __dirname !== "undefined" ? __dirname : process.cwd();
-var publicPath = path2.resolve(currentDir, "../../fashion-xpress/dist/public");
-if (fs2.existsSync(publicPath)) {
-  app.use(import_express17.default.static(publicPath, { redirect: false }));
+if (!process.env.VERCEL) {
+  const uploadsPath = path2.join(process.cwd(), "public", "uploads");
+  if (fs2.existsSync(uploadsPath)) {
+    app.use("/uploads", import_express17.default.static(uploadsPath));
+  }
 }
 app.use("/api", routes_default);
 app.get("/", (_req, res) => {
@@ -82661,39 +82658,16 @@ app.get("/", (_req, res) => {
   });
 });
 app.use((req, res, next) => {
-  if (req.method !== "GET") {
+  if (req.method !== "GET" || req.path.startsWith("/api") || req.path.startsWith("/uploads")) {
     next();
     return;
   }
-  if (req.path.startsWith("/api") || req.path.startsWith("/uploads")) {
-    next();
-    return;
-  }
-  const candidatePaths = [
-    path2.join(publicPath, "index.html"),
-    path2.resolve(process.cwd(), "artifacts/fashion-xpress/dist/public/index.html"),
-    path2.resolve(process.cwd(), "fashion-xpress/dist/public/index.html"),
-    path2.resolve(process.cwd(), "dist/public/index.html"),
-    path2.resolve(currentDir, "../fashion-xpress/dist/public/index.html")
-  ];
-  const targetFile = candidatePaths.find((p) => fs2.existsSync(p));
-  if (!targetFile) {
-    res.json({
-      name: "The Fashion Xpress API Server",
-      status: "active",
-      path: req.path,
-      endpoints: "/api"
-    });
-    return;
-  }
-  try {
-    const htmlContent = fs2.readFileSync(targetFile, "utf-8");
-    res.setHeader("Content-Type", "text/html; charset=utf-8");
-    res.status(200).send(htmlContent);
-  } catch (err) {
-    logger.error({ err, targetFile }, "Error reading SPA index.html");
-    res.status(500).send("Error serving application");
-  }
+  res.json({
+    name: "The Fashion Xpress API Server",
+    status: "active",
+    path: req.path,
+    endpoints: "/api"
+  });
 });
 var app_default = app;
 
