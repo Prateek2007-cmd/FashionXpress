@@ -73788,13 +73788,36 @@ var insertPartnerRequestSchema = createInsertSchema(partnerRequestsTable).omit({
 
 // ../../lib/db/src/index.ts
 var { Pool: Pool3 } = esm_default;
-var rawConnectionString = process.env.DATABASE_URL || "postgresql://neondb_owner:npg_mdR10ZUGrauD@ep-little-violet-aoq66t8e-pooler.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require";
-var connectionString = rawConnectionString.replace(/[\?&]channel_binding=[^&]+/g, "");
-var pool = new Pool3({
-  connectionString,
-  ssl: connectionString.includes("sslmode=require") || connectionString.includes("neon.tech") ? { rejectUnauthorized: false } : void 0
+var _pool = null;
+var _db = null;
+function getDb() {
+  if (!_db) {
+    const rawConnectionString = process.env.DATABASE_URL || "postgresql://neondb_owner:npg_mdR10ZUGrauD@ep-little-violet-aoq66t8e-pooler.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require";
+    const connectionString = rawConnectionString.replace(/[\?&]channel_binding=[^&]+/g, "");
+    _pool = new Pool3({
+      connectionString,
+      ssl: connectionString.includes("sslmode=require") || connectionString.includes("neon.tech") ? { rejectUnauthorized: false } : void 0,
+      max: 5,
+      connectionTimeoutMillis: 5e3
+    });
+    _db = drizzle(_pool, { schema: schema_exports });
+  }
+  return _db;
+}
+var db = new Proxy({}, {
+  get(_target, prop) {
+    const instance = getDb();
+    const value = instance[prop];
+    return typeof value === "function" ? value.bind(instance) : value;
+  }
 });
-var db = drizzle(pool, { schema: schema_exports });
+var pool = new Proxy({}, {
+  get(_target, prop) {
+    if (!_pool) getDb();
+    const value = _pool[prop];
+    return typeof value === "function" ? value.bind(_pool) : value;
+  }
+});
 
 // ../../node_modules/.pnpm/bcryptjs@3.0.3/node_modules/bcryptjs/index.js
 import nodeCrypto from "crypto";
