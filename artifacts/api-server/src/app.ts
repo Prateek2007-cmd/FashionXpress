@@ -2,34 +2,17 @@ import express, { type Express, type Request, type Response, type NextFunction }
 import cors from "cors";
 import path from "path";
 import fs from "fs";
-import { pinoHttp } from "pino-http";
-import { type IncomingMessage, type ServerResponse } from "http";
 import router from "./routes/index";
 import { logger } from "./lib/logger";
 
 const app: Express = express();
 
-if (!process.env.VERCEL) {
-  app.use(
-    pinoHttp({
-      logger,
-      serializers: {
-        req(req: IncomingMessage) {
-          return {
-            id: req.id,
-            method: req.method,
-            url: req.url?.split("?")[0],
-          };
-        },
-        res(res: ServerResponse) {
-          return {
-            statusCode: res.statusCode,
-          };
-        },
-      },
-    }),
-  );
-}
+app.use((req: Request, _res: Response, next: NextFunction) => {
+  if (process.env.NODE_ENV !== "production") {
+    logger.info(`${req.method} ${req.url}`);
+  }
+  next();
+});
 
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json({ limit: "50mb" }));

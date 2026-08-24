@@ -1,10 +1,6 @@
-import pino from "pino";
-
-export const logger = pino({
-  level: process.env.LOG_LEVEL ?? "info",
-  redact: [
-    "req.headers.authorization",
-    "req.headers.cookie",
-    "res.headers['set-cookie']",
-  ],
-});
+export const logger = {
+  info: (...args: any[]) => console.log("[INFO]", ...args),
+  error: (...args: any[]) => console.error("[ERROR]", ...args),
+  warn: (...args: any[]) => console.warn("[WARN]", ...args),
+  debug: (...args: any[]) => console.debug("[DEBUG]", ...args),
+};
