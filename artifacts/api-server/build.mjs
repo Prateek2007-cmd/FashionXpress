@@ -21,7 +21,7 @@ async function buildAll() {
     ],
     platform: "node",
     bundle: true,
-    format: "cjs",
+    format: "esm",
     outdir: distDir,
     outExtension: { ".js": ".js" },
     logLevel: "info",
