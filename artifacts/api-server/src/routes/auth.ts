@@ -1,5 +1,5 @@
 import { Router, type IRouter, type Request, type Response } from "express";
-import { eq } from "drizzle-orm";
+import { eq, or } from "drizzle-orm";
 import { db, usersTable, customersTable } from "@workspace/db";
 import {
   RegisterCustomerBody,
@@ -21,13 +21,24 @@ router.post("/auth/register", async (req: Request, res: Response): Promise<void>
   }
   const { name, email, password, phone } = parsed.data;
 
-  const [existing] = await db
+  const [existingEmail] = await db
     .select()
     .from(usersTable)
     .where(eq(usersTable.email, email.toLowerCase()));
-  if (existing) {
+  if (existingEmail) {
     res.status(400).json({ error: "An account with this email already exists" });
     return;
+  }
+
+  if (phone) {
+    const [existingPhone] = await db
+      .select()
+      .from(usersTable)
+      .where(eq(usersTable.phone, phone.trim()));
+    if (existingPhone) {
+      res.status(400).json({ error: "An account with this phone number already exists" });
+      return;
+    }
   }
 
   const passwordHash = await hashPassword(password);
@@ -36,7 +47,7 @@ router.post("/auth/register", async (req: Request, res: Response): Promise<void>
     .values({
       name,
       email: email.toLowerCase(),
-      phone,
+      phone: phone ? phone.trim() : null,
       passwordHash,
       role: "customer",
     })
@@ -71,16 +82,23 @@ router.post("/auth/login", async (req: Request, res: Response): Promise<void> =>
     res.status(400).json({ error: parsed.error.message });
     return;
   }
-  const email = parsed.data.email.trim().toLowerCase();
+  const input = parsed.data.email.trim().toLowerCase();
+  const rawInput = parsed.data.email.trim();
   const password = parsed.data.password.trim();
 
+  // Search by either email OR mobile phone number
   const [user] = await db
     .select()
     .from(usersTable)
-    .where(eq(usersTable.email, email));
+    .where(
+      or(
+        eq(usersTable.email, input),
+        eq(usersTable.phone, rawInput)
+      )
+    );
 
   if (!user || !(await comparePassword(password, user.passwordHash))) {
-    res.status(401).json({ error: "Invalid email or password" });
+    res.status(401).json({ error: "Invalid email/phone or password" });
     return;
   }
 

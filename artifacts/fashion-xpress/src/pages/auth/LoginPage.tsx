@@ -13,7 +13,7 @@ import { useLogin } from '@workspace/api-client-react';
 import { useAuth } from '@/context/AuthContext';
 
 const loginSchema = z.object({
-  email: z.string().email('Please enter a valid email address'),
+  email: z.string().min(1, 'Please enter your email address or mobile number'),
   password: z.string().min(1, 'Password is required'),
 });
 
@@ -51,9 +51,9 @@ export function LoginPage() {
         const status = err?.status;
         const serverMsg = err?.data?.error || err?.data?.message || err?.message;
         if (status === 401 || status === 400) {
-          setErrorMsg('Incorrect email or password. Please check your credentials.');
+          setErrorMsg('Incorrect email/mobile number or password. Please check your credentials.');
         } else if (status === 404) {
-          setErrorMsg('No account found with this email. Please create an account first.');
+          setErrorMsg('No account found with this email or mobile number. Please create an account first.');
         } else if (serverMsg) {
           setErrorMsg(serverMsg);
         } else {
@@ -171,14 +171,14 @@ export function LoginPage() {
                 </div>
               )}
 
-              {/* Email */}
+              {/* Email / Mobile Field */}
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-foreground/80 uppercase tracking-wider">
-                  Email Address
+                  Email Address or Mobile Number
                 </label>
                 <Input
-                  type="email"
-                  placeholder="name@example.com"
+                  type="text"
+                  placeholder="Enter email or 10-digit mobile number"
                   {...register('email')}
                   className={`h-12 rounded-xl bg-background border-border text-foreground placeholder:text-muted-foreground/50 focus:border-primary/50 ${errors.email ? 'border-destructive' : ''}`}
                   onChange={() => setErrorMsg(null)}
