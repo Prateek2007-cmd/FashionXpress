@@ -78369,7 +78369,8 @@ var insertPartnerRequestSchema = createInsertSchema(partnerRequestsTable).omit({
 
 // ../../lib/db/src/index.ts
 var { Pool: Pool3 } = esm_default;
-var connectionString = process.env.DATABASE_URL || "postgresql://neondb_owner:npg_mdR10ZUGrauD@ep-little-violet-aoq66t8e-pooler.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require";
+var rawConnectionString = process.env.DATABASE_URL || "postgresql://neondb_owner:npg_mdR10ZUGrauD@ep-little-violet-aoq66t8e-pooler.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require";
+var connectionString = rawConnectionString.replace(/[\?&]channel_binding=[^&]+/g, "");
 var pool = new Pool3({
   connectionString,
   ssl: connectionString.includes("sslmode=require") || connectionString.includes("neon.tech") ? { rejectUnauthorized: false } : void 0
