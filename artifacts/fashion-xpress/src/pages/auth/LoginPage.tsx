@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'wouter';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import {
   AlertCircle, Eye, EyeOff, ShieldCheck, Clock, Lock,
-  ArrowRight, Sparkles, CheckCircle2, UserPlus
+  ArrowRight, Sparkles, CheckCircle2, UserPlus, Check, KeyRound, X, Mail, PhoneCall
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -30,8 +30,15 @@ export function LoginPage() {
   const [, setLocation] = useLocation();
   const { login } = useAuth();
   const loginMutation = useLogin();
-  const [errorMsg, setErrorMsg] = React.useState<string | null>(null);
-  const [showPassword, setShowPassword] = React.useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
+
+  // Forgot Password modal states
+  const [showForgotModal, setShowForgotModal] = useState(false);
+  const [forgotInput, setForgotInput] = useState('');
+  const [forgotSubmitted, setForgotSubmitted] = useState(false);
+  const [forgotLoading, setForgotLoading] = useState(false);
 
   const { register, handleSubmit, formState: { errors } } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema)
@@ -41,6 +48,11 @@ export function LoginPage() {
     setErrorMsg(null);
     loginMutation.mutate({ data }, {
       onSuccess: (res) => {
+        if (rememberMe) {
+          localStorage.setItem('remember_user', data.email);
+        } else {
+          localStorage.removeItem('remember_user');
+        }
         login(res.token, res.user);
         if (res.user.role === 'admin') setLocation('/admin');
         else if (res.user.role === 'executive') setLocation('/executive');
@@ -61,6 +73,16 @@ export function LoginPage() {
         }
       }
     });
+  };
+
+  const handleForgotPasswordSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!forgotInput.trim()) return;
+    setForgotLoading(true);
+    setTimeout(() => {
+      setForgotLoading(false);
+      setForgotSubmitted(true);
+    }, 800);
   };
 
   return (
@@ -142,7 +164,7 @@ export function LoginPage() {
                 Already a Member?
               </h1>
               <p className="text-muted-foreground text-sm">
-                Sign in to continue your experience.
+                Sign in to access your bookings & wishlist.
               </p>
             </div>
 
@@ -192,13 +214,13 @@ export function LoginPage() {
                   <label className="text-xs font-semibold text-foreground/80 uppercase tracking-wider">
                     Password
                   </label>
-                  <a
-                    href="#"
-                    onClick={(e) => { e.preventDefault(); alert("To reset your password, please contact:\nconcierge@fashionxpress.in\nor call 6304847223"); }}
+                  <button
+                    type="button"
+                    onClick={() => { setShowForgotModal(true); setForgotSubmitted(false); setForgotInput(''); }}
                     className="text-xs text-primary hover:underline font-medium"
                   >
                     Forgot password?
-                  </a>
+                  </button>
                 </div>
                 <div className="relative">
                   <Input
@@ -217,6 +239,19 @@ export function LoginPage() {
                   </button>
                 </div>
                 {errors.password && <p className="text-xs text-destructive">{errors.password.message}</p>}
+              </div>
+
+              {/* Keep me signed in Checkbox */}
+              <div className="flex items-center justify-between pt-1">
+                <label className="flex items-center gap-2.5 cursor-pointer select-none">
+                  <div
+                    onClick={() => setRememberMe(!rememberMe)}
+                    className={`w-4 h-4 rounded-md border flex items-center justify-center transition-colors ${rememberMe ? 'bg-primary border-primary text-primary-foreground' : 'border-border bg-background'}`}
+                  >
+                    {rememberMe && <Check className="w-3 h-3 stroke-[3]" />}
+                  </div>
+                  <span className="text-xs text-foreground/80 font-medium">Keep me signed in</span>
+                </label>
               </div>
 
               {/* Submit */}
@@ -255,6 +290,86 @@ export function LoginPage() {
 
         </div>
       </div>
+
+      {/* ── FORGOT PASSWORD MODAL ── */}
+      {showForgotModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-card border border-border rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl relative">
+            <button
+              onClick={() => setShowForgotModal(false)}
+              className="absolute top-4 right-4 text-muted-foreground hover:text-foreground p-2 rounded-full hover:bg-foreground/5 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            {!forgotSubmitted ? (
+              <div className="space-y-5">
+                <div className="w-12 h-12 bg-primary/10 border border-primary/20 rounded-2xl flex items-center justify-center text-primary">
+                  <KeyRound className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-serif font-bold text-foreground mb-1">Reset Your Password</h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    Enter your registered email address or mobile number. We will send password reset instructions to your registered contact.
+                  </p>
+                </div>
+
+                <form onSubmit={handleForgotPasswordSubmit} className="space-y-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold uppercase tracking-wider text-foreground/80">
+                      Email or Mobile Number
+                    </label>
+                    <Input
+                      type="text"
+                      required
+                      placeholder="e.g. name@example.com or 9876543210"
+                      value={forgotInput}
+                      onChange={(e) => setForgotInput(e.target.value)}
+                      className="h-12 rounded-xl bg-background border-border"
+                    />
+                  </div>
+
+                  <Button type="submit" className="w-full h-11 font-bold uppercase tracking-wider text-xs rounded-xl" disabled={forgotLoading}>
+                    {forgotLoading ? (
+                      <span className="flex items-center gap-2">
+                        <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                        Sending Reset Link…
+                      </span>
+                    ) : "Send Reset Instructions"}
+                  </Button>
+                </form>
+
+                <div className="pt-4 border-t border-border space-y-2">
+                  <div className="text-[11px] text-muted-foreground text-center">Need instant assistance?</div>
+                  <div className="flex items-center justify-center gap-4 text-xs font-medium text-primary">
+                    <a href="mailto:concierge@fashionxpress.in" className="flex items-center gap-1.5 hover:underline">
+                      <Mail className="w-3.5 h-3.5" /> Email Concierge
+                    </a>
+                    <a href="tel:6304847223" className="flex items-center gap-1.5 hover:underline">
+                      <PhoneCall className="w-3.5 h-3.5" /> Call Support
+                    </a>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-4 space-y-4">
+                <div className="w-14 h-14 bg-emerald-500/10 border border-emerald-500/20 rounded-full flex items-center justify-center text-emerald-500 mx-auto">
+                  <Check className="w-7 h-7 stroke-[3]" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-serif font-bold text-foreground mb-2">Reset Request Sent</h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    We've sent password reset instructions to <strong className="text-foreground">{forgotInput}</strong>. Please check your inbox or SMS messages.
+                  </p>
+                </div>
+                <Button onClick={() => setShowForgotModal(false)} className="w-full h-11 uppercase text-xs font-bold rounded-xl mt-2">
+                  Back to Sign In
+                </Button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
