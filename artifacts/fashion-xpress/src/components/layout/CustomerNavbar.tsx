@@ -19,6 +19,7 @@ export function CustomerNavbar() {
     { label: 'Home', href: '/' },
     { label: 'Book Visit', href: '/book-visit' },
     { label: 'Collection', href: '/products' },
+    { label: 'How It Works', href: '/how-it-works' },
     { label: 'Partner With Us', href: '/partner' },
   ];
 
