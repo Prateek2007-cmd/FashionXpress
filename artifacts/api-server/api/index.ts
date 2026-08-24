@@ -1,5 +1,5 @@
 // @ts-ignore
-import app from "../dist/app.mjs";
+import app from "../dist/app.js";
 
 const handler = (req: any, res: any) => {
   const expressApp = (app && app.default) ? app.default : app;
