@@ -9,25 +9,27 @@ import { logger } from "./lib/logger";
 
 const app: Express = express();
 
-app.use(
-  pinoHttp({
-    logger,
-    serializers: {
-      req(req: IncomingMessage) {
-        return {
-          id: req.id,
-          method: req.method,
-          url: req.url?.split("?")[0],
-        };
+if (!process.env.VERCEL) {
+  app.use(
+    pinoHttp({
+      logger,
+      serializers: {
+        req(req: IncomingMessage) {
+          return {
+            id: req.id,
+            method: req.method,
+            url: req.url?.split("?")[0],
+          };
+        },
+        res(res: ServerResponse) {
+          return {
+            statusCode: res.statusCode,
+          };
+        },
       },
-      res(res: ServerResponse) {
-        return {
-          statusCode: res.statusCode,
-        };
-      },
-    },
-  }),
-);
+    }),
+  );
+}
 
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json({ limit: "50mb" }));

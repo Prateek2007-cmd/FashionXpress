@@ -82580,7 +82580,8 @@ var routes_default = router16;
 
 // src/lib/logger.ts
 var import_pino = __toESM(require_pino(), 1);
-var isProduction = process.env.NODE_ENV === "production";
+var isVercel = Boolean(process.env.VERCEL);
+var isProduction = process.env.NODE_ENV === "production" || isVercel;
 var logger = (0, import_pino.default)({
   level: process.env.LOG_LEVEL ?? "info",
   redact: [
@@ -82588,7 +82589,7 @@ var logger = (0, import_pino.default)({
     "req.headers.cookie",
     "res.headers['set-cookie']"
   ],
-  ...isProduction ? {} : {
+  ...isProduction || isVercel ? {} : {
     transport: {
       target: "pino-pretty",
       options: { colorize: true }
@@ -82598,25 +82599,27 @@ var logger = (0, import_pino.default)({
 
 // src/app.ts
 var app = (0, import_express17.default)();
-app.use(
-  (0, import_pino_http.pinoHttp)({
-    logger,
-    serializers: {
-      req(req) {
-        return {
-          id: req.id,
-          method: req.method,
-          url: req.url?.split("?")[0]
-        };
-      },
-      res(res) {
-        return {
-          statusCode: res.statusCode
-        };
+if (!process.env.VERCEL) {
+  app.use(
+    (0, import_pino_http.pinoHttp)({
+      logger,
+      serializers: {
+        req(req) {
+          return {
+            id: req.id,
+            method: req.method,
+            url: req.url?.split("?")[0]
+          };
+        },
+        res(res) {
+          return {
+            statusCode: res.statusCode
+          };
+        }
       }
-    }
-  })
-);
+    })
+  );
+}
 app.use((0, import_cors.default)({ origin: true, credentials: true }));
 app.use(import_express17.default.json({ limit: "50mb" }));
 app.use(import_express17.default.urlencoded({ extended: true, limit: "50mb" }));
