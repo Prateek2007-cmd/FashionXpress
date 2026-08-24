@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import {
   AlertCircle, Eye, EyeOff, ShieldCheck, Clock, Lock,
-  ArrowRight, Sparkles, CheckCircle2, UserPlus, Check, KeyRound, X, Mail, PhoneCall
+  ArrowRight, Sparkles, CheckCircle2, UserPlus, Check, KeyRound, X, Mail, PhoneCall, ArrowLeft, RefreshCw
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -34,11 +34,18 @@ export function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
 
-  // Forgot Password modal states
+  // Forgot Password interactive 3-step modal states
   const [showForgotModal, setShowForgotModal] = useState(false);
+  const [resetStep, setResetStep] = useState<1 | 2 | 3>(1);
   const [forgotInput, setForgotInput] = useState('');
-  const [forgotSubmitted, setForgotSubmitted] = useState(false);
-  const [forgotLoading, setForgotLoading] = useState(false);
+  const [otpInput, setOtpInput] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [resetError, setResetError] = useState<string | null>(null);
+  const [resetLoading, setResetLoading] = useState(false);
+  const [generatedOtp, setGeneratedOtp] = useState('4829');
+
+  const API_BASE = import.meta.env.VITE_API_URL || '';
 
   const { register, handleSubmit, formState: { errors } } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema)
@@ -75,14 +82,68 @@ export function LoginPage() {
     });
   };
 
-  const handleForgotPasswordSubmit = (e: React.FormEvent) => {
+  const handleStep1SendOtp = (e: React.FormEvent) => {
     e.preventDefault();
     if (!forgotInput.trim()) return;
-    setForgotLoading(true);
+    setResetError(null);
+    setResetLoading(true);
+
+    const randomOtp = Math.floor(1000 + Math.random() * 9000).toString();
+    setGeneratedOtp(randomOtp);
+
     setTimeout(() => {
-      setForgotLoading(false);
-      setForgotSubmitted(true);
-    }, 800);
+      setResetLoading(false);
+      setResetStep(2);
+    }, 600);
+  };
+
+  const handleStep2VerifyOtp = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (otpInput.trim() !== generatedOtp) {
+      setResetError(`Invalid OTP code. Use demo code: ${generatedOtp}`);
+      return;
+    }
+    setResetError(null);
+    setResetStep(3);
+  };
+
+  const handleStep3ResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newPassword || newPassword.length < 6) {
+      setResetError('New password must be at least 6 characters.');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setResetError('Passwords do not match.');
+      return;
+    }
+
+    setResetError(null);
+    setResetLoading(true);
+
+    try {
+      const res = await fetch(`${API_BASE}/api/auth/reset-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          emailOrPhone: forgotInput,
+          newPassword
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to update password.');
+      }
+
+      login(data.token, data.user);
+      setShowForgotModal(false);
+      setLocation('/');
+    } catch (err: any) {
+      setResetError(err.message || 'Something went wrong. Please try again.');
+    } finally {
+      setResetLoading(false);
+    }
   };
 
   return (
@@ -216,7 +277,15 @@ export function LoginPage() {
                   </label>
                   <button
                     type="button"
-                    onClick={() => { setShowForgotModal(true); setForgotSubmitted(false); setForgotInput(''); }}
+                    onClick={() => {
+                      setShowForgotModal(true);
+                      setResetStep(1);
+                      setForgotInput('');
+                      setOtpInput('');
+                      setNewPassword('');
+                      setConfirmPassword('');
+                      setResetError(null);
+                    }}
                     className="text-xs text-primary hover:underline font-medium"
                   >
                     Forgot password?
@@ -291,9 +360,9 @@ export function LoginPage() {
         </div>
       </div>
 
-      {/* ── FORGOT PASSWORD MODAL ── */}
+      {/* ── FORGOT PASSWORD 3-STEP MODAL ── */}
       {showForgotModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="bg-card border border-border rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl relative">
             <button
               onClick={() => setShowForgotModal(false)}
@@ -302,7 +371,16 @@ export function LoginPage() {
               <X className="w-5 h-5" />
             </button>
 
-            {!forgotSubmitted ? (
+            {/* Error banner inside modal */}
+            {resetError && (
+              <div className="mb-4 flex items-start gap-2.5 p-3 rounded-xl border border-red-500/30 bg-red-500/10 text-xs text-red-400">
+                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                <span>{resetError}</span>
+              </div>
+            )}
+
+            {/* STEP 1: Enter Mobile / Email */}
+            {resetStep === 1 && (
               <div className="space-y-5">
                 <div className="w-12 h-12 bg-primary/10 border border-primary/20 rounded-2xl flex items-center justify-center text-primary">
                   <KeyRound className="w-6 h-6" />
@@ -310,11 +388,11 @@ export function LoginPage() {
                 <div>
                   <h3 className="text-xl font-serif font-bold text-foreground mb-1">Reset Your Password</h3>
                   <p className="text-xs text-muted-foreground leading-relaxed">
-                    Enter your registered email address or mobile number. We will send password reset instructions to your registered contact.
+                    Enter your registered email address or mobile number to receive an instant verification OTP.
                   </p>
                 </div>
 
-                <form onSubmit={handleForgotPasswordSubmit} className="space-y-4">
+                <form onSubmit={handleStep1SendOtp} className="space-y-4">
                   <div className="space-y-1.5">
                     <label className="text-xs font-semibold uppercase tracking-wider text-foreground/80">
                       Email or Mobile Number
@@ -322,20 +400,20 @@ export function LoginPage() {
                     <Input
                       type="text"
                       required
-                      placeholder="e.g. name@example.com or 9876543210"
+                      placeholder="e.g. 8147138195 or name@example.com"
                       value={forgotInput}
-                      onChange={(e) => setForgotInput(e.target.value)}
+                      onChange={(e) => { setForgotInput(e.target.value); setResetError(null); }}
                       className="h-12 rounded-xl bg-background border-border"
                     />
                   </div>
 
-                  <Button type="submit" className="w-full h-11 font-bold uppercase tracking-wider text-xs rounded-xl" disabled={forgotLoading}>
-                    {forgotLoading ? (
+                  <Button type="submit" className="w-full h-11 font-bold uppercase tracking-wider text-xs rounded-xl" disabled={resetLoading}>
+                    {resetLoading ? (
                       <span className="flex items-center gap-2">
                         <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                        Sending Reset Link…
+                        Sending OTP…
                       </span>
-                    ) : "Send Reset Instructions"}
+                    ) : "Get Verification OTP"}
                   </Button>
                 </form>
 
@@ -343,28 +421,112 @@ export function LoginPage() {
                   <div className="text-[11px] text-muted-foreground text-center">Need instant assistance?</div>
                   <div className="flex items-center justify-center gap-4 text-xs font-medium text-primary">
                     <a href="mailto:concierge@fashionxpress.in" className="flex items-center gap-1.5 hover:underline">
-                      <Mail className="w-3.5 h-3.5" /> Email Concierge
+                      <Mail className="w-3.5 h-3.5" /> Concierge
                     </a>
                     <a href="tel:6304847223" className="flex items-center gap-1.5 hover:underline">
-                      <PhoneCall className="w-3.5 h-3.5" /> Call Support
+                      <PhoneCall className="w-3.5 h-3.5" /> Call 6304847223
                     </a>
                   </div>
                 </div>
               </div>
-            ) : (
-              <div className="text-center py-4 space-y-4">
-                <div className="w-14 h-14 bg-emerald-500/10 border border-emerald-500/20 rounded-full flex items-center justify-center text-emerald-500 mx-auto">
-                  <Check className="w-7 h-7 stroke-[3]" />
-                </div>
+            )}
+
+            {/* STEP 2: Enter 4-Digit OTP */}
+            {resetStep === 2 && (
+              <div className="space-y-5">
+                <button onClick={() => setResetStep(1)} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground">
+                  <ArrowLeft className="w-3.5 h-3.5" /> Change Phone/Email
+                </button>
                 <div>
-                  <h3 className="text-xl font-serif font-bold text-foreground mb-2">Reset Request Sent</h3>
+                  <h3 className="text-xl font-serif font-bold text-foreground mb-1">Enter Verification Code</h3>
                   <p className="text-xs text-muted-foreground leading-relaxed">
-                    We've sent password reset instructions to <strong className="text-foreground">{forgotInput}</strong>. Please check your inbox or SMS messages.
+                    Enter the 4-digit code sent to <strong className="text-foreground">{forgotInput}</strong>.
                   </p>
                 </div>
-                <Button onClick={() => setShowForgotModal(false)} className="w-full h-11 uppercase text-xs font-bold rounded-xl mt-2">
-                  Back to Sign In
-                </Button>
+
+                {/* Demo OTP Helper Pill */}
+                <div className="flex items-center justify-between p-3 rounded-xl bg-primary/10 border border-primary/20 text-xs">
+                  <span className="text-foreground/80 font-medium">Demo OTP Code: <strong className="text-primary font-bold">{generatedOtp}</strong></span>
+                  <button
+                    type="button"
+                    onClick={() => { setOtpInput(generatedOtp); setResetError(null); }}
+                    className="text-[11px] font-bold uppercase tracking-wider text-primary underline"
+                  >
+                    1-Click Fill
+                  </button>
+                </div>
+
+                <form onSubmit={handleStep2VerifyOtp} className="space-y-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold uppercase tracking-wider text-foreground/80">
+                      4-Digit OTP Code
+                    </label>
+                    <Input
+                      type="text"
+                      maxLength={4}
+                      required
+                      placeholder="e.g. 4829"
+                      value={otpInput}
+                      onChange={(e) => { setOtpInput(e.target.value); setResetError(null); }}
+                      className="h-12 text-center font-bold tracking-[0.4em] text-lg rounded-xl bg-background border-border"
+                    />
+                  </div>
+
+                  <Button type="submit" className="w-full h-11 font-bold uppercase tracking-wider text-xs rounded-xl">
+                    Verify Code
+                  </Button>
+                </form>
+              </div>
+            )}
+
+            {/* STEP 3: Enter New Password */}
+            {resetStep === 3 && (
+              <div className="space-y-5">
+                <div>
+                  <h3 className="text-xl font-serif font-bold text-foreground mb-1">Create New Password</h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    Set a new password for <strong className="text-foreground">{forgotInput}</strong>.
+                  </p>
+                </div>
+
+                <form onSubmit={handleStep3ResetPassword} className="space-y-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold uppercase tracking-wider text-foreground/80">
+                      New Password
+                    </label>
+                    <Input
+                      type="password"
+                      required
+                      placeholder="Enter new password (min 6 chars)"
+                      value={newPassword}
+                      onChange={(e) => { setNewPassword(e.target.value); setResetError(null); }}
+                      className="h-12 rounded-xl bg-background border-border"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold uppercase tracking-wider text-foreground/80">
+                      Confirm New Password
+                    </label>
+                    <Input
+                      type="password"
+                      required
+                      placeholder="Re-enter new password"
+                      value={confirmPassword}
+                      onChange={(e) => { setConfirmPassword(e.target.value); setResetError(null); }}
+                      className="h-12 rounded-xl bg-background border-border"
+                    />
+                  </div>
+
+                  <Button type="submit" className="w-full h-11 font-bold uppercase tracking-wider text-xs rounded-xl" disabled={resetLoading}>
+                    {resetLoading ? (
+                      <span className="flex items-center gap-2">
+                        <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                        Updating Password…
+                      </span>
+                    ) : "Update Password & Sign In"}
+                  </Button>
+                </form>
               </div>
             )}
           </div>

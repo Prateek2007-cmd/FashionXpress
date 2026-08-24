@@ -183,6 +183,70 @@ router.post("/auth/login", async (req: Request, res: Response): Promise<void> =>
   );
 });
 
+router.post("/auth/reset-password", async (req: Request, res: Response): Promise<void> => {
+  const { emailOrPhone, newPassword } = req.body;
+  if (!emailOrPhone || !newPassword) {
+    res.status(400).json({ error: "Email/phone and new password are required" });
+    return;
+  }
+  const input = String(emailOrPhone).trim().toLowerCase();
+  const rawInput = String(emailOrPhone).trim();
+  const digits = rawInput.replace(/\D/g, "");
+
+  const conditions = [
+    eq(usersTable.email, input),
+    eq(usersTable.phone, rawInput)
+  ];
+
+  if (digits.length >= 10) {
+    const last10 = digits.slice(-10);
+    conditions.push(
+      sql`regexp_replace(${usersTable.phone}, '[^0-9]', '', 'g') LIKE ${'%' + last10}`
+    );
+  }
+
+  const candidates = await db
+    .select()
+    .from(usersTable)
+    .where(or(...conditions));
+
+  if (!candidates.length) {
+    res.status(404).json({ error: "No account found with this email or mobile number" });
+    return;
+  }
+
+  // Sort candidate users so real registered accounts come before guest accounts
+  candidates.sort((a, b) => {
+    const aIsGuest = a.email.includes("@guest.fashion-xpress.com");
+    const bIsGuest = b.email.includes("@guest.fashion-xpress.com");
+    if (aIsGuest && !bIsGuest) return 1;
+    if (!aIsGuest && bIsGuest) return -1;
+    return b.id - a.id;
+  });
+
+  const user = candidates[0];
+  const passwordHash = await hashPassword(newPassword.trim());
+
+  await db
+    .update(usersTable)
+    .set({ passwordHash })
+    .where(eq(usersTable.id, user.id));
+
+  const token = signToken({ userId: user.id, role: user.role as "customer" | "admin" | "executive" | "merchant" });
+  res.json({
+    message: "Password reset successful",
+    token,
+    user: {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      phone: user.phone,
+      role: user.role,
+      createdAt: user.createdAt,
+    },
+  });
+});
+
 router.get(
   "/auth/me",
   requireAuth(),
