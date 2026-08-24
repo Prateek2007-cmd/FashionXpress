@@ -9,7 +9,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useQueryClient } from '@tanstack/react-query';
 import {
   Search, Loader2, Heart, ShoppingBag, Sparkles, SlidersHorizontal,
-  Flame, Tag, Palette, Star, X, ChevronDown
+  Flame, Tag, Palette, Star, X, ChevronDown, LayoutGrid, Grid3x3, Grid2x2, List
 } from 'lucide-react';
 
 const COLOR_OPTIONS = ['Red', 'Pink', 'Blue', 'Green', 'Yellow', 'Orange', 'Purple', 'White', 'Black', 'Gold', 'Silver', 'Maroon', 'Navy Blue', 'Peach', 'Lavender', 'Turquoise', 'Mint', 'Coral', 'Beige', 'Ivory'];
@@ -27,8 +27,8 @@ export function ProductsPage() {
   const [color, setColor] = useState<string | undefined>(undefined);
   const [occasion, setOccasion] = useState<string | undefined>(undefined);
   const [collectionTitle, setCollectionTitle] = useState<string>('The Collection');
-
   const [discountFilter, setDiscountFilter] = useState<string>('all');
+  const [gridView, setGridView] = useState<'grid-2' | 'grid-3' | 'grid-4' | 'list'>('grid-4');
 
   const { isAuthenticated, token } = useAuth();
   const [, setLocation] = useLocation();
@@ -91,6 +91,7 @@ export function ProductsPage() {
       }
     }
   }, [categories]);
+
   const { data: productsData, isLoading } = useListProducts({
     search: search || undefined,
     categoryId,
@@ -150,6 +151,13 @@ export function ProductsPage() {
 
   const isPriceDrop = discountFilter === 'price-drop';
   const hasActiveFilters = search || categoryId || brandId || color || occasion || discountFilter !== 'all';
+
+  const gridCssClass = {
+    'grid-2': 'grid grid-cols-1 sm:grid-cols-2 gap-8',
+    'grid-3': 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6',
+    'grid-4': 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6',
+    'list': 'grid grid-cols-1 gap-6',
+  }[gridView];
 
   return (
     <div className="min-h-screen">
@@ -214,88 +222,127 @@ export function ProductsPage() {
         </div>
       </div>
 
-      {/* ── FILTER BAR ── */}
+      {/* ── FILTER & GRID CONTROLS BAR ── */}
       <div className="sticky top-20 z-40 bg-background/95 backdrop-blur-xl border-b border-border shadow-2xl">
         <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center gap-3 flex-wrap">
-            {/* Search */}
-            <div className="relative flex-grow max-w-xs">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                placeholder="Search pieces..."
-                className="pl-9 h-10 bg-foreground/5 border-border text-foreground placeholder:text-muted-foreground/50 focus:border-primary/40 rounded-xl"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </div>
+          <div className="flex items-center gap-3 flex-wrap justify-between">
 
-            {/* Filters row */}
-            <div className="flex items-center gap-2 flex-wrap">
-              <select
-                className="h-10 rounded-xl border border-red-500/30 bg-card/80 px-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-red-500 font-semibold uppercase tracking-wider"
-                value={discountFilter}
-                onChange={(e) => setDiscountFilter(e.target.value)}
-              >
-                <option value="all">All Items</option>
-                <option value="price-drop">🔥 35%+ OFF</option>
-                <option value="50">50%+ OFF</option>
-                <option value="any">Any Discount</option>
-              </select>
+            {/* Left side: Search & Dropdowns */}
+            <div className="flex items-center gap-3 flex-wrap flex-grow">
+              {/* Search */}
+              <div className="relative flex-grow max-w-xs">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search pieces..."
+                  className="pl-9 h-10 bg-foreground/5 border-border text-foreground placeholder:text-muted-foreground/50 focus:border-primary/40 rounded-xl"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+              </div>
 
-              <select
-                className="h-10 rounded-xl border border-border bg-card/80 px-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-                value={categoryId || ''}
-                onChange={(e) => setCategoryId(e.target.value ? Number(e.target.value) : undefined)}
-              >
-                <option value="">All Categories</option>
-                {Array.isArray(categories) && categories.map(c => (
-                  <option key={c.id} value={c.id}>{c.name}</option>
-                ))}
-              </select>
-
-              <select
-                className="h-10 rounded-xl border border-border bg-card/80 px-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-                value={brandId || ''}
-                onChange={(e) => setBrandId(e.target.value ? Number(e.target.value) : undefined)}
-              >
-                <option value="">All Brands</option>
-                {Array.isArray(brands) && brands.map(b => (
-                  <option key={b.id} value={b.id}>{b.name}</option>
-                ))}
-              </select>
-
-              <select
-                className="h-10 rounded-xl border border-border bg-card/80 px-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-                value={color || ''}
-                onChange={(e) => setColor(e.target.value || undefined)}
-              >
-                <option value="">All Colours</option>
-                {COLOR_OPTIONS.map(c => <option key={c} value={c}>{c}</option>)}
-              </select>
-
-              <select
-                className="h-10 rounded-xl border border-border bg-card/80 px-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-                value={occasion || ''}
-                onChange={(e) => setOccasion(e.target.value || undefined)}
-              >
-                <option value="">All Occasions</option>
-                {OCCASION_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
-              </select>
-
-              {hasActiveFilters && (
-                <button
-                  onClick={clearAllFilters}
-                  className="flex items-center gap-1.5 h-10 px-3 rounded-xl border border-red-500/20 bg-red-500/5 text-red-400 text-xs font-semibold hover:bg-red-500/10 transition-colors"
+              {/* Filters row */}
+              <div className="flex items-center gap-2 flex-wrap">
+                <select
+                  className="h-10 rounded-xl border border-red-500/30 bg-card px-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-red-500 font-semibold uppercase tracking-wider"
+                  value={discountFilter}
+                  onChange={(e) => setDiscountFilter(e.target.value)}
                 >
-                  <X className="w-3.5 h-3.5" /> Clear
-                </button>
-              )}
+                  <option value="all">All Items</option>
+                  <option value="price-drop">🔥 35%+ OFF</option>
+                  <option value="50">50%+ OFF</option>
+                  <option value="any">Any Discount</option>
+                </select>
+
+                <select
+                  className="h-10 rounded-xl border border-border bg-card px-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                  value={categoryId || ''}
+                  onChange={(e) => setCategoryId(e.target.value ? Number(e.target.value) : undefined)}
+                >
+                  <option value="">All Categories</option>
+                  {Array.isArray(categories) && categories.map(c => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
+                </select>
+
+                <select
+                  className="h-10 rounded-xl border border-border bg-card px-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                  value={brandId || ''}
+                  onChange={(e) => setBrandId(e.target.value ? Number(e.target.value) : undefined)}
+                >
+                  <option value="">All Brands</option>
+                  {Array.isArray(brands) && brands.map(b => (
+                    <option key={b.id} value={b.id}>{b.name}</option>
+                  ))}
+                </select>
+
+                <select
+                  className="h-10 rounded-xl border border-border bg-card px-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                  value={color || ''}
+                  onChange={(e) => setColor(e.target.value || undefined)}
+                >
+                  <option value="">All Colours</option>
+                  {COLOR_OPTIONS.map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+
+                <select
+                  className="h-10 rounded-xl border border-border bg-card px-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                  value={occasion || ''}
+                  onChange={(e) => setOccasion(e.target.value || undefined)}
+                >
+                  <option value="">All Occasions</option>
+                  {OCCASION_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
+                </select>
+
+                {hasActiveFilters && (
+                  <button
+                    onClick={clearAllFilters}
+                    className="flex items-center gap-1.5 h-10 px-3 rounded-xl border border-red-500/20 bg-red-500/5 text-red-400 text-xs font-semibold hover:bg-red-500/10 transition-colors"
+                  >
+                    <X className="w-3.5 h-3.5" /> Clear
+                  </button>
+                )}
+              </div>
             </div>
 
-            {/* Results count */}
-            <div className="ml-auto text-xs text-muted-foreground font-medium hidden md:block">
-              {isLoading ? '...' : <span><span className="text-foreground font-bold">{filteredProducts.length}</span> pieces found</span>}
+            {/* Right side: Grid View Mode Selector + Count */}
+            <div className="flex items-center gap-4">
+              <div className="text-xs text-muted-foreground font-medium hidden lg:block">
+                {isLoading ? '...' : <span><span className="text-foreground font-bold">{filteredProducts.length}</span> pieces</span>}
+              </div>
+
+              {/* Grid View Controls */}
+              <div className="flex items-center gap-1 bg-card border border-border p-1 rounded-xl shrink-0">
+                <button
+                  onClick={() => setGridView('grid-2')}
+                  className={`p-2 rounded-lg transition-colors ${gridView === 'grid-2' ? 'bg-primary text-primary-foreground font-bold shadow' : 'text-muted-foreground hover:text-foreground'}`}
+                  title="2 Columns View"
+                >
+                  <Grid2x2 className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setGridView('grid-3')}
+                  className={`p-2 rounded-lg transition-colors ${gridView === 'grid-3' ? 'bg-primary text-primary-foreground font-bold shadow' : 'text-muted-foreground hover:text-foreground'}`}
+                  title="3 Columns View"
+                >
+                  <Grid3x3 className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setGridView('grid-4')}
+                  className={`p-2 rounded-lg transition-colors ${gridView === 'grid-4' ? 'bg-primary text-primary-foreground font-bold shadow' : 'text-muted-foreground hover:text-foreground'}`}
+                  title="4 Columns View"
+                >
+                  <LayoutGrid className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setGridView('list')}
+                  className={`p-2 rounded-lg transition-colors ${gridView === 'list' ? 'bg-primary text-primary-foreground font-bold shadow' : 'text-muted-foreground hover:text-foreground'}`}
+                  title="List View"
+                >
+                  <List className="w-4 h-4" />
+                </button>
+              </div>
             </div>
+
           </div>
         </div>
       </div>
@@ -303,7 +350,7 @@ export function ProductsPage() {
       {/* ── PRODUCT GRID ── */}
       <div className="max-w-7xl mx-auto px-6 py-12">
         {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className={gridCssClass}>
             {[...Array(12)].map((_, i) => (
               <div key={i} className="animate-pulse">
                 <div className="aspect-[3/4] bg-muted rounded-2xl mb-4" />
@@ -327,10 +374,74 @@ export function ProductsPage() {
             </Button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className={gridCssClass}>
             {filteredProducts.map(product => {
               const discountPercent = getDiscountPercent(product.mrp, product.sellingPrice);
               const wishlisted = isWishlisted(product.id);
+
+              /* List View Rendering */
+              if (gridView === 'list') {
+                return (
+                  <div key={product.id} className="group relative bg-card border border-border rounded-2xl p-4 flex flex-col md:flex-row gap-6 hover:border-primary/30 transition-all shadow-lg hover:shadow-xl">
+                    <Link href={`/products/${product.id}`} className="shrink-0 w-full md:w-56 aspect-[3/4] rounded-xl overflow-hidden relative bg-muted">
+                      {product.images[0] ? (
+                        <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-muted-foreground"><ShoppingBag className="w-8 h-8 opacity-30" /></div>
+                      )}
+                      {discountPercent > 0 && (
+                        <span className="absolute top-2 left-2 bg-red-600 text-foreground text-[10px] font-black uppercase px-2 py-0.5 rounded shadow">
+                          {discountPercent}% OFF
+                        </span>
+                      )}
+                    </Link>
+
+                    <div className="flex-grow flex flex-col justify-between space-y-3">
+                      <div>
+                        <div className="text-xs text-primary font-bold uppercase tracking-wider mb-1">{product.brandName}</div>
+                        <Link href={`/products/${product.id}`}>
+                          <h3 className="text-foreground font-serif text-xl font-bold hover:text-primary transition-colors cursor-pointer mb-2">{product.name}</h3>
+                        </Link>
+                        {product.description && (
+                          <p className="text-muted-foreground text-sm line-clamp-2 mb-3">{product.description}</p>
+                        )}
+                        <div className="flex items-center gap-3 flex-wrap text-xs text-muted-foreground">
+                          {product.color && <span className="px-2.5 py-1 bg-foreground/5 rounded-md border border-border">Color: <strong className="text-foreground capitalize">{product.color}</strong></span>}
+                          {product.fabric && <span className="px-2.5 py-1 bg-foreground/5 rounded-md border border-border">Fabric: <strong className="text-foreground">{product.fabric}</strong></span>}
+                          {product.occasion && <span className="px-2.5 py-1 bg-foreground/5 rounded-md border border-border">Occasion: <strong className="text-foreground capitalize">{product.occasion}</strong></span>}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between pt-4 border-t border-border flex-wrap gap-4">
+                        <div className="flex items-center gap-3">
+                          <span className="text-foreground font-bold text-2xl">{formatPrice(product.sellingPrice)}</span>
+                          {product.mrp > product.sellingPrice && (
+                            <span className="text-muted-foreground text-base line-through">{formatPrice(product.mrp)}</span>
+                          )}
+                        </div>
+
+                        <div className="flex items-center gap-3">
+                          <button
+                            onClick={(e) => handleAddToWishlist(e, product.id, product.name)}
+                            className={`p-3 rounded-xl border transition-all ${wishlisted ? 'bg-red-500/10 border-red-500/20 text-red-500' : 'bg-foreground/5 border-border hover:bg-foreground/10 text-foreground'}`}
+                            title="Save to Wishlist"
+                          >
+                            <Heart className={`w-5 h-5 ${wishlisted ? 'fill-current' : ''}`} />
+                          </button>
+                          <Button
+                            onClick={(e) => handleAddToCart(e, product.id, product.name)}
+                            className="h-11 px-6 text-xs font-bold uppercase tracking-wider rounded-xl shadow-lg"
+                          >
+                            <ShoppingBag className="w-4 h-4 mr-2" /> Add to Cart
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              }
+
+              /* Standard Grid Card Rendering */
               return (
                 <div key={product.id} className="group relative">
                   <Link href={`/products/${product.id}`} className="block">
@@ -373,13 +484,13 @@ export function ProductsPage() {
                         </div>
                       )}
 
-                      {/* Wishlist button — always visible */}
+                      {/* Wishlist button */}
                       <button
                         onClick={(e) => handleAddToWishlist(e, product.id, product.name)}
-                        className={`absolute top-3 ${discountPercent > 0 ? 'top-12' : 'top-3'} right-3 w-8 h-8 rounded-full flex items-center justify-center transition-all shadow-lg z-10 ${wishlisted ? 'bg-red-500 border-red-400/30' : 'bg-card backdrop-blur-sm border border-border hover:bg-red-500/20'}`}
+                        className={`absolute top-3 ${discountPercent > 0 ? 'top-12' : 'top-3'} right-3 w-8 h-8 rounded-full flex items-center justify-center transition-all shadow-lg z-10 ${wishlisted ? 'bg-red-500 border-red-400/30 text-white' : 'bg-card backdrop-blur-sm border border-border hover:bg-red-500/20 text-foreground'}`}
                         style={{ top: discountPercent > 0 ? '3.2rem' : '0.75rem' }}
                       >
-                        <Heart className={`w-4 h-4 ${wishlisted ? 'fill-white text-foreground' : 'text-foreground/80'}`} />
+                        <Heart className={`w-4 h-4 ${wishlisted ? 'fill-current' : ''}`} />
                       </button>
 
                       {/* Quick actions on hover */}
@@ -420,9 +531,9 @@ export function ProductsPage() {
                       </button>
                       <button
                         onClick={(e) => handleAddToWishlist(e, product.id, product.name)}
-                        className={`h-10 px-3 flex items-center justify-center rounded-xl border transition-colors ${wishlisted ? 'bg-red-500/10 border-red-500/20' : 'bg-foreground/5 border-border hover:bg-white/10'}`}
+                        className={`h-10 px-3 flex items-center justify-center rounded-xl border transition-colors ${wishlisted ? 'bg-red-500/10 border-red-500/20 text-red-500' : 'bg-foreground/5 border-border hover:bg-white/10 text-foreground'}`}
                       >
-                        <Heart className={`w-4 h-4 ${wishlisted ? 'fill-red-400 text-red-400' : 'text-foreground'}`} />
+                        <Heart className={`w-4 h-4 ${wishlisted ? 'fill-current' : ''}`} />
                       </button>
                     </div>
                   </div>
