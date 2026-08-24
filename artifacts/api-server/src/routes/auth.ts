@@ -1,5 +1,5 @@
 import { Router, type IRouter, type Request, type Response } from "express";
-import { eq, or } from "drizzle-orm";
+import { eq, or, sql } from "drizzle-orm";
 import { db, usersTable, customersTable } from "@workspace/db";
 import {
   RegisterCustomerBody,
@@ -31,13 +31,16 @@ router.post("/auth/register", async (req: Request, res: Response): Promise<void>
   }
 
   if (phone) {
-    const [existingPhone] = await db
-      .select()
-      .from(usersTable)
-      .where(eq(usersTable.phone, phone.trim()));
-    if (existingPhone) {
-      res.status(400).json({ error: "An account with this phone number already exists" });
-      return;
+    const cleanPhoneDigits = phone.replace(/\D/g, "");
+    if (cleanPhoneDigits.length >= 10) {
+      const [existingPhone] = await db
+        .select()
+        .from(usersTable)
+        .where(sql`regexp_replace(${usersTable.phone}, '[^0-9]', '', 'g') LIKE ${'%' + cleanPhoneDigits.slice(-10)}`);
+      if (existingPhone) {
+        res.status(400).json({ error: "An account with this phone number already exists" });
+        return;
+      }
     }
   }
 
@@ -84,18 +87,26 @@ router.post("/auth/login", async (req: Request, res: Response): Promise<void> =>
   }
   const input = parsed.data.email.trim().toLowerCase();
   const rawInput = parsed.data.email.trim();
+  const digits = rawInput.replace(/\D/g, "");
   const password = parsed.data.password.trim();
 
-  // Search by either email OR mobile phone number
+  // Search by either email OR mobile phone number (flexible digit matching)
+  const conditions = [
+    eq(usersTable.email, input),
+    eq(usersTable.phone, rawInput)
+  ];
+
+  if (digits.length >= 10) {
+    const last10 = digits.slice(-10);
+    conditions.push(
+      sql`regexp_replace(${usersTable.phone}, '[^0-9]', '', 'g') LIKE ${'%' + last10}`
+    );
+  }
+
   const [user] = await db
     .select()
     .from(usersTable)
-    .where(
-      or(
-        eq(usersTable.email, input),
-        eq(usersTable.phone, rawInput)
-      )
-    );
+    .where(or(...conditions));
 
   if (!user || !(await comparePassword(password, user.passwordHash))) {
     res.status(401).json({ error: "Invalid email/phone or password" });
