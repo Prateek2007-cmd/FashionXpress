@@ -1,19 +1,12 @@
-let expressApp: any = null;
+// @ts-ignore
+import app from "../dist/app.mjs";
 
-export default async function handler(req: any, res: any) {
+export default function handler(req: any, res: any) {
   try {
-    if (!expressApp) {
-      // @ts-ignore
-      const appModule = await import("../dist/app.js");
-      expressApp = (appModule && appModule.default) ? appModule.default : appModule;
-    }
+    const expressApp = (app && (app as any).default) ? (app as any).default : app;
     return expressApp(req, res);
   } catch (err: any) {
-    console.error("Vercel Serverless Error:", err);
-    res.status(500).json({
-      error: "Server Initialization Error",
-      message: err.message || String(err),
-      stack: err.stack,
-    });
+    console.error("Vercel Serverless Handler Error:", err);
+    res.status(500).json({ error: "Handler error", message: err.message });
   }
 }
