@@ -80175,24 +80175,54 @@ router2.post("/auth/register", async (req, res) => {
     return;
   }
   const { name, email: email3, password, phone } = parsed.data;
-  const [existing] = await db.select().from(usersTable).where(eq(usersTable.email, email3.toLowerCase()));
-  if (existing) {
+  const normalizedEmail = email3.trim().toLowerCase();
+  const cleanPhoneDigits = phone ? phone.replace(/\D/g, "") : "";
+  const [existingEmailUser] = await db.select().from(usersTable).where(eq(usersTable.email, normalizedEmail));
+  if (existingEmailUser && !existingEmailUser.email.includes("@guest.fashion-xpress.com")) {
     res.status(400).json({ error: "An account with this email already exists" });
     return;
   }
+  let existingPhoneUser = null;
+  if (cleanPhoneDigits.length >= 10) {
+    const [found] = await db.select().from(usersTable).where(sql`regexp_replace(${usersTable.phone}, '[^0-9]', '', 'g') LIKE ${"%" + cleanPhoneDigits.slice(-10)}`);
+    if (found && !found.email.includes("@guest.fashion-xpress.com") && found.id !== existingEmailUser?.id) {
+      res.status(400).json({ error: "An account with this phone number already exists" });
+      return;
+    }
+    existingPhoneUser = found;
+  }
   const passwordHash = await hashPassword(password);
-  const [user] = await db.insert(usersTable).values({
-    name,
-    email: email3.toLowerCase(),
-    phone,
-    passwordHash,
-    role: "customer"
-  }).returning();
+  const targetGuestUser = (existingEmailUser?.email.includes("@guest.fashion-xpress.com") ? existingEmailUser : null) || (existingPhoneUser?.email.includes("@guest.fashion-xpress.com") ? existingPhoneUser : null);
+  let user;
+  if (targetGuestUser) {
+    const [updated] = await db.update(usersTable).set({
+      name,
+      email: normalizedEmail,
+      phone: phone ? phone.trim() : targetGuestUser.phone,
+      passwordHash,
+      role: "customer"
+    }).where(eq(usersTable.id, targetGuestUser.id)).returning();
+    user = updated;
+  } else {
+    const [inserted] = await db.insert(usersTable).values({
+      name,
+      email: normalizedEmail,
+      phone: phone ? phone.trim() : null,
+      passwordHash,
+      role: "customer"
+    }).returning();
+    user = inserted;
+    if (user) {
+      const [existingCust] = await db.select().from(customersTable).where(eq(customersTable.userId, user.id));
+      if (!existingCust) {
+        await db.insert(customersTable).values({ userId: user.id });
+      }
+    }
+  }
   if (!user) {
     res.status(500).json({ error: "Failed to create account" });
     return;
   }
-  await db.insert(customersTable).values({ userId: user.id });
   const token = signToken({ userId: user.id, role: "customer" });
   res.status(201).json(
     RegisterCustomerResponse.parse({
@@ -80214,11 +80244,41 @@ router2.post("/auth/login", async (req, res) => {
     res.status(400).json({ error: parsed.error.message });
     return;
   }
-  const email3 = parsed.data.email.trim().toLowerCase();
+  const input = parsed.data.email.trim().toLowerCase();
+  const rawInput = parsed.data.email.trim();
+  const digits = rawInput.replace(/\D/g, "");
   const password = parsed.data.password.trim();
-  const [user] = await db.select().from(usersTable).where(eq(usersTable.email, email3));
-  if (!user || !await comparePassword(password, user.passwordHash)) {
-    res.status(401).json({ error: "Invalid email or password" });
+  const conditions = [
+    eq(usersTable.email, input),
+    eq(usersTable.phone, rawInput)
+  ];
+  if (digits.length >= 10) {
+    const last10 = digits.slice(-10);
+    conditions.push(
+      sql`regexp_replace(${usersTable.phone}, '[^0-9]', '', 'g') LIKE ${"%" + last10}`
+    );
+  }
+  const candidates = await db.select().from(usersTable).where(or(...conditions));
+  if (!candidates.length) {
+    res.status(401).json({ error: "Invalid email/phone or password" });
+    return;
+  }
+  candidates.sort((a, b) => {
+    const aIsGuest = a.email.includes("@guest.fashion-xpress.com");
+    const bIsGuest = b.email.includes("@guest.fashion-xpress.com");
+    if (aIsGuest && !bIsGuest) return 1;
+    if (!aIsGuest && bIsGuest) return -1;
+    return b.id - a.id;
+  });
+  let user = null;
+  for (const candidate of candidates) {
+    if (await comparePassword(password, candidate.passwordHash)) {
+      user = candidate;
+      break;
+    }
+  }
+  if (!user) {
+    res.status(401).json({ error: "Invalid email/phone or password" });
     return;
   }
   const token = signToken({ userId: user.id, role: user.role });
@@ -81915,6 +81975,120 @@ router10.get(
     } catch (err) {
       console.error("GET /admin/dashboard/brand-revenue error:", err);
       res.status(500).json({ error: "Failed to fetch brand revenue" });
+    }
+  }
+);
+router10.get(
+  "/admin/dashboard/executive-performance",
+  requireAuth("admin"),
+  async (_req, res) => {
+    try {
+      const rows = await db.select({
+        name: usersTable.name,
+        totalVisits: sql`count(*)::int`,
+        completedVisits: sql`count(*) filter (where ${bookingsTable.status} = 'completed')::int`,
+        rating: executivesTable.rating
+      }).from(executivesTable).innerJoin(usersTable, eq(executivesTable.userId, usersTable.id)).leftJoin(bookingsTable, eq(bookingsTable.executiveId, executivesTable.id)).groupBy(usersTable.name, executivesTable.rating).orderBy(sql`count(*) desc`).limit(8);
+      res.json(rows.map((r) => ({
+        name: r.name,
+        totalVisits: r.totalVisits,
+        completedVisits: r.completedVisits,
+        rating: parseFloat(r.rating)
+      })));
+    } catch (err) {
+      console.error("GET /admin/dashboard/executive-performance error:", err);
+      res.status(500).json({ error: "Failed to fetch executive performance" });
+    }
+  }
+);
+router10.get(
+  "/admin/dashboard/top-cities",
+  requireAuth("admin"),
+  async (_req, res) => {
+    try {
+      const rows = await db.select({
+        city: sql`split_part(${bookingsTable.addressText}, ',', -1)`,
+        count: sql`count(*)::int`
+      }).from(bookingsTable).groupBy(sql`split_part(${bookingsTable.addressText}, ',', -1)`).orderBy(sql`count(*) desc`).limit(6);
+      res.json(rows.map((r) => ({
+        city: (r.city || "").trim(),
+        count: r.count
+      })));
+    } catch (err) {
+      console.error("GET /admin/dashboard/top-cities error:", err);
+      res.status(500).json({ error: "Failed to fetch top cities" });
+    }
+  }
+);
+router10.get(
+  "/admin/dashboard/monthly-goal",
+  requireAuth("admin"),
+  async (_req, res) => {
+    try {
+      const now = /* @__PURE__ */ new Date();
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
+      const TARGET = 100;
+      const [{ count: thisMonth }] = await db.select({ count: sql`count(*)::int` }).from(bookingsTable).where(gte(bookingsTable.preferredDate, monthStart));
+      const [{ count: completedMonth }] = await db.select({ count: sql`count(*)::int` }).from(bookingsTable).where(
+        and(
+          gte(bookingsTable.preferredDate, monthStart),
+          eq(bookingsTable.status, "completed")
+        )
+      );
+      res.json({ target: TARGET, thisMonth, completedMonth });
+    } catch (err) {
+      console.error("GET /admin/dashboard/monthly-goal error:", err);
+      res.status(500).json({ error: "Failed to fetch monthly goal" });
+    }
+  }
+);
+router10.get(
+  "/admin/dashboard/customer-retention",
+  requireAuth("admin"),
+  async (_req, res) => {
+    try {
+      const repeatRows = await db.select({
+        customerId: bookingsTable.customerId,
+        bookingCount: sql`count(*)::int`
+      }).from(bookingsTable).groupBy(bookingsTable.customerId);
+      const total = repeatRows.length;
+      const repeat = repeatRows.filter((r) => r.bookingCount > 1).length;
+      const newCustomers = total - repeat;
+      res.json({
+        total,
+        repeat,
+        newCustomers,
+        repeatRate: total > 0 ? Math.round(repeat / total * 100) : 0
+      });
+    } catch (err) {
+      console.error("GET /admin/dashboard/customer-retention error:", err);
+      res.status(500).json({ error: "Failed to fetch retention data" });
+    }
+  }
+);
+router10.get(
+  "/admin/dashboard/recent-activity",
+  requireAuth("admin"),
+  async (_req, res) => {
+    try {
+      const recentBookings = await db.select({
+        id: bookingsTable.id,
+        name: bookingsTable.name,
+        status: bookingsTable.status,
+        createdAt: bookingsTable.createdAt,
+        bookingCode: bookingsTable.bookingCode
+      }).from(bookingsTable).orderBy(sql`${bookingsTable.createdAt} desc`).limit(8);
+      res.json(recentBookings.map((b) => ({
+        type: "booking",
+        id: b.id,
+        name: b.name,
+        status: b.status,
+        code: b.bookingCode,
+        createdAt: b.createdAt
+      })));
+    } catch (err) {
+      console.error("GET /admin/dashboard/recent-activity error:", err);
+      res.status(500).json({ error: "Failed to fetch recent activity" });
     }
   }
 );
