@@ -3,7 +3,7 @@ import { Link, useLocation } from 'wouter';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
 import { useListWishlist, useListHomeVisitCart } from '@workspace/api-client-react';
-import { User, LogOut, Heart, ShoppingBag, Menu, X, Sun, Moon } from 'lucide-react';
+import { User, LogOut, Heart, ShoppingBag, Menu, X, Sun, Moon, Sparkles } from 'lucide-react';
 import { Button } from '../ui/button';
 
 export function CustomerNavbar() {
@@ -15,6 +15,10 @@ export function CustomerNavbar() {
   const { data: wishlist } = useListWishlist({ query: { enabled: !!user } as any });
   const { data: cartItems } = useListHomeVisitCart({ query: { enabled: !!user } as any });
 
+  const guestCart = JSON.parse(typeof window !== 'undefined' ? localStorage.getItem('guest_cart') || '[]' : '[]');
+  const cartCount = user ? (cartItems?.length || 0) : guestCart.length;
+  const wishlistCount = wishlist?.length || 0;
+
   const navLinks = [
     { label: 'Home', href: '/' },
     { label: 'Book Visit', href: '/book-visit' },
@@ -25,17 +29,17 @@ export function CustomerNavbar() {
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 glass">
-      <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between">
 
         {/* Logo + Brand Name */}
-        <Link href="/" className="flex items-center gap-3 group">
+        <Link href="/" className="flex items-center gap-2.5 sm:gap-3 group">
           <img
             src="/logo.png"
             alt="The Fashion Xpress"
-            className="h-12 w-12 object-contain rounded-xl shrink-0 group-hover:scale-105 transition-transform"
+            className="h-11 w-11 sm:h-12 sm:w-12 object-contain rounded-xl shrink-0 group-hover:scale-105 transition-transform"
           />
-          <div className="hidden sm:block leading-tight">
-            <span className="font-brand text-sm sm:text-base font-bold uppercase tracking-[0.18em] text-foreground block">
+          <div className="leading-tight">
+            <span className="font-brand text-xs sm:text-base font-bold uppercase tracking-[0.14em] sm:tracking-[0.18em] text-foreground block">
               The Fashion Xpress
             </span>
           </div>
@@ -44,7 +48,7 @@ export function CustomerNavbar() {
         {/* Desktop Links */}
         <div className="hidden md:flex items-center gap-8">
           {navLinks.map((link) => (
-            <Link key={link.href} href={link.href} className={`text-sm tracking-widest uppercase font-medium transition-colors ${location === link.href ? 'text-primary' : 'text-muted-foreground hover:text-primary'}`}>
+            <Link key={link.href} href={link.href} className={`text-sm tracking-widest uppercase font-medium transition-colors ${location === link.href ? 'text-primary font-bold' : 'text-muted-foreground hover:text-primary'}`}>
               {link.label}
             </Link>
           ))}
@@ -52,11 +56,10 @@ export function CustomerNavbar() {
 
         {/* Desktop Actions */}
         <div className="hidden md:flex items-center gap-3">
-
-          {/* Theme toggle — always visible */}
+          {/* Theme toggle */}
           <button
             onClick={toggleTheme}
-            className="p-2 rounded-lg hover:bg-white/5 transition-colors"
+            className="p-2 rounded-lg hover:bg-foreground/5 transition-colors"
             title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
           >
             {theme === 'dark'
@@ -64,25 +67,29 @@ export function CustomerNavbar() {
               : <Moon className="w-5 h-5 text-blue-500" />}
           </button>
 
+          {/* Wishlist Icon */}
+          <Link href="/wishlist" className="p-2 hover:text-primary transition-colors relative" title="Wishlist">
+            <Heart className="w-5 h-5" />
+            {wishlistCount > 0 && (
+              <span className="absolute top-0 right-0 w-4 h-4 bg-primary text-primary-foreground font-bold text-[10px] flex items-center justify-center rounded-full">
+                {wishlistCount}
+              </span>
+            )}
+          </Link>
+
+          {/* Cart Icon */}
+          <Link href="/home-visit-cart" className="p-2 hover:text-primary transition-colors relative" title="Cart">
+            <ShoppingBag className="w-5 h-5" />
+            {cartCount > 0 && (
+              <span className="absolute top-0 right-0 w-4 h-4 bg-primary text-primary-foreground font-bold text-[10px] flex items-center justify-center rounded-full">
+                {cartCount}
+              </span>
+            )}
+          </Link>
+
           {user ? (
             <>
-              <Link href="/wishlist" className="p-2 hover:text-primary transition-colors relative">
-                <Heart className="w-5 h-5" />
-                {wishlist && wishlist.length > 0 && (
-                  <span className="absolute top-0 right-0 w-4 h-4 bg-primary text-primary-foreground font-bold text-[10px] flex items-center justify-center rounded-full">
-                    {wishlist.length}
-                  </span>
-                )}
-              </Link>
-              <Link href="/home-visit-cart" className="p-2 hover:text-primary transition-colors relative">
-                <ShoppingBag className="w-5 h-5" />
-                {cartItems && cartItems.length > 0 && (
-                  <span className="absolute top-0 right-0 w-4 h-4 bg-primary text-primary-foreground font-bold text-[10px] flex items-center justify-center rounded-full">
-                    {cartItems.length}
-                  </span>
-                )}
-              </Link>
-              <Link href="/account" className="p-2 hover:text-primary transition-colors">
+              <Link href="/account" className="p-2 hover:text-primary transition-colors" title="My Account">
                 <User className="w-5 h-5" />
               </Link>
               {user.role === 'admin' && (
@@ -111,56 +118,112 @@ export function CustomerNavbar() {
           )}
         </div>
 
-        {/* Mobile: Theme toggle + hamburger */}
-        <div className="flex md:hidden items-center gap-2">
+        {/* Mobile Header Action Icons (Always Visible) */}
+        <div className="flex md:hidden items-center gap-1 sm:gap-2">
+
+          {/* Mobile Wishlist Icon */}
+          <Link href="/wishlist" className="p-2 text-foreground hover:text-primary transition-colors relative" title="Wishlist">
+            <Heart className="w-5 h-5" />
+            {wishlistCount > 0 && (
+              <span className="absolute top-0.5 right-0.5 w-4 h-4 bg-primary text-primary-foreground font-bold text-[9px] flex items-center justify-center rounded-full">
+                {wishlistCount}
+              </span>
+            )}
+          </Link>
+
+          {/* Mobile Cart Icon */}
+          <Link href="/home-visit-cart" className="p-2 text-foreground hover:text-primary transition-colors relative" title="Cart">
+            <ShoppingBag className="w-5 h-5" />
+            {cartCount > 0 && (
+              <span className="absolute top-0.5 right-0.5 w-4 h-4 bg-primary text-primary-foreground font-bold text-[9px] flex items-center justify-center rounded-full">
+                {cartCount}
+              </span>
+            )}
+          </Link>
+
+          {/* Theme toggle */}
           <button
             onClick={toggleTheme}
-            className="p-2 rounded-lg hover:bg-white/5 transition-colors"
+            className="p-2 rounded-lg text-foreground hover:bg-foreground/5 transition-colors"
           >
             {theme === 'dark'
               ? <Sun className="w-5 h-5 text-amber-400" />
               : <Moon className="w-5 h-5 text-blue-500" />}
           </button>
-          <button className="text-foreground p-1" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+
+          {/* Hamburger Menu Toggle */}
+          <button className="text-foreground p-2" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
             {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Mobile Drawer Menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden bg-background border-b border-border px-6 py-4 flex flex-col gap-4">
+        <div className="md:hidden bg-background border-b border-border px-6 py-5 flex flex-col gap-4 shadow-2xl">
           {navLinks.map((link) => (
-            <Link key={link.href} href={link.href} className="text-sm tracking-widest uppercase font-medium block" onClick={() => setIsMobileMenuOpen(false)}>
+            <Link key={link.href} href={link.href} className={`text-sm tracking-widest uppercase font-medium block ${location === link.href ? 'text-primary font-bold' : 'text-foreground'}`} onClick={() => setIsMobileMenuOpen(false)}>
               {link.label}
             </Link>
           ))}
-          {user ? (
-            <div className="flex gap-6 mt-4 pt-4 border-t border-border">
-              <Link href="/wishlist" onClick={() => setIsMobileMenuOpen(false)} className="relative">
-                <Heart className="w-5 h-5" />
-                {wishlist && wishlist.length > 0 && (
-                  <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-primary text-primary-foreground font-bold text-[9px] flex items-center justify-center rounded-full">
-                    {wishlist.length}
-                  </span>
-                )}
-              </Link>
-              <Link href="/home-visit-cart" onClick={() => setIsMobileMenuOpen(false)} className="relative">
-                <ShoppingBag className="w-5 h-5" />
-                {cartItems && cartItems.length > 0 && (
-                  <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-primary text-primary-foreground font-bold text-[9px] flex items-center justify-center rounded-full">
-                    {cartItems.length}
-                  </span>
-                )}
-              </Link>
-              <Link href="/account" onClick={() => setIsMobileMenuOpen(false)}><User className="w-5 h-5" /></Link>
-              <button onClick={logout}><LogOut className="w-5 h-5 text-destructive" /></button>
-            </div>
-          ) : (
-            <Link href="/login" onClick={() => setIsMobileMenuOpen(false)} className="mt-4">
-              <Button className="w-full">SIGN IN</Button>
+
+          {/* Labeled Quick Links for Mobile Drawer */}
+          <div className="pt-4 border-t border-border space-y-3">
+            <Link href="/home-visit-cart" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-between py-2 text-sm font-semibold text-foreground">
+              <span className="flex items-center gap-2.5">
+                <ShoppingBag className="w-4 h-4 text-primary" />
+                Home Visit Cart
+              </span>
+              {cartCount > 0 && (
+                <span className="px-2 py-0.5 bg-primary text-primary-foreground text-xs font-bold rounded-full">
+                  {cartCount} items
+                </span>
+              )}
             </Link>
-          )}
+
+            <Link href="/wishlist" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-between py-2 text-sm font-semibold text-foreground">
+              <span className="flex items-center gap-2.5">
+                <Heart className="w-4 h-4 text-red-500" />
+                Wishlist
+              </span>
+              {wishlistCount > 0 && (
+                <span className="px-2 py-0.5 bg-primary text-primary-foreground text-xs font-bold rounded-full">
+                  {wishlistCount} items
+                </span>
+              )}
+            </Link>
+
+            {user ? (
+              <>
+                <Link href="/account" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2.5 py-2 text-sm font-semibold text-foreground">
+                  <User className="w-4 h-4 text-primary" />
+                  My Account
+                </Link>
+                {user.role === 'admin' && (
+                  <Link href="/admin" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2.5 py-2 text-sm font-semibold text-primary">
+                    <Sparkles className="w-4 h-4" /> Admin Portal
+                  </Link>
+                )}
+                {user.role === 'merchant' && (
+                  <Link href="/merchant" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2.5 py-2 text-sm font-semibold text-primary">
+                    <Sparkles className="w-4 h-4" /> Merchant Portal
+                  </Link>
+                )}
+                {user.role === 'executive' && (
+                  <Link href="/executive" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2.5 py-2 text-sm font-semibold text-primary">
+                    <Sparkles className="w-4 h-4" /> Executive Portal
+                  </Link>
+                )}
+                <button onClick={() => { setIsMobileMenuOpen(false); logout(); }} className="flex items-center gap-2.5 py-2 text-sm font-semibold text-destructive w-full text-left">
+                  <LogOut className="w-4 h-4" /> Sign Out
+                </button>
+              </>
+            ) : (
+              <Link href="/login" onClick={() => setIsMobileMenuOpen(false)} className="block pt-2">
+                <Button className="w-full h-11 tracking-widest uppercase text-xs font-bold">Sign In to Account</Button>
+              </Link>
+            )}
+          </div>
         </div>
       )}
     </nav>
