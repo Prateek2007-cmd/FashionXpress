@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'wouter';
+import { getApiBaseUrl } from '@/lib/api-config';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -45,7 +46,7 @@ export function LoginPage() {
   const [resetLoading, setResetLoading] = useState(false);
   const [generatedOtp, setGeneratedOtp] = useState('4829');
 
-  const API_BASE = import.meta.env.VITE_API_URL || '';
+  const API_BASE = getApiBaseUrl();
 
   const { register, handleSubmit, formState: { errors } } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema)

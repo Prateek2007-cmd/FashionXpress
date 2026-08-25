@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useLocation } from 'wouter';
+import { getApiBaseUrl } from '@/lib/api-config';
 
 const bookingSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -130,7 +131,7 @@ export function BookVisitPage() {
       topSize: '', bottomSize: '', notes: '', products
     };
 
-    const API_BASE = import.meta.env.VITE_API_URL || "";
+    const API_BASE = getApiBaseUrl();
     let endpoint = isAuthenticated ? `${API_BASE}/api/bookings` : `${API_BASE}/api/bookings/guest`;
     let headers: Record<string, string> = { 'Content-Type': 'application/json' };
     if (isAuthenticated && token) headers['Authorization'] = `Bearer ${token}`;
