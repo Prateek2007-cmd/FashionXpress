@@ -2,14 +2,14 @@
   "version": 2,
   "buildCommand": "node ./build.mjs",
   "functions": {
-    "api/index.js": {
+    "api/index.cjs": {
       "includeFiles": "dist/**"
     }
   },
   "rewrites": [
     {
       "source": "/(.*)",
-      "destination": "/api/index.js"
+      "destination": "/api/index.cjs"
     }
   ]
 }
