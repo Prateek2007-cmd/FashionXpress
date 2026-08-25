@@ -44,22 +44,24 @@ const router: IRouter = Router();
 
 async function hydrateBookings(bookings: (typeof bookingsTable.$inferSelect)[]) {
   if (bookings.length === 0) return [];
-  const bookingProducts = await db
-    .select()
-    .from(bookingProductsTable)
-    .where(
-      inArray(
-        bookingProductsTable.bookingId,
-        bookings.map((b) => b.id),
+  const [bookingProducts, products, categories, brands, executiveRows] = await Promise.all([
+    db
+      .select()
+      .from(bookingProductsTable)
+      .where(
+        inArray(
+          bookingProductsTable.bookingId,
+          bookings.map((b) => b.id),
+        ),
       ),
-    );
-  const products = await db.select().from(productsTable);
-  const categories = await db.select().from(categoriesTable);
-  const brands = await db.select().from(brandsTable);
-  const executiveRows = await db
-    .select({ executive: executivesTable, user: usersTable })
-    .from(executivesTable)
-    .innerJoin(usersTable, eq(executivesTable.userId, usersTable.id));
+    db.select().from(productsTable),
+    db.select().from(categoriesTable),
+    db.select().from(brandsTable),
+    db
+      .select({ executive: executivesTable, user: usersTable })
+      .from(executivesTable)
+      .innerJoin(usersTable, eq(executivesTable.userId, usersTable.id)),
+  ]);
 
   const productMap = new Map(products.map((p) => [p.id, p]));
   const categoryMap = new Map(categories.map((c) => [c.id, c]));
@@ -72,14 +74,16 @@ async function hydrateBookings(bookings: (typeof bookingsTable.$inferSelect)[]) 
     const bps = bookingProducts
       .filter((bp) => bp.bookingId === b.id)
       .map((bp) => {
-        const product = productMap.get(bp.productId)!;
+        const product = productMap.get(bp.productId);
+        if (!product) return null;
         return mapBookingProduct(
           bp,
           product,
           categoryMap.get(product.categoryId),
           brandMap.get(product.brandId),
         );
-      });
+      })
+      .filter((x): x is NonNullable<typeof x> => x !== null);
     const executiveEntry = b.executiveId ? executiveMap.get(b.executiveId) : undefined;
     return mapBooking(b, bps, executiveEntry?.executive, executiveEntry?.name ?? null);
   });
@@ -196,23 +200,30 @@ router.post(
         return;
       }
 
-      // Create a guest user account
-      const guestEmail = `guest-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@guest.fashion-xpress.com`;
-      const [guestUser] = await db
-        .insert(usersTable)
-        .values({
-          email: guestEmail,
-          passwordHash: "GUEST_NO_PASSWORD",
-          name,
-          phone,
-          role: "customer",
-        })
-        .returning();
+      // Reuse existing user if phone exists, or create a guest user account
+      let guestUser: typeof usersTable.$inferSelect | undefined;
+      const existingUsers = await db
+        .select()
+        .from(usersTable)
+        .where(eq(usersTable.phone, phone));
+      if (existingUsers.length > 0) {
+        guestUser = existingUsers[0];
+      } else {
+        const guestEmail = `guest-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@guest.fashion-xpress.com`;
+        const [newUser] = await db
+          .insert(usersTable)
+          .values({
+            email: guestEmail,
+            passwordHash: "GUEST_NO_PASSWORD",
+            name,
+            phone,
+            role: "customer",
+          })
+          .returning();
+        guestUser = newUser;
+      }
 
-      const [customer] = await db
-        .insert(customersTable)
-        .values({ userId: guestUser!.id })
-        .returning();
+      const customer = await getOrCreateCustomer(guestUser!.id);
 
       const [booking] = await db
         .insert(bookingsTable)

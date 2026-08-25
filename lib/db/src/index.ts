@@ -20,9 +20,17 @@ export function getDb() {
       ssl: connectionString.includes("sslmode=require") || connectionString.includes("neon.tech")
         ? { rejectUnauthorized: false }
         : undefined,
-      max: 5,
-      connectionTimeoutMillis: 5000,
+      max: 10,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 10000,
     });
+
+    _pool.on("error", (err) => {
+      console.error("Unexpected error on idle pg pool connection:", err.message || err);
+      _pool = null;
+      _db = null;
+    });
+
     _db = drizzle(_pool, { schema });
   }
   return _db;

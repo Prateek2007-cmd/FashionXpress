@@ -73798,8 +73798,14 @@ function getDb() {
     _pool = new Pool3({
       connectionString,
       ssl: connectionString.includes("sslmode=require") || connectionString.includes("neon.tech") ? { rejectUnauthorized: false } : void 0,
-      max: 5,
-      connectionTimeoutMillis: 5e3
+      max: 10,
+      idleTimeoutMillis: 3e4,
+      connectionTimeoutMillis: 1e4
+    });
+    _pool.on("error", (err) => {
+      console.error("Unexpected error on idle pg pool connection:", err.message || err);
+      _pool = null;
+      _db = null;
     });
     _db = drizzle(_pool, { schema: schema_exports });
   }
@@ -76622,16 +76628,18 @@ var import_express7 = __toESM(require_express2(), 1);
 var router7 = (0, import_express7.Router)();
 async function hydrateBookings(bookings) {
   if (bookings.length === 0) return [];
-  const bookingProducts = await db.select().from(bookingProductsTable).where(
-    inArray(
-      bookingProductsTable.bookingId,
-      bookings.map((b) => b.id)
-    )
-  );
-  const products = await db.select().from(productsTable);
-  const categories = await db.select().from(categoriesTable);
-  const brands = await db.select().from(brandsTable);
-  const executiveRows = await db.select({ executive: executivesTable, user: usersTable }).from(executivesTable).innerJoin(usersTable, eq(executivesTable.userId, usersTable.id));
+  const [bookingProducts, products, categories, brands, executiveRows] = await Promise.all([
+    db.select().from(bookingProductsTable).where(
+      inArray(
+        bookingProductsTable.bookingId,
+        bookings.map((b) => b.id)
+      )
+    ),
+    db.select().from(productsTable),
+    db.select().from(categoriesTable),
+    db.select().from(brandsTable),
+    db.select({ executive: executivesTable, user: usersTable }).from(executivesTable).innerJoin(usersTable, eq(executivesTable.userId, usersTable.id))
+  ]);
   const productMap = new Map(products.map((p) => [p.id, p]));
   const categoryMap = new Map(categories.map((c) => [c.id, c]));
   const brandMap = new Map(brands.map((b) => [b.id, b]));
@@ -76641,13 +76649,14 @@ async function hydrateBookings(bookings) {
   return bookings.map((b) => {
     const bps = bookingProducts.filter((bp) => bp.bookingId === b.id).map((bp) => {
       const product = productMap.get(bp.productId);
+      if (!product) return null;
       return mapBookingProduct(
         bp,
         product,
         categoryMap.get(product.categoryId),
         brandMap.get(product.brandId)
       );
-    });
+    }).filter(Boolean);
     const executiveEntry = b.executiveId ? executiveMap.get(b.executiveId) : void 0;
     return mapBooking(b, bps, executiveEntry?.executive, executiveEntry?.name ?? null);
   });
@@ -76744,15 +76753,22 @@ router7.post(
         res.status(400).json({ error: "Missing required booking fields: name, phone, addressText" });
         return;
       }
-      const guestEmail = `guest-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@guest.fashion-xpress.com`;
-      const [guestUser] = await db.insert(usersTable).values({
-        email: guestEmail,
-        passwordHash: "GUEST_NO_PASSWORD",
-        name,
-        phone,
-        role: "customer"
-      }).returning();
-      const [customer] = await db.insert(customersTable).values({ userId: guestUser.id }).returning();
+      let guestUser;
+      const existingUsers = await db.select().from(usersTable).where(eq(usersTable.phone, phone));
+      if (existingUsers.length > 0) {
+        guestUser = existingUsers[0];
+      } else {
+        const guestEmail = `guest-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@guest.fashion-xpress.com`;
+        const [newUser] = await db.insert(usersTable).values({
+          email: guestEmail,
+          passwordHash: "GUEST_NO_PASSWORD",
+          name,
+          phone,
+          role: "customer"
+        }).returning();
+        guestUser = newUser;
+      }
+      const customer = await getOrCreateCustomer(guestUser.id);
       const [booking] = await db.insert(bookingsTable).values({
         bookingCode: generateBookingCode(),
         customerId: customer.id,

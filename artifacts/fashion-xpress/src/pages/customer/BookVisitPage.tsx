@@ -17,7 +17,7 @@ import { useLocation } from 'wouter';
 const bookingSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   phone: z.string().regex(/^\d{10}$/, "Phone number must be exactly 10 digits"),
-  addressText: z.string().min(10, "Please provide your full address (minimum 10 characters)"),
+  addressText: z.string().min(5, "Please provide your address (minimum 5 characters)"),
 });
 
 type BookingFormValues = z.infer<typeof bookingSchema>;
@@ -110,7 +110,13 @@ export function BookVisitPage() {
   const onSubmit = async (data: BookingFormValues) => {
     setIsSubmitting(true);
     const guestCart = JSON.parse(localStorage.getItem('guest_cart') || '[]');
-    const products = guestCart.map((item: any) => ({ productId: item.productId, quantity: item.quantity, size: item.size }));
+    const products = guestCart
+      .map((item: any) => ({
+        productId: Number(item.productId || item.id),
+        quantity: Number(item.quantity || 1),
+        size: item.size || ''
+      }))
+      .filter((item: any) => !isNaN(item.productId) && item.productId > 0);
 
     const payload = {
       name: data.name || user?.name || 'Guest Customer',
@@ -125,18 +131,35 @@ export function BookVisitPage() {
     };
 
     const API_BASE = import.meta.env.VITE_API_URL || "";
-    const endpoint = isAuthenticated ? `${API_BASE}/api/bookings` : `${API_BASE}/api/bookings/guest`;
-    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    let endpoint = isAuthenticated ? `${API_BASE}/api/bookings` : `${API_BASE}/api/bookings/guest`;
+    let headers: Record<string, string> = { 'Content-Type': 'application/json' };
     if (isAuthenticated && token) headers['Authorization'] = `Bearer ${token}`;
 
     try {
-      const response = await fetch(endpoint, { method: 'POST', headers, body: JSON.stringify(payload) });
+      let response = await fetch(endpoint, { method: 'POST', headers, body: JSON.stringify(payload) });
+
+      // Fallback to guest booking endpoint if auth token expired or invalid
+      if (response.status === 401 && isAuthenticated) {
+        endpoint = `${API_BASE}/api/bookings/guest`;
+        delete headers['Authorization'];
+        response = await fetch(endpoint, { method: 'POST', headers, body: JSON.stringify(payload) });
+      }
+
       const responseText = await response.text();
-      if (!response.ok) throw new Error(responseText || `Server error: ${response.status}`);
+      if (!response.ok) {
+        let errMsg = `Server error: ${response.status}`;
+        try {
+          const parsed = JSON.parse(responseText);
+          errMsg = parsed.error || parsed.message || responseText;
+        } catch {
+          errMsg = responseText || errMsg;
+        }
+        throw new Error(errMsg);
+      }
       const result = JSON.parse(responseText);
       setSuccessCode(result.bookingCode || result.id?.toString() || 'CONFIRMED');
       window.scrollTo(0, 0);
-      toast({ title: "✅ Booking Confirmed!", description: `Your booking reference: ${result.bookingCode}` });
+      toast({ title: "✅ Booking Confirmed!", description: `Your booking reference: ${result.bookingCode || 'CONFIRMED'}` });
       localStorage.removeItem('guest_cart');
     } catch (err: any) {
       toast({ title: "Booking failed", description: err.message || 'Could not complete your booking. Please try again.', variant: "destructive" });
