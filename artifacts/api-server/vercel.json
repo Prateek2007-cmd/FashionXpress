@@ -1,10 +1,15 @@
 {
-  "version": 2,
-  "buildCommand": "node ./build.mjs",
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "pnpm --filter @workspace/fashion-xpress run build",
+  "outputDirectory": "../../artifacts/fashion-xpress/dist/public",
   "rewrites": [
     {
+      "source": "/api/(.*)",
+      "destination": "/api/index"
+    },
+    {
       "source": "/(.*)",
-      "destination": "/api/index.js"
+      "destination": "/index.html"
     }
   ]
 }
