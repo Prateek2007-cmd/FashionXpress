@@ -1,24 +1,43 @@
-// Monkey patch fetch to automatically inject the auth token into generated Orval hooks.
+import { getApiBaseUrl } from './lib/api-config';
+
+// Monkey patch fetch to automatically inject API base URL and Auth Token across all fetch calls
 const originalFetch = window.fetch;
 
 window.fetch = async (resource: RequestInfo | URL, config?: RequestInit) => {
   const token = localStorage.getItem('token');
+  const apiBase = getApiBaseUrl();
+
+  let targetResource = resource;
+
+  if (apiBase) {
+    if (typeof resource === 'string' && resource.startsWith('/api')) {
+      targetResource = `${apiBase}${resource}`;
+    } else if (resource instanceof URL && resource.pathname.startsWith('/api')) {
+      targetResource = `${apiBase}${resource.pathname}${resource.search}`;
+    }
+  }
 
   if (token) {
     config = config || {};
     
-    // Handle both Headers instances and plain objects
     if (config.headers instanceof Headers) {
-      config.headers.set('Authorization', `Bearer ${token}`);
+      if (!config.headers.has('Authorization')) {
+        config.headers.set('Authorization', `Bearer ${token}`);
+      }
     } else if (Array.isArray(config.headers)) {
-      config.headers = [...config.headers, ['Authorization', `Bearer ${token}`]];
+      if (!config.headers.some(([k]) => k.toLowerCase() === 'authorization')) {
+        config.headers = [...config.headers, ['Authorization', `Bearer ${token}`]];
+      }
     } else {
-      config.headers = {
-        ...(config.headers || {}),
-        Authorization: `Bearer ${token}`
-      };
+      const headersObj = (config.headers || {}) as Record<string, string>;
+      if (!headersObj.Authorization && !headersObj.authorization) {
+        config.headers = {
+          ...headersObj,
+          Authorization: `Bearer ${token}`
+        };
+      }
     }
   }
 
-  return originalFetch(resource, config);
+  return originalFetch(targetResource, config);
 };
