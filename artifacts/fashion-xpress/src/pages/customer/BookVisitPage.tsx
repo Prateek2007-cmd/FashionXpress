@@ -17,8 +17,8 @@ import { getApiBaseUrl } from '@/lib/api-config';
 
 const bookingSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
-  phone: z.string().regex(/^\d{10}$/, "Phone number must be exactly 10 digits"),
-  addressText: z.string().min(5, "Please provide your address (minimum 5 characters)"),
+  phone: z.string().transform(val => val.replace(/\D/g, '').slice(-10)).pipe(z.string().length(10, "Phone number must be 10 digits")),
+  addressText: z.string().min(3, "Please provide your address (minimum 3 characters)"),
 });
 
 type BookingFormValues = z.infer<typeof bookingSchema>;
@@ -317,7 +317,17 @@ export function BookVisitPage() {
                 ))}
               </div>
 
-              <form onSubmit={handleSubmit(onSubmit)}>
+              <form onSubmit={handleSubmit(onSubmit, (invalidErrors) => {
+                if (invalidErrors.name || invalidErrors.phone) {
+                  setStep(1);
+                }
+                const firstMsg = invalidErrors.addressText?.message || invalidErrors.phone?.message || invalidErrors.name?.message || "Please fill all required fields";
+                toast({
+                  title: "Validation Error",
+                  description: firstMsg,
+                  variant: "destructive"
+                });
+              })}>
 
                 {/* STEP 1 */}
                 <div className={step === 2 ? 'hidden' : 'space-y-6'}>
