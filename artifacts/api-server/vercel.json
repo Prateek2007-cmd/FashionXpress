@@ -1,7 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "pnpm --filter @workspace/fashion-xpress run build",
-  "outputDirectory": "../../artifacts/fashion-xpress/dist/public",
+  "buildCommand": "pnpm --filter @workspace/fashion-xpress run build && rm -rf public && cp -r ../fashion-xpress/dist/public public",
+  "outputDirectory": "public",
   "rewrites": [
     {
       "source": "/(.*)",
