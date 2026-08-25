@@ -1,9 +1,11 @@
 {
   "version": 2,
   "buildCommand": "node ./build.mjs",
-  "includeFiles": [
-    "dist/**"
-  ],
+  "functions": {
+    "api/index.js": {
+      "includeFiles": "dist/**"
+    }
+  },
   "rewrites": [
     {
       "source": "/(.*)",
