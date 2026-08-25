@@ -1,6 +1,6 @@
-import app from "./artifacts/api-server/dist/app.js";
+const app = require("../artifacts/api-server/dist/app.cjs");
 
-export default function handler(req, res) {
+module.exports = (req, res) => {
   const expressApp = (app && app.default) ? app.default : app;
   return expressApp(req, res);
-}
+};

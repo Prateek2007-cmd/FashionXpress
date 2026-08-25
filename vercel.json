@@ -3,14 +3,14 @@
   "buildCommand": "pnpm --filter @workspace/fashion-xpress run build && pnpm --filter @workspace/api-server run build",
   "outputDirectory": "artifacts/fashion-xpress/dist/public",
   "functions": {
-    "api/index.cjs": {
+    "api/index.js": {
       "includeFiles": "artifacts/api-server/dist/**"
     }
   },
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "/api/index.cjs"
+      "destination": "/api/index.js"
     },
     {
       "source": "/(.*)",

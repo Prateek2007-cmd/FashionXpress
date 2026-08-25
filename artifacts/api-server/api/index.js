@@ -1,6 +1,6 @@
-import app from "../dist/app.js";
+const app = require("../dist/app.cjs");
 
-export default function handler(req, res) {
+module.exports = (req, res) => {
   const expressApp = (app && app.default) ? app.default : app;
   return expressApp(req, res);
-}
+};
