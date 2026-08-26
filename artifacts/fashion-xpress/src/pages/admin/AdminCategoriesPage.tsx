@@ -3,6 +3,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useListCategories, useCreateCategory, useDeleteCategory } from '@workspace/api-client-react';
 import { Plus, Trash2, Pencil, Loader2, X } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { getApiBaseUrl } from '@/lib/api-config';
 
 export function AdminCategoriesPage() {
   const { token } = useAuth();
@@ -62,7 +63,7 @@ export function AdminCategoriesPage() {
     if (!editingCategory) return;
     setIsUpdating(true);
     try {
-      const API_BASE = import.meta.env.VITE_API_URL || "";
+      const API_BASE = getApiBaseUrl();
       const res = await fetch(`${API_BASE}/api/categories/${editingCategory.id}`, {
         method: 'PATCH',
         headers: {

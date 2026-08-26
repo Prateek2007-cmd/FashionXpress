@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Loader2, X } from 'lucide-react';
 import { Button } from './ui/button';
 import { useAuth } from '@/context/AuthContext';
+import { getApiBaseUrl } from '@/lib/api-config';
 
 export function CustomOrderModal({ product, onClose }: { product: any, onClose: () => void }) {
   const { token } = useAuth();
@@ -17,8 +18,7 @@ export function CustomOrderModal({ product, onClose }: { product: any, onClose: 
     e.preventDefault();
     setIsSubmitting(true);
     
-    const API_BASE =
-      import.meta.env.VITE_API_URL || "";
+    const API_BASE = getApiBaseUrl();
 
     try {
       console.log("API_BASE:", API_BASE);

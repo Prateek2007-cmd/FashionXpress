@@ -54,6 +54,8 @@ function CustomTooltip({ active, payload, label }: any) {
   );
 }
 
+import { getApiBaseUrl } from '@/lib/api-config';
+
 export function AdminDashboard() {
   const { toast } = useToast();
   const { data: summary, isLoading: loadingSummary } = useGetDashboardSummary();
@@ -61,7 +63,7 @@ export function AdminDashboard() {
   const { data: analytics, isLoading: loadingAnalytics } = useGetDashboardAnalytics();
   const updateStatus = useUpdateBookingStatus();
 
-  const API_BASE = import.meta.env.VITE_API_URL || "";
+  const API_BASE = getApiBaseUrl();
   const authHeaders = { Authorization: `Bearer ${localStorage.getItem('token') || ''}` };
 
   const { data: brandRevenue, isLoading: loadingBrandRevenue } = useQuery<{ brandName: string; quantitySold: number; revenue: number }[]>({

@@ -5,6 +5,7 @@ import { Check, X, Clock, Loader2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
+import { getApiBaseUrl } from '@/lib/api-config';
 
 type PartnerRequest = {
   id: number;
@@ -19,8 +20,7 @@ export function AdminPartnersPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const API_BASE =
-    import.meta.env.VITE_API_URL || "";
+  const API_BASE = getApiBaseUrl();
 
   const { data: requests, isLoading } = useQuery<PartnerRequest[]>({
     queryKey: ['/api/partners'],

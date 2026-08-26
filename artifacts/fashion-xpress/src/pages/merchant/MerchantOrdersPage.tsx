@@ -17,8 +17,9 @@ import {
   Clock
 } from 'lucide-react';
 
-const API_BASE =
-  import.meta.env.VITE_API_URL || "";
+import { getApiBaseUrl } from '@/lib/api-config';
+
+const API_BASE = getApiBaseUrl();
 
 interface OrderItem {
   id: number;

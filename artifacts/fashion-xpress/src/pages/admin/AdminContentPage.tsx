@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/use-toast';
+import { getApiBaseUrl } from '@/lib/api-config';
 
 export function AdminContentPage() {
   const { token } = useAuth();
@@ -19,8 +20,7 @@ export function AdminContentPage() {
   const [imageUrl, setImageUrl] = useState('');
   const [uploading, setUploading] = useState(false);
 
-  const API_BASE =
-    import.meta.env.VITE_API_URL || "";
+  const API_BASE = getApiBaseUrl();
 
   const { data: content, isLoading } = useQuery({
     queryKey: ['/api/content/partner_page'],

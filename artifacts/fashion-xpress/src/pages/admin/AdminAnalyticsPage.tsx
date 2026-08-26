@@ -77,12 +77,11 @@ const STATUS_COLORS: Record<string, string> = {
   rejected: '#94a3b8',
 };
 
+import { getApiBaseUrl } from '@/lib/api-config';
+
 export function AdminAnalyticsPage() {
   const { token } = useAuth();
-
-  const API_BASE =
-    import.meta.env.VITE_API_URL ||
-    "";
+  const API_BASE = getApiBaseUrl();
 
   const { data: summary, isLoading: sl } = useQuery<any>({
     queryKey: ['/api/admin/dashboard/summary'],

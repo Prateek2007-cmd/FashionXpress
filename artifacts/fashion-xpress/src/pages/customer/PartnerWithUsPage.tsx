@@ -6,6 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/use-toast';
 import { Store, ShoppingBag } from 'lucide-react';
 import { useQuery, useMutation } from '@tanstack/react-query';
+import { getApiBaseUrl } from '@/lib/api-config';
 
 export function PartnerWithUsPage() {
   const { toast } = useToast();
@@ -15,8 +16,7 @@ export function PartnerWithUsPage() {
     productsSold: ''
   });
 
-  const API_BASE =
-    import.meta.env.VITE_API_URL || "";
+  const API_BASE = getApiBaseUrl();
 
   const { data: content } = useQuery({
     queryKey: ['/api/content/partner_page'],

@@ -4,6 +4,7 @@ import { format } from 'date-fns';
 import { Loader2, Search, User, TrendingUp, Users } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/context/AuthContext';
+import { getApiBaseUrl } from '@/lib/api-config';
 
 type Customer = {
   id: number;
@@ -19,8 +20,7 @@ export function AdminCustomersPage() {
   const { token } = useAuth();
   const [search, setSearch] = useState('');
 
-  const API_BASE =
-    import.meta.env.VITE_API_URL || "";
+  const API_BASE = getApiBaseUrl();
 
   const { data: customers, isLoading } = useQuery<Customer[]>({
     queryKey: ['/api/admin/customers'],

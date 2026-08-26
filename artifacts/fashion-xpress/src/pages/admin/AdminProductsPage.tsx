@@ -5,8 +5,9 @@ import { Plus, Trash2, Loader2, Upload, X, Image as ImageIcon, Pencil } from 'lu
 import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/context/AuthContext';
 
-const API_BASE =
-  import.meta.env.VITE_API_URL || "";
+import { getApiBaseUrl } from '@/lib/api-config';
+
+const API_BASE = getApiBaseUrl();
 
 export function AdminProductsPage() {
   const queryClient = useQueryClient();

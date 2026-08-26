@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/context/AuthContext';
+import { getApiBaseUrl } from '@/lib/api-config';
 
 type ExecEditState = {
   name: string;
@@ -31,8 +32,7 @@ export function AdminExecutivesPage() {
     name: '', email: '', phone: '', password: '', photoUrl: ''
   });
 
-  const API_BASE =
-    import.meta.env.VITE_API_URL || "";
+  const API_BASE = getApiBaseUrl();
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number; data: Partial<ExecEditState> }) => {
