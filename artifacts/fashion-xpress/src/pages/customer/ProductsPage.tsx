@@ -53,10 +53,14 @@ export function ProductsPage() {
       .catch(() => {});
   }, []);
 
+  const [isWakingUp, setIsWakingUp] = useState(false);
+
   // Fetch products whenever filters change
-  const fetchProducts = () => {
-    setIsLoading(true);
-    setError(null);
+  const fetchProducts = async (isRetry = false) => {
+    if (!isRetry) {
+      setIsLoading(true);
+      setError(null);
+    }
 
     const params = new URLSearchParams();
     if (search.trim()) params.append('search', search.trim());
@@ -68,23 +72,27 @@ export function ProductsPage() {
 
     const url = `${RENDER_API}/api/products?${params.toString()}`;
 
-    fetch(url)
-      .then(async res => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return res.json();
-      })
-      .then(data => {
-        const list = Array.isArray(data)
-          ? data
-          : data?.products || data?.items || [];
-        setProducts(list);
-      })
-      .catch(err => {
+    try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      const list = Array.isArray(data) ? data : data?.products || data?.items || [];
+      setProducts(list);
+      setIsWakingUp(false);
+    } catch (err: any) {
+      if (!isRetry) {
+        // Server might be cold-starting on Render's free tier — retry after 4 seconds
+        setIsWakingUp(true);
+        setTimeout(() => fetchProducts(true), 4000);
+      } else {
+        setIsWakingUp(false);
         setError(err.message || 'Failed to load products');
-      })
-      .finally(() => {
+      }
+    } finally {
+      if (isRetry || !isWakingUp) {
         setIsLoading(false);
-      });
+      }
+    }
   };
 
   useEffect(() => {
@@ -376,16 +384,19 @@ export function ProductsPage() {
 
       {/* ── PRODUCT GRID ── */}
       <div className="max-w-7xl mx-auto px-6 py-12">
-        {isLoading ? (
+        {isLoading || isWakingUp ? (
           <div className="flex flex-col items-center justify-center py-24 gap-4">
             <Loader2 className="w-10 h-10 animate-spin text-primary" />
-            <p className="text-muted-foreground text-sm font-medium">Loading collection…</p>
+            <p className="text-muted-foreground text-sm font-medium">
+              {isWakingUp ? '⏳ Waking up the server, please wait…' : 'Loading collection…'}
+            </p>
+            {isWakingUp && <p className="text-xs text-muted-foreground/60">This may take up to 30 seconds on first load</p>}
           </div>
         ) : error ? (
           <div className="text-center py-20 bg-card/20 border border-border rounded-3xl p-12 max-w-lg mx-auto">
             <p className="text-destructive font-semibold mb-3">Error loading products</p>
             <p className="text-xs text-muted-foreground mb-6">{error}</p>
-            <Button onClick={fetchProducts} variant="outline" className="gap-2">
+            <Button onClick={() => fetchProducts()} variant="outline" className="gap-2">
               <RefreshCw className="w-4 h-4" /> Retry
             </Button>
           </div>
