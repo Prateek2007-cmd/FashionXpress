@@ -1,7 +1,4 @@
-import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
@@ -13,15 +10,8 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useLocation } from 'wouter';
-import { getApiBaseUrl } from '@/lib/api-config';
 
-const bookingSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  phone: z.string().transform(val => val.replace(/\D/g, '').slice(-10)).pipe(z.string().length(10, "Phone number must be 10 digits")),
-  addressText: z.string().min(3, "Please provide your address (minimum 3 characters)"),
-});
-
-type BookingFormValues = z.infer<typeof bookingSchema>;
+const RENDER_API = 'https://fashionxpress.onrender.com';
 
 const FEATURES = [
   {
@@ -70,26 +60,22 @@ export function BookVisitPage() {
   const [, setLocation] = useLocation();
   const [countdown, setCountdown] = useState(5);
 
-  const { register, handleSubmit, formState: { errors }, trigger, reset } = useForm<BookingFormValues>({
-    resolver: zodResolver(bookingSchema),
-    defaultValues: {
-      name: user?.name || '',
-      phone: user?.phone || '',
-      addressText: ''
-    }
-  });
+  // Form state — plain React state, no react-hook-form
+  const [name, setName] = useState(user?.name || '');
+  const [phone, setPhone] = useState(user?.phone || '');
+  const [addressText, setAddressText] = useState('');
+  const [errors, setErrors] = useState<{ name?: string; phone?: string; addressText?: string }>({});
 
-  React.useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
+  useEffect(() => { window.scrollTo(0, 0); }, []);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (user) {
-      reset({ name: user.name || '', phone: user.phone || '', addressText: '' });
+      setName(user.name || '');
+      setPhone(user.phone || '');
     }
-  }, [user, reset]);
+  }, [user]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     let timer: NodeJS.Timeout | number | undefined;
     if (successCode) {
       setCountdown(5);
@@ -103,14 +89,34 @@ export function BookVisitPage() {
     return () => { if (timer) clearInterval(timer as number); };
   }, [successCode, setLocation]);
 
-  const handleStep1Next = async () => {
-    const valid = await trigger(['name', 'phone']);
-    if (valid) setStep(2);
+  const validateStep1 = (): boolean => {
+    const errs: { name?: string; phone?: string } = {};
+    if (!name || name.trim().length < 2) errs.name = 'Name must be at least 2 characters';
+    const cleanPhone = phone.replace(/\D/g, '');
+    if (cleanPhone.length !== 10) errs.phone = 'Phone number must be exactly 10 digits';
+    setErrors(errs);
+    return Object.keys(errs).length === 0;
   };
 
-  const onSubmit = async (data: BookingFormValues) => {
+  const handleStep1Next = () => {
+    if (validateStep1()) setStep(2);
+  };
+
+  const handleConfirmBooking = async () => {
+    // Validate address
+    if (!addressText || addressText.trim().length < 3) {
+      setErrors(prev => ({ ...prev, addressText: 'Please enter your address' }));
+      return;
+    }
+    setErrors({});
+
     setIsSubmitting(true);
-    const guestCart = JSON.parse(localStorage.getItem('guest_cart') || '[]');
+
+    const cleanPhone = phone.replace(/\D/g, '').slice(-10);
+    const guestCart = (() => {
+      try { return JSON.parse(localStorage.getItem('guest_cart') || '[]'); }
+      catch { return []; }
+    })();
     const products = guestCart
       .map((item: any) => ({
         productId: Number(item.productId || item.id),
@@ -120,50 +126,68 @@ export function BookVisitPage() {
       .filter((item: any) => !isNaN(item.productId) && item.productId > 0);
 
     const payload = {
-      name: data.name || user?.name || 'Guest Customer',
-      phone: data.phone || user?.phone || '9999999999',
-      addressText: data.addressText,
+      name: name.trim() || user?.name || 'Guest Customer',
+      phone: cleanPhone || user?.phone || '9999999999',
+      addressText: addressText.trim(),
       email: user?.email || 'not-provided@fashion-xpress.com',
       preferredDate: new Date().toISOString().split('T')[0],
       preferredTime: 'As soon as possible',
-      gender: 'not_specified', preferredFit: '',
-      preferredBrands: [], preferredColors: [],
-      topSize: '', bottomSize: '', notes: '', products
+      gender: 'not_specified',
+      preferredFit: '',
+      preferredBrands: [],
+      preferredColors: [],
+      topSize: '', bottomSize: '', notes: '',
+      products
     };
 
-    const API_BASE = getApiBaseUrl();
-    let endpoint = isAuthenticated ? `${API_BASE}/api/bookings` : `${API_BASE}/api/bookings/guest`;
-    let headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    // Always use the Render backend — never relative /api paths on Vercel
+    let endpoint = isAuthenticated && token
+      ? `${RENDER_API}/api/bookings`
+      : `${RENDER_API}/api/bookings/guest`;
+
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
     if (isAuthenticated && token) headers['Authorization'] = `Bearer ${token}`;
 
     try {
-      let response = await fetch(endpoint, { method: 'POST', headers, body: JSON.stringify(payload) });
+      let res = await fetch(endpoint, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(payload)
+      });
 
-      // Fallback to guest booking endpoint if auth token expired or invalid
-      if (response.status === 401 && isAuthenticated) {
-        endpoint = `${API_BASE}/api/bookings/guest`;
+      // If auth token expired, fallback to guest
+      if (res.status === 401 && isAuthenticated) {
+        endpoint = `${RENDER_API}/api/bookings/guest`;
         delete headers['Authorization'];
-        response = await fetch(endpoint, { method: 'POST', headers, body: JSON.stringify(payload) });
+        res = await fetch(endpoint, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(payload)
+        });
       }
 
-      const responseText = await response.text();
-      if (!response.ok) {
-        let errMsg = `Server error: ${response.status}`;
+      const text = await res.text();
+      if (!res.ok) {
+        let errMsg = `Server error (${res.status})`;
         try {
-          const parsed = JSON.parse(responseText);
-          errMsg = parsed.error || parsed.message || responseText;
-        } catch {
-          errMsg = responseText || errMsg;
-        }
+          const parsed = JSON.parse(text);
+          errMsg = parsed.error || parsed.message || errMsg;
+        } catch { /* ignore */ }
         throw new Error(errMsg);
       }
-      const result = JSON.parse(responseText);
-      setSuccessCode(result.bookingCode || result.id?.toString() || 'CONFIRMED');
+
+      const result = JSON.parse(text);
+      const code = result.bookingCode || result.id?.toString() || 'CONFIRMED';
+      setSuccessCode(code);
       window.scrollTo(0, 0);
-      toast({ title: "✅ Booking Confirmed!", description: `Your booking reference: ${result.bookingCode || 'CONFIRMED'}` });
+      toast({ title: '✅ Booking Confirmed!', description: `Reference: ${code}` });
       localStorage.removeItem('guest_cart');
     } catch (err: any) {
-      toast({ title: "Booking failed", description: err.message || 'Could not complete your booking. Please try again.', variant: "destructive" });
+      toast({
+        title: 'Booking failed',
+        description: err.message || 'Could not complete booking. Please try again.',
+        variant: 'destructive'
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -173,12 +197,10 @@ export function BookVisitPage() {
   if (successCode) {
     return (
       <div className="min-h-screen flex items-center justify-center px-6 relative overflow-hidden">
-        {/* Background glows */}
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-green-500/5 rounded-full blur-[120px] pointer-events-none" />
         <div className="absolute bottom-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-[80px] pointer-events-none" />
 
         <div className="max-w-lg w-full text-center relative z-10">
-          {/* Animated checkmark */}
           <div className="relative inline-block mb-8">
             <div className="w-24 h-24 bg-green-500/10 rounded-full flex items-center justify-center mx-auto border border-green-500/20 animate-pulse">
               <CheckCircle2 className="w-12 h-12 text-green-400" />
@@ -191,7 +213,6 @@ export function BookVisitPage() {
           <h2 className="text-4xl font-serif text-foreground mb-2">Booking Confirmed!</h2>
           <p className="text-muted-foreground mb-8 text-lg">Your personal Fashion Executive is on the way. Get ready for a premium at-home styling experience.</p>
 
-          {/* Booking ID box */}
           <div className="bg-card/60 backdrop-blur-xl border border-green-500/20 rounded-2xl py-6 px-6 mb-6">
             <p className="text-[10px] text-muted-foreground uppercase tracking-[0.25em] font-bold mb-3">Booking Reference ID</p>
             <p className="text-3xl font-mono text-green-400 tracking-[0.2em] font-bold">{successCode}</p>
@@ -201,7 +222,6 @@ export function BookVisitPage() {
             </div>
           </div>
 
-          {/* What's next */}
           <div className="bg-card/30 border border-border rounded-2xl p-5 mb-6 text-left space-y-3">
             <p className="text-xs text-muted-foreground uppercase tracking-widest font-bold mb-3">What happens next</p>
             {[
@@ -218,7 +238,6 @@ export function BookVisitPage() {
             ))}
           </div>
 
-          {/* Action buttons */}
           <div className="space-y-3">
             <a
               href={`https://wa.me/916304847223?text=Hi%2C+I+just+booked+a+Home+Visit+with+The+Fashion+Xpress.+Reference+ID%3A+${successCode}`}
@@ -245,7 +264,6 @@ export function BookVisitPage() {
 
       {/* ── HERO BANNER ── */}
       <div className="relative overflow-hidden bg-gradient-to-b from-card/80 to-transparent border-b border-border py-20 px-6">
-        {/* Glow effects */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-primary/5 rounded-full blur-[150px] pointer-events-none" />
         <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/5 rounded-full blur-[100px] pointer-events-none" />
 
@@ -272,7 +290,6 @@ export function BookVisitPage() {
                 </p>
               </div>
 
-              {/* Trust bar */}
               <div className="flex flex-wrap gap-4">
                 {[
                   { icon: Clock, label: "45-Min Arrival" },
@@ -285,7 +302,6 @@ export function BookVisitPage() {
                 ))}
               </div>
 
-              {/* Social proof */}
               <div className="flex items-center gap-4 pt-2">
                 <div className="flex -space-x-2">
                   {['A', 'B', 'C', 'D'].map((l, i) => (
@@ -301,7 +317,6 @@ export function BookVisitPage() {
 
             {/* Right — Booking Form Card */}
             <div className="bg-card/60 backdrop-blur-xl border border-border rounded-3xl p-8 shadow-2xl relative">
-              {/* Glow inside card */}
               <div className="absolute top-0 right-0 w-40 h-40 bg-primary/5 rounded-full blur-[60px] -translate-y-1/3 translate-x-1/3 pointer-events-none" />
 
               {/* Step pills */}
@@ -317,20 +332,9 @@ export function BookVisitPage() {
                 ))}
               </div>
 
-              <form onSubmit={handleSubmit(onSubmit, (invalidErrors) => {
-                if (invalidErrors.name || invalidErrors.phone) {
-                  setStep(1);
-                }
-                const firstMsg = invalidErrors.addressText?.message || invalidErrors.phone?.message || invalidErrors.name?.message || "Please fill all required fields";
-                toast({
-                  title: "Validation Error",
-                  description: firstMsg,
-                  variant: "destructive"
-                });
-              })}>
-
-                {/* STEP 1 */}
-                <div className={step === 2 ? 'hidden' : 'space-y-6'}>
+              {/* STEP 1 */}
+              {step === 1 && (
+                <div className="space-y-6">
                   <div>
                     <h3 className="text-xl font-serif text-foreground mb-1">Who are we visiting?</h3>
                     <p className="text-xs text-muted-foreground">We'll use these details to coordinate your visit.</p>
@@ -342,11 +346,13 @@ export function BookVisitPage() {
                         <User className="w-3.5 h-3.5 text-primary" /> Full Name
                       </label>
                       <Input
-                        {...register('name')}
+                        id="booking-name"
+                        value={name}
+                        onChange={e => { setName(e.target.value); setErrors(prev => ({ ...prev, name: undefined })); }}
                         placeholder="Enter your full name"
                         className={`h-12 bg-foreground/5 border-border text-foreground placeholder:text-muted-foreground/50 focus:border-primary/50 rounded-xl ${errors.name ? 'border-destructive' : ''}`}
                       />
-                      {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
+                      {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
                     </div>
 
                     <div className="space-y-1.5">
@@ -354,22 +360,19 @@ export function BookVisitPage() {
                         <Phone className="w-3.5 h-3.5 text-primary" /> Phone Number
                       </label>
                       <Input
-                        {...register('phone')}
+                        id="booking-phone"
+                        value={phone}
+                        onChange={e => {
+                          const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
+                          setPhone(digits);
+                          setErrors(prev => ({ ...prev, phone: undefined }));
+                        }}
                         placeholder="10-digit mobile number"
                         maxLength={10}
                         inputMode="numeric"
-                        onKeyDown={(e) => {
-                          const allowed = ['Backspace', 'Delete', 'Tab', 'ArrowLeft', 'ArrowRight', 'Home', 'End'];
-                          if (!allowed.includes(e.key) && !/^[0-9]$/.test(e.key)) e.preventDefault();
-                        }}
-                        onChange={(e) => {
-                          const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
-                          e.target.value = digits;
-                          register('phone').onChange(e);
-                        }}
                         className={`h-12 bg-foreground/5 border-border text-foreground placeholder:text-muted-foreground/50 focus:border-primary/50 rounded-xl ${errors.phone ? 'border-destructive' : ''}`}
                       />
-                      {errors.phone && <p className="text-xs text-destructive">{errors.phone.message}</p>}
+                      {errors.phone && <p className="text-xs text-destructive">{errors.phone}</p>}
                     </div>
                   </div>
 
@@ -387,9 +390,11 @@ export function BookVisitPage() {
                     By booking, you agree to our free-visit terms. No charge until you buy.
                   </p>
                 </div>
+              )}
 
-                {/* STEP 2 */}
-                <div className={step === 1 ? 'hidden' : 'space-y-6'}>
+              {/* STEP 2 */}
+              {step === 2 && (
+                <div className="space-y-6">
                   <div>
                     <h3 className="text-xl font-serif text-foreground mb-1">Where should we come?</h3>
                     <p className="text-xs text-muted-foreground">Share your complete address for accurate navigation.</p>
@@ -400,11 +405,13 @@ export function BookVisitPage() {
                       <MapPin className="w-3.5 h-3.5 text-primary" /> Full Address
                     </label>
                     <Input
-                      {...register('addressText')}
+                      id="booking-address"
+                      value={addressText}
+                      onChange={e => { setAddressText(e.target.value); setErrors(prev => ({ ...prev, addressText: undefined })); }}
                       placeholder="House No, Street, Landmark, City, Pincode"
                       className={`h-12 bg-foreground/5 border-border text-foreground placeholder:text-muted-foreground/50 focus:border-primary/50 rounded-xl ${errors.addressText ? 'border-destructive' : ''}`}
                     />
-                    {errors.addressText && <p className="text-xs text-destructive">{errors.addressText.message}</p>}
+                    {errors.addressText && <p className="text-xs text-destructive">{errors.addressText}</p>}
                   </div>
 
                   <div className="bg-primary/5 border border-primary/15 rounded-xl px-4 py-3 flex items-start gap-3">
@@ -424,8 +431,9 @@ export function BookVisitPage() {
                       ← Back
                     </Button>
                     <Button
-                      type="submit"
+                      type="button"
                       disabled={isSubmitting}
+                      onClick={handleConfirmBooking}
                       className="flex-[2] h-14 text-sm tracking-[0.15em] uppercase font-bold rounded-xl bg-green-600 hover:bg-green-700 shadow-lg shadow-green-900/30"
                     >
                       {isSubmitting ? (
@@ -436,7 +444,7 @@ export function BookVisitPage() {
                     </Button>
                   </div>
                 </div>
-              </form>
+              )}
             </div>
 
           </div>
