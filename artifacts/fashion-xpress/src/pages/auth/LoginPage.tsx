@@ -1,17 +1,18 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'wouter';
-import { getApiBaseUrl } from '@/lib/api-config';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import {
   AlertCircle, Eye, EyeOff, ShieldCheck, Clock, Lock,
-  ArrowRight, Sparkles, CheckCircle2, UserPlus, Check, KeyRound, X, Mail, PhoneCall, ArrowLeft, RefreshCw
+  ArrowRight, Sparkles, CheckCircle2, UserPlus, Check, KeyRound, X, Mail, PhoneCall, ArrowLeft, RefreshCw,
+  Loader2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useLogin } from '@workspace/api-client-react';
 import { useAuth } from '@/context/AuthContext';
+
+const RENDER_API = 'https://fashionxpress.onrender.com';
 
 const loginSchema = z.object({
   email: z.string().min(1, 'Please enter your email address or mobile number'),
@@ -30,7 +31,7 @@ const MEMBER_PERKS = [
 export function LoginPage() {
   const [, setLocation] = useLocation();
   const { login } = useAuth();
-  const loginMutation = useLogin();
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
@@ -46,41 +47,47 @@ export function LoginPage() {
   const [resetLoading, setResetLoading] = useState(false);
   const [generatedOtp, setGeneratedOtp] = useState('4829');
 
-  const API_BASE = getApiBaseUrl();
-
   const { register, handleSubmit, formState: { errors } } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema)
   });
 
-  const onSubmit = (data: LoginFormValues) => {
+  const onSubmit = async (data: LoginFormValues) => {
     setErrorMsg(null);
-    loginMutation.mutate({ data }, {
-      onSuccess: (res) => {
-        if (rememberMe) {
-          localStorage.setItem('remember_user', data.email);
-        } else {
-          localStorage.removeItem('remember_user');
-        }
-        login(res.token, res.user);
-        if (res.user.role === 'admin') setLocation('/admin');
-        else if (res.user.role === 'executive') setLocation('/executive');
-        else if (res.user.role === 'merchant') setLocation('/merchant');
-        else setLocation('/');
-      },
-      onError: (err: any) => {
-        const status = err?.status;
-        const serverMsg = err?.data?.error || err?.data?.message || err?.message;
-        if (status === 401 || status === 400) {
+    setIsLoggingIn(true);
+    try {
+      // Always use Render backend directly — avoids Vercel static host interception
+      const res = await fetch(`${RENDER_API}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: data.email, password: data.password }),
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        const serverMsg = json?.error || json?.message || `Error ${res.status}`;
+        if (res.status === 401 || res.status === 400) {
           setErrorMsg('Incorrect email/mobile number or password. Please check your credentials.');
-        } else if (status === 404) {
+        } else if (res.status === 404) {
           setErrorMsg('No account found with this email or mobile number. Please create an account first.');
-        } else if (serverMsg) {
-          setErrorMsg(serverMsg);
         } else {
-          setErrorMsg('Something went wrong. Please try again later.');
+          setErrorMsg(serverMsg);
         }
+        return;
       }
-    });
+      if (rememberMe) {
+        localStorage.setItem('remember_user', data.email);
+      } else {
+        localStorage.removeItem('remember_user');
+      }
+      login(json.token, json.user);
+      if (json.user.role === 'admin') setLocation('/admin');
+      else if (json.user.role === 'executive') setLocation('/executive');
+      else if (json.user.role === 'merchant') setLocation('/merchant');
+      else setLocation('/');
+    } catch (err: any) {
+      setErrorMsg('Could not connect to server. Please check your connection and try again.');
+    } finally {
+      setIsLoggingIn(false);
+    }
   };
 
   const handleStep1SendOtp = (e: React.FormEvent) => {
@@ -123,7 +130,7 @@ export function LoginPage() {
     setResetLoading(true);
 
     try {
-      const res = await fetch(`${API_BASE}/api/auth/reset-password`, {
+      const res = await fetch(`${RENDER_API}/api/auth/reset-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -233,7 +240,7 @@ export function LoginPage() {
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
 
               {/* Loading overlay hint */}
-              {loginMutation.isPending && (
+              {isLoggingIn && (
                 <div className="flex items-center gap-3 rounded-2xl border border-primary/20 bg-primary/5 px-4 py-3 text-xs text-primary animate-pulse">
                   <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin shrink-0" />
                   Verifying your credentials…
@@ -329,11 +336,11 @@ export function LoginPage() {
                 type="submit"
                 size="lg"
                 className="w-full h-12 font-bold tracking-[0.15em] uppercase text-xs rounded-xl shadow-lg shadow-primary/20 transition-all relative overflow-hidden"
-                disabled={loginMutation.isPending}
+                disabled={isLoggingIn}
               >
-                {loginMutation.isPending ? (
+                {isLoggingIn ? (
                   <span className="flex items-center gap-2">
-                    <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                    <Loader2 className="w-4 h-4 animate-spin" />
                     Signing In…
                   </span>
                 ) : "Sign In"}

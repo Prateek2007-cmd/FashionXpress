@@ -1,14 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'wouter';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { ShieldCheck, Sparkles, User, Mail, Phone, Lock, Eye, EyeOff, CheckCircle2 } from 'lucide-react';
+import { ShieldCheck, Sparkles, User, Mail, Phone, Lock, Eye, EyeOff, CheckCircle2, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useRegisterCustomer } from '@workspace/api-client-react';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/components/ui/use-toast';
+
+const RENDER_API = 'https://fashionxpress.onrender.com';
 
 const registerSchema = z.object({
   name: z.string().min(2, 'Name is required'),
@@ -23,28 +24,37 @@ export function RegisterPage() {
   const [, setLocation] = useLocation();
   const { login } = useAuth();
   const { toast } = useToast();
-  const registerMutation = useRegisterCustomer();
+  const [isRegistering, setIsRegistering] = useState(false);
   const [showPassword, setShowPassword] = React.useState(false);
 
   const { register, handleSubmit, formState: { errors } } = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema)
   });
 
-  const onSubmit = (data: RegisterFormValues) => {
-    registerMutation.mutate({ data }, {
-      onSuccess: (res) => {
-        login(res.token, res.user);
-        toast({ title: "🎉 Welcome to The Fashion Xpress", description: "Your account has been created successfully." });
-        setLocation('/');
-      },
-      onError: (err: any) => {
-        toast({
-          title: "Registration failed",
-          description: err.response?.data?.message || err.data?.message || err.message || "An error occurred during registration.",
-          variant: "destructive"
-        });
+  const onSubmit = async (data: RegisterFormValues) => {
+    setIsRegistering(true);
+    try {
+      const res = await fetch(`${RENDER_API}/api/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        throw new Error(json?.error || json?.message || 'Registration failed');
       }
-    });
+      login(json.token, json.user);
+      toast({ title: "🎉 Welcome to The Fashion Xpress", description: "Your account has been created successfully." });
+      setLocation('/');
+    } catch (err: any) {
+      toast({
+        title: "Registration failed",
+        description: err.message || "An error occurred during registration.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsRegistering(false);
+    }
   };
 
   return (
@@ -166,9 +176,14 @@ export function RegisterPage() {
               type="submit"
               size="lg"
               className="w-full h-13 font-bold tracking-[0.15em] uppercase text-xs rounded-xl shadow-xl shadow-primary/20 transition-all mt-2"
-              disabled={registerMutation.isPending}
+              disabled={isRegistering}
             >
-              {registerMutation.isPending ? "Creating Account…" : "Create Account"}
+              {isRegistering ? (
+                <span className="flex items-center gap-2">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Creating Account…
+                </span>
+              ) : "Create Account"}
             </Button>
 
             {/* Sign In link */}
