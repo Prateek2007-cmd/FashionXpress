@@ -13,6 +13,9 @@ export function AdminProductsPage() {
   const { toast } = useToast();
   const { token } = useAuth();
   const { data: productsData, isLoading } = useListProducts({ limit: 100 });
+  const adminProductsList: any[] = Array.isArray(productsData)
+    ? productsData
+    : (productsData as any)?.products || (productsData as any)?.items || [];
   const { data: categories } = useListCategories();
   const { data: brands } = useListBrands();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -409,7 +412,7 @@ export function AdminProductsPage() {
 
       {isLoading ? (
         <div className="flex justify-center p-12"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
-      ) : !productsData?.items?.length ? (
+      ) : !adminProductsList.length ? (
         <div className="text-center py-20 border border-white/5 rounded-xl bg-card/20">
           <ImageIcon className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
           <p className="text-muted-foreground mb-2">No products in catalog yet.</p>
@@ -430,7 +433,7 @@ export function AdminProductsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
-                {productsData.items.map((product) => (
+                {adminProductsList.map((product) => (
                   <tr key={product.id} className="hover:bg-white/[0.02] transition-colors">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">

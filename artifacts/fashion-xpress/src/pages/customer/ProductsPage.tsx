@@ -141,7 +141,11 @@ export function ProductsPage() {
     setDiscountFilter('all');
   };
 
-  const filteredProducts = (productsData?.items || []).filter(product => {
+  const allProducts: any[] = Array.isArray(productsData)
+    ? productsData
+    : (productsData as any)?.products || (productsData as any)?.items || [];
+
+  const filteredProducts = allProducts.filter(product => {
     const discount = getDiscountPercent(product.mrp, product.sellingPrice);
     if (discountFilter === 'price-drop') return discount >= 35 || (product.mrp && product.mrp > product.sellingPrice);
     if (discountFilter === '50') return discount >= 50;
@@ -209,7 +213,7 @@ export function ProductsPage() {
           {/* Quick stat strip */}
           <div className="flex items-center justify-center gap-6 mt-8 flex-wrap">
             {[
-              { icon: Tag, label: `${productsData?.total || 0} Curated Pieces`, color: "text-primary" },
+              { icon: Tag, label: `${(productsData as any)?.total || allProducts.length} Curated Pieces`, color: "text-primary" },
               { icon: Flame, label: "Up to 60% OFF", color: "text-red-400" },
               { icon: Star, label: "Premium Brands", color: "text-amber-400" },
               { icon: ShoppingBag, label: "Try Before You Pay", color: "text-purple-400" },

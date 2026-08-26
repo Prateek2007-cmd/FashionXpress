@@ -67,6 +67,9 @@ export function MerchantProductsPage() {
     limit: 100, 
     merchantId: user?.id || undefined 
   });
+  const merchantProductsList: any[] = Array.isArray(productsData)
+    ? productsData
+    : (productsData as any)?.products || (productsData as any)?.items || [];
   const { data: categories } = useListCategories();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const editFileInputRef = useRef<HTMLInputElement>(null);
@@ -692,7 +695,7 @@ export function MerchantProductsPage() {
 
       {isLoading ? (
         <div className="flex justify-center p-12"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
-      ) : !productsData?.items?.length ? (
+      ) : !merchantProductsList.length ? (
         <div className="text-center py-20 border border-white/5 rounded-xl bg-card/20">
           <ImageIcon className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
           <p className="text-muted-foreground mb-2">No dresses uploaded yet.</p>
@@ -713,7 +716,7 @@ export function MerchantProductsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
-                {productsData.items.map((product) => (
+                {merchantProductsList.map((product) => (
                   <tr key={product.id} className="hover:bg-white/[0.02] transition-colors">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
