@@ -73805,30 +73805,36 @@ var { Pool: Pool3 } = esm_default;
 var _pool = null;
 var _db = null;
 function getDb() {
-  if (!_db) {
+  if (!_db || !_pool) {
     const rawConnectionString = process.env.DATABASE_URL || "postgresql://neondb_owner:npg_mdR10ZUGrauD@ep-little-violet-aoq66t8e-pooler.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require";
     const connectionString = rawConnectionString.replace(/[\?&]channel_binding=[^&]+/g, "");
-    _pool = new Pool3({
+    const newPool = new Pool3({
       connectionString,
       ssl: connectionString.includes("sslmode=require") || connectionString.includes("neon.tech") ? { rejectUnauthorized: false } : void 0,
       max: 10,
       idleTimeoutMillis: 3e4,
       connectionTimeoutMillis: 1e4
     });
-    _pool.on("error", (err) => {
+    newPool.on("error", (err) => {
       console.error("Unexpected error on idle pg pool connection:", err.message || err);
       _pool = null;
       _db = null;
     });
+    _pool = newPool;
     _db = drizzle(_pool, { schema: schema_exports });
   }
   return _db;
 }
 var db = new Proxy({}, {
   get(_target, prop) {
-    const instance = getDb();
-    const value = instance[prop];
-    return typeof value === "function" ? value.bind(instance) : value;
+    return (...args) => {
+      const freshInstance = getDb();
+      const targetProp = freshInstance[prop];
+      if (typeof targetProp === "function") {
+        return targetProp.apply(freshInstance, args);
+      }
+      return targetProp;
+    };
   }
 });
 var pool = new Proxy({}, {
@@ -76669,7 +76675,7 @@ async function hydrateBookings(bookings) {
         categoryMap.get(product.categoryId),
         brandMap.get(product.brandId)
       );
-    }).filter(Boolean);
+    }).filter((x) => x !== null);
     const executiveEntry = b.executiveId ? executiveMap.get(b.executiveId) : void 0;
     return mapBooking(b, bps, executiveEntry?.executive, executiveEntry?.name ?? null);
   });

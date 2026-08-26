@@ -8,14 +8,14 @@ let _pool: pg.Pool | null = null;
 let _db: ReturnType<typeof drizzle> | null = null;
 
 export function getDb() {
-  if (!_db) {
+  if (!_db || !_pool) {
     const rawConnectionString =
       process.env.DATABASE_URL ||
       "postgresql://neondb_owner:npg_mdR10ZUGrauD@ep-little-violet-aoq66t8e-pooler.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require";
 
     const connectionString = rawConnectionString.replace(/[\?&]channel_binding=[^&]+/g, "");
 
-    _pool = new Pool({
+    const newPool = new Pool({
       connectionString,
       ssl: connectionString.includes("sslmode=require") || connectionString.includes("neon.tech")
         ? { rejectUnauthorized: false }
@@ -25,12 +25,13 @@ export function getDb() {
       connectionTimeoutMillis: 10000,
     });
 
-    _pool.on("error", (err) => {
+    newPool.on("error", (err) => {
       console.error("Unexpected error on idle pg pool connection:", err.message || err);
       _pool = null;
       _db = null;
     });
 
+    _pool = newPool;
     _db = drizzle(_pool, { schema });
   }
   return _db;
@@ -38,9 +39,14 @@ export function getDb() {
 
 export const db = new Proxy({} as ReturnType<typeof drizzle>, {
   get(_target, prop) {
-    const instance = getDb();
-    const value = (instance as any)[prop];
-    return typeof value === "function" ? value.bind(instance) : value;
+    return (...args: any[]) => {
+      const freshInstance = getDb();
+      const targetProp = (freshInstance as any)[prop];
+      if (typeof targetProp === "function") {
+        return targetProp.apply(freshInstance, args);
+      }
+      return targetProp;
+    };
   }
 });
 
