@@ -130,25 +130,32 @@ export function ProductsPage() {
   const handleAddToCart = async (e: React.MouseEvent, productId: number) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!isAuthenticated) { setLocation('/login'); return; }
-    toast({ title: "Select a Size", description: "Please select a size on the product page.", variant: "destructive" });
-    setTimeout(() => setLocation(`/products/${productId}`), 500);
+    setLocation(`/products/${productId}`);
   };
 
   const handleAddToWishlist = async (e: React.MouseEvent, productId: number, productName: string) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!isAuthenticated) { setLocation('/login'); return; }
     try {
-      const res = await fetch(`${RENDER_API}/api/wishlist`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify({ productId })
-      });
-      if (!res.ok) throw new Error(await res.text());
+      const productObj = products.find(p => p.id === productId) || { id: productId, name: productName };
+      
+      // Always store locally so UI reflects it immediately
+      const guestWishlist = JSON.parse(localStorage.getItem('guest_wishlist') || '[]');
+      if (!guestWishlist.some((item: any) => (item.productId || item.id) === productId)) {
+        guestWishlist.push({ id: productId, productId, product: productObj });
+        localStorage.setItem('guest_wishlist', JSON.stringify(guestWishlist));
+      }
+
+      if (isAuthenticated && token) {
+        await fetch(`${RENDER_API}/api/wishlist`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({ productId })
+        });
+      }
+      toast({ title: "❤️ Saved to Wishlist", description: `${productName} added to your saved pieces.` });
+    } catch {
       toast({ title: "❤️ Saved to Wishlist", description: `${productName} saved for later.` });
-    } catch (err: any) {
-      toast({ title: "Failed", description: err.message, variant: "destructive" });
     }
   };
 

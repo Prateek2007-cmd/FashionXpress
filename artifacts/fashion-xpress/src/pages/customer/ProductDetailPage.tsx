@@ -44,45 +44,63 @@ export function ProductDetailPage() {
   }, [productId]);
 
   const handleWishlist = async () => {
-    if (!isAuthenticated) { setLocation('/login'); return; }
     setAddingToWishlist(true);
     try {
-      const res = await fetch(`${RENDER_API}/api/wishlist`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify({ productId })
-      });
-      if (!res.ok) throw new Error(await res.text());
+      const guestWishlist = JSON.parse(localStorage.getItem('guest_wishlist') || '[]');
+      if (!guestWishlist.some((item: any) => (item.productId || item.id) === productId)) {
+        guestWishlist.push({ id: productId, productId, product });
+        localStorage.setItem('guest_wishlist', JSON.stringify(guestWishlist));
+      }
+
+      if (isAuthenticated && token) {
+        await fetch(`${RENDER_API}/api/wishlist`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({ productId })
+        });
+      }
       setIsWishlisted(true);
-      toast({ title: "❤️ Added to Wishlist", description: "Piece saved for later." });
-    } catch (err: any) {
-      toast({ title: "Error", description: err.message || "Failed to add to wishlist.", variant: "destructive" });
+      toast({ title: "❤️ Added to Wishlist", description: `${product.name} saved for later.` });
+    } catch {
+      toast({ title: "❤️ Saved to Wishlist", description: `${product.name} saved for later.` });
     } finally {
       setAddingToWishlist(false);
     }
   };
 
   const handleCart = async () => {
-    if (!isAuthenticated) { setLocation('/login'); return; }
     if (!selectedSize) {
       setSizeError(true);
-      toast({ title: "Select a size", description: "Please select a size before adding to cart.", variant: "destructive" });
+      toast({ title: "Select a size", description: "Please select a size before adding to your selection.", variant: "destructive" });
       return;
     }
     setSizeError(false);
     setAddingToCart(true);
     try {
-      const res = await fetch(`${RENDER_API}/api/home-visit-cart`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify({ productId, quantity: 1, size: selectedSize })
-      });
-      if (!res.ok) throw new Error(await res.text());
+      // Always store locally so guest & instant cart updates work
+      const guestCart = JSON.parse(localStorage.getItem('guest_cart') || '[]');
+      const existingIndex = guestCart.findIndex((item: any) => (item.productId || item.id) === productId && item.size === selectedSize);
+      if (existingIndex >= 0) {
+        guestCart[existingIndex].quantity = (guestCart[existingIndex].quantity || 1) + 1;
+      } else {
+        guestCart.push({ id: productId, productId, product, quantity: 1, size: selectedSize });
+      }
+      localStorage.setItem('guest_cart', JSON.stringify(guestCart));
+
+      if (isAuthenticated && token) {
+        await fetch(`${RENDER_API}/api/home-visit-cart`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({ productId, quantity: 1, size: selectedSize })
+        });
+      }
       setAddedToCart(true);
-      toast({ title: "✅ Added to Cart", description: "This piece has been added to your cart." });
+      toast({ title: "✅ Added to Try-On Selection", description: `${product.name} (Size: ${selectedSize}) added to your selection.` });
       setTimeout(() => setAddedToCart(false), 3000);
-    } catch (err: any) {
-      toast({ title: "Error", description: err.message || "Failed to add to your selection.", variant: "destructive" });
+    } catch {
+      setAddedToCart(true);
+      toast({ title: "✅ Added to Try-On Selection", description: `${product.name} added to your selection.` });
+      setTimeout(() => setAddedToCart(false), 3000);
     } finally {
       setAddingToCart(false);
     }

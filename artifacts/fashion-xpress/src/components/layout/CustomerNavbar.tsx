@@ -1,23 +1,54 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'wouter';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
-import { useListWishlist, useListHomeVisitCart } from '@workspace/api-client-react';
 import { User, LogOut, Heart, ShoppingBag, Menu, X, Sun, Moon, Sparkles } from 'lucide-react';
 import { Button } from '../ui/button';
 
+const RENDER_API = 'https://fashionxpress.onrender.com';
+
 export function CustomerNavbar() {
-  const { user, logout } = useAuth();
+  const { user, token, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const [location] = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const { data: wishlist } = useListWishlist({ query: { enabled: !!user } as any });
-  const { data: cartItems } = useListHomeVisitCart({ query: { enabled: !!user } as any });
+  const [cartCount, setCartCount] = useState(0);
+  const [wishlistCount, setWishlistCount] = useState(0);
 
-  const guestCart = JSON.parse(typeof window !== 'undefined' ? localStorage.getItem('guest_cart') || '[]' : '[]');
-  const cartCount = user ? (cartItems?.length || 0) : guestCart.length;
-  const wishlistCount = wishlist?.length || 0;
+  useEffect(() => {
+    const updateCounts = () => {
+      try {
+        const guestCart = JSON.parse(localStorage.getItem('guest_cart') || '[]');
+        const guestWishlist = JSON.parse(localStorage.getItem('guest_wishlist') || '[]');
+
+        if (user && token) {
+          fetch(`${RENDER_API}/api/home-visit-cart`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          })
+            .then(res => res.json())
+            .then(data => setCartCount(Array.isArray(data) ? data.length : guestCart.length))
+            .catch(() => setCartCount(guestCart.length));
+
+          fetch(`${RENDER_API}/api/wishlist`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          })
+            .then(res => res.json())
+            .then(data => setWishlistCount(Array.isArray(data) ? data.length : guestWishlist.length))
+            .catch(() => setWishlistCount(guestWishlist.length));
+        } else {
+          setCartCount(guestCart.length);
+          setWishlistCount(guestWishlist.length);
+        }
+      } catch {
+        /* fallback */
+      }
+    };
+
+    updateCounts();
+    const interval = setInterval(updateCounts, 4000);
+    return () => clearInterval(interval);
+  }, [user, token, location]);
 
   const navLinks = [
     { label: 'Home', href: '/' },
