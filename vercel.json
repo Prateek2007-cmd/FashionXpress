@@ -1,7 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "vite",
-  "buildCommand": "pnpm --filter @workspace/fashion-xpress run build",
+  "buildCommand": "VITE_API_URL=https://fashionxpress.onrender.com pnpm --filter @workspace/fashion-xpress run build",
   "outputDirectory": "artifacts/fashion-xpress/dist/public",
   "rewrites": [
     {
