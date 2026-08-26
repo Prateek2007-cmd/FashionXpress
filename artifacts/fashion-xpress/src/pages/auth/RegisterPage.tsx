@@ -3,7 +3,7 @@ import { Link, useLocation } from 'wouter';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { ShieldCheck, Sparkles, User, Mail, Phone, Lock, Eye, EyeOff, CheckCircle2, Loader2 } from 'lucide-react';
+import { ShieldCheck, Sparkles, User, Mail, Phone, Lock, Eye, EyeOff, CheckCircle2, Loader2, AlertCircle, ArrowRight, LogIn } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/context/AuthContext';
@@ -26,6 +26,8 @@ export function RegisterPage() {
   const { toast } = useToast();
   const [isRegistering, setIsRegistering] = useState(false);
   const [showPassword, setShowPassword] = React.useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [existingUserEmail, setExistingUserEmail] = useState<string | null>(null);
 
   const { register, handleSubmit, formState: { errors } } = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema)
@@ -33,6 +35,9 @@ export function RegisterPage() {
 
   const onSubmit = async (data: RegisterFormValues) => {
     setIsRegistering(true);
+    setErrorMsg(null);
+    setExistingUserEmail(null);
+
     try {
       const res = await fetch(`${RENDER_API}/api/auth/register`, {
         method: 'POST',
@@ -40,13 +45,34 @@ export function RegisterPage() {
         body: JSON.stringify(data)
       });
       const json = await res.json();
+
       if (!res.ok) {
-        throw new Error(json?.error || json?.message || 'Registration failed');
+        const errorText = json?.error || json?.message || 'Registration failed';
+        const isAlreadyMember = errorText.toLowerCase().includes('already exists') || res.status === 400 || res.status === 409;
+        
+        if (isAlreadyMember) {
+          setErrorMsg("An account with this email address or mobile number already exists.");
+          setExistingUserEmail(data.email);
+          toast({
+            title: "Account Already Exists",
+            description: "You are already registered! Please sign in with your password.",
+          });
+        } else {
+          setErrorMsg(errorText);
+          toast({
+            title: "Registration failed",
+            description: errorText,
+            variant: "destructive"
+          });
+        }
+        return;
       }
+
       login(json.token, json.user);
       toast({ title: "🎉 Welcome to The Fashion Xpress", description: "Your account has been created successfully." });
       setLocation('/');
     } catch (err: any) {
+      setErrorMsg(err.message || "An error occurred during registration.");
       toast({
         title: "Registration failed",
         description: err.message || "An error occurred during registration.",
@@ -93,6 +119,33 @@ export function RegisterPage() {
             </div>
           </div>
 
+          {/* Existing User Alert Banner */}
+          {errorMsg && (
+            <div className="p-4 rounded-2xl border border-amber-500/30 bg-amber-500/10 text-amber-300 text-xs space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
+              <div className="flex items-start gap-2.5">
+                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-amber-400" />
+                <div>
+                  <p className="font-bold text-amber-200 text-sm">Already a Member?</p>
+                  <p className="text-amber-300/90 mt-0.5 leading-relaxed">{errorMsg}</p>
+                </div>
+              </div>
+
+              {existingUserEmail && (
+                <div className="pt-2 border-t border-amber-500/20">
+                  <Link href="/login">
+                    <Button 
+                      type="button"
+                      size="sm"
+                      className="w-full h-10 bg-amber-500 hover:bg-amber-600 text-black font-bold uppercase tracking-wider text-xs gap-2 rounded-xl shadow-lg shadow-amber-900/20"
+                    >
+                      <LogIn className="w-3.5 h-3.5" /> Sign In to Your Account Now
+                    </Button>
+                  </Link>
+                </div>
+              )}
+            </div>
+          )}
+
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
 
             {/* Name */}
@@ -105,6 +158,7 @@ export function RegisterPage() {
                 placeholder="e.g. Rahul Sharma"
                 {...register('name')}
                 className={`h-12 rounded-xl bg-background border-border text-foreground placeholder:text-muted-foreground/50 focus:border-primary/50 ${errors.name ? 'border-destructive' : ''}`}
+                onChange={() => setErrorMsg(null)}
               />
               {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
             </div>
@@ -119,6 +173,7 @@ export function RegisterPage() {
                 placeholder="name@example.com"
                 {...register('email')}
                 className={`h-12 rounded-xl bg-background border-border text-foreground placeholder:text-muted-foreground/50 focus:border-primary/50 ${errors.email ? 'border-destructive' : ''}`}
+                onChange={() => setErrorMsg(null)}
               />
               {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
             </div>
@@ -142,6 +197,7 @@ export function RegisterPage() {
                   const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
                   e.target.value = digits;
                   register('phone').onChange(e);
+                  setErrorMsg(null);
                 }}
                 className={`h-12 rounded-xl bg-background border-border text-foreground placeholder:text-muted-foreground/50 focus:border-primary/50 ${errors.phone ? 'border-destructive' : ''}`}
               />
@@ -159,6 +215,7 @@ export function RegisterPage() {
                   placeholder="Create a strong password (min 6 chars)"
                   {...register('password')}
                   className={`h-12 pr-10 rounded-xl bg-background border-border text-foreground placeholder:text-muted-foreground/50 focus:border-primary/50 ${errors.password ? 'border-destructive' : ''}`}
+                  onChange={() => setErrorMsg(null)}
                 />
                 <button
                   type="button"
