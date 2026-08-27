@@ -7,7 +7,9 @@
     "dev": "NODE_ENV=development pnpm run build && node --enable-source-maps ./dist/index.cjs",
     "build": "node ./build.mjs",
     "start": "node --enable-source-maps ./dist/index.cjs",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "seed": "tsx src/scripts/seed.ts",
+    "reset-for-launch": "tsx src/scripts/reset-for-launch.ts"
   },
   "dependencies": {
     "@types/multer": "^2.2.0",
