@@ -50,6 +50,7 @@ import { AdminAnalyticsPage } from "./pages/admin/AdminAnalyticsPage";
 import { AdminPartnersPage } from "./pages/admin/AdminPartnersPage";
 import { AdminContentPage } from "./pages/admin/AdminContentPage";
 import { AdminOrdersPage } from "./pages/admin/AdminOrdersPage";
+import { AdminBrandsCommissionPage } from "./pages/admin/AdminBrandsCommissionPage";
 
 // Executive Pages
 import { ExecutiveVisits } from "./pages/executive/ExecutiveVisits";
@@ -113,6 +114,7 @@ function AdminRoutes() {
         <Route path="/admin/categories" component={AdminCategoriesPage} />
         <Route path="/admin/products" component={AdminProductsPage} />
         <Route path="/admin/orders" component={AdminOrdersPage} />
+        <Route path="/admin/brands" component={AdminBrandsCommissionPage} />
         <Route component={NotFound} />
       </Switch>
     </AdminLayout>

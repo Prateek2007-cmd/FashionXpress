@@ -359,4 +359,80 @@ router.get(
   }
 );
 
+// ── Brand Leaderboard + Commission ─────────────────────────────────────────
+
+router.get(
+  "/admin/brands",
+  requireAuth("admin"),
+  async (_req: Request, res: Response): Promise<void> => {
+    try {
+      const brands = await db.select().from(brandsTable);
+      // Get revenue per brand
+      const revenueRows = await db
+        .select({
+          brandId: productsTable.brandId,
+          revenue: sql<number>`coalesce(sum(cast(${productsTable.sellingPrice} as numeric) * ${productsTable.stock}), 0)::float`,
+          productCount: sql<number>`count(${productsTable.id})::int`,
+        })
+        .from(productsTable)
+        .groupBy(productsTable.brandId);
+
+      const revenueMap = new Map(revenueRows.map(r => [r.brandId, r]));
+
+      const result = brands.map(b => ({
+        id: b.id,
+        name: b.name,
+        slug: b.slug,
+        logoUrl: b.logoUrl,
+        commissionRate: parseFloat(b.commissionRate as string || "10"),
+        revenue: revenueMap.get(b.id)?.revenue ?? 0,
+        productCount: revenueMap.get(b.id)?.productCount ?? 0,
+      }));
+
+      // Sort by revenue descending
+      result.sort((a, b) => b.revenue - a.revenue);
+      res.json(result);
+    } catch (err: any) {
+      console.error("GET /admin/brands error:", err);
+      res.status(500).json({ error: "Failed to fetch brands" });
+    }
+  }
+);
+
+router.patch(
+  "/admin/brands/:id/commission",
+  requireAuth("admin"),
+  async (req: Request, res: Response): Promise<void> => {
+    const id = Number(req.params.id);
+    const { commissionRate } = req.body;
+
+    if (!id || isNaN(id)) {
+      res.status(400).json({ error: "Invalid brand ID" });
+      return;
+    }
+    const rate = parseFloat(commissionRate);
+    if (isNaN(rate) || rate < 0 || rate > 100) {
+      res.status(400).json({ error: "Commission rate must be between 0 and 100" });
+      return;
+    }
+
+    try {
+      const [updated] = await db
+        .update(brandsTable)
+        .set({ commissionRate: rate.toFixed(2) })
+        .where(eq(brandsTable.id, id))
+        .returning({ id: brandsTable.id, name: brandsTable.name, commissionRate: brandsTable.commissionRate });
+
+      if (!updated) {
+        res.status(404).json({ error: "Brand not found" });
+        return;
+      }
+      res.json({ success: true, brand: updated });
+    } catch (err: any) {
+      console.error("PATCH /admin/brands/:id/commission error:", err);
+      res.status(500).json({ error: "Failed to update commission" });
+    }
+  }
+);
+
 export default router;

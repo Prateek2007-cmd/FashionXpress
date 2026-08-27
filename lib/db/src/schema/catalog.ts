@@ -28,6 +28,7 @@ export const brandsTable = pgTable("brands", {
   name: text("name").notNull(),
   slug: text("slug").notNull().unique(),
   logoUrl: text("logo_url"),
+  commissionRate: numeric("commission_rate", { precision: 5, scale: 2 }).notNull().default("10.00"),
 });
 export const insertBrandSchema = createInsertSchema(brandsTable).omit({
   id: true,
