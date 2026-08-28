@@ -63,10 +63,11 @@ export function CustomerNavbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between">
 
         {/* Logo + Brand Name */}
-        <Link href="/" className="flex items-center gap-2.5 sm:gap-3 group">
+        <Link href="/" className="flex items-center gap-2.5 sm:gap-3 group" aria-label="The Fashion Xpress Home">
           <img
             src="/logo.png"
-            alt="The Fashion Xpress"
+            alt=""
+            aria-hidden="true"
             className="h-11 w-11 sm:h-12 sm:w-12 object-contain rounded-xl shrink-0 group-hover:scale-105 transition-transform"
           />
           <div className="leading-tight">
@@ -100,7 +101,7 @@ export function CustomerNavbar() {
           </button>
 
           {/* Wishlist Icon */}
-          <Link href="/wishlist" className="p-2 hover:text-primary transition-colors relative" title="Wishlist">
+          <Link href="/wishlist" aria-label="View Wishlist" className="p-2 hover:text-primary transition-colors relative" title="Wishlist">
             <Heart className="w-5 h-5" />
             {wishlistCount > 0 && (
               <span className="absolute top-0 right-0 w-4 h-4 bg-primary text-primary-foreground font-bold text-[10px] flex items-center justify-center rounded-full">
@@ -110,7 +111,7 @@ export function CustomerNavbar() {
           </Link>
 
           {/* Cart Icon */}
-          <Link href="/home-visit-cart" className="p-2 hover:text-primary transition-colors relative" title="Cart">
+          <Link href="/home-visit-cart" aria-label="View Home Visit Cart" className="p-2 hover:text-primary transition-colors relative" title="Cart">
             <ShoppingBag className="w-5 h-5" />
             {cartCount > 0 && (
               <span className="absolute top-0 right-0 w-4 h-4 bg-primary text-primary-foreground font-bold text-[10px] flex items-center justify-center rounded-full">
@@ -121,7 +122,7 @@ export function CustomerNavbar() {
 
           {user ? (
             <>
-              <Link href="/account" className="p-2 hover:text-primary transition-colors" title="My Account">
+              <Link href="/account" aria-label="My Account" className="p-2 hover:text-primary transition-colors" title="My Account">
                 <User className="w-5 h-5" />
               </Link>
               {user.role === 'admin' && (
@@ -139,7 +140,7 @@ export function CustomerNavbar() {
                   <Button variant="outline" size="sm" className="text-xs uppercase tracking-wider">Executive</Button>
                 </Link>
               )}
-              <Button variant="ghost" size="icon" onClick={logout} title="Sign Out">
+              <Button variant="ghost" size="icon" onClick={logout} aria-label="Sign Out" title="Sign Out">
                 <LogOut className="w-5 h-5 text-muted-foreground hover:text-destructive" />
               </Button>
             </>
@@ -154,7 +155,7 @@ export function CustomerNavbar() {
         <div className="flex md:hidden items-center gap-1 sm:gap-2">
 
           {/* Mobile Wishlist Icon */}
-          <Link href="/wishlist" className="p-2 text-foreground hover:text-primary transition-colors relative" title="Wishlist">
+          <Link href="/wishlist" aria-label="View Wishlist" className="p-2 text-foreground hover:text-primary transition-colors relative" title="Wishlist">
             <Heart className="w-5 h-5" />
             {wishlistCount > 0 && (
               <span className="absolute top-0.5 right-0.5 w-4 h-4 bg-primary text-primary-foreground font-bold text-[9px] flex items-center justify-center rounded-full">
@@ -164,7 +165,7 @@ export function CustomerNavbar() {
           </Link>
 
           {/* Mobile Cart Icon */}
-          <Link href="/home-visit-cart" className="p-2 text-foreground hover:text-primary transition-colors relative" title="Cart">
+          <Link href="/home-visit-cart" aria-label="View Home Visit Cart" className="p-2 text-foreground hover:text-primary transition-colors relative" title="Cart">
             <ShoppingBag className="w-5 h-5" />
             {cartCount > 0 && (
               <span className="absolute top-0.5 right-0.5 w-4 h-4 bg-primary text-primary-foreground font-bold text-[9px] flex items-center justify-center rounded-full">
@@ -185,7 +186,11 @@ export function CustomerNavbar() {
           </button>
 
           {/* Hamburger Menu Toggle */}
-          <button className="text-foreground p-2" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+          <button
+            className="text-foreground p-2"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            aria-label={isMobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+          >
             {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
