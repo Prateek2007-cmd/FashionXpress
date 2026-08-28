@@ -141,4 +141,86 @@ router.delete(
   },
 );
 
+// ── Merchant: see bookings containing their products ──────────────────────
+router.get(
+  "/merchants/my-bookings",
+  requireAuth("merchant"),
+  async (req: Request & { auth?: any }, res: Response): Promise<void> => {
+    try {
+      const { db: database, bookingsTable, bookingProductsTable, productsTable, categoriesTable, brandsTable, customersTable, usersTable: ut } = await import("@workspace/db");
+      const { eq, inArray, desc } = await import("drizzle-orm");
+
+      const merchantId = req.auth!.userId;
+
+      // Get all products belonging to this merchant
+      const merchantProducts = await database
+        .select({ id: productsTable.id, name: productsTable.name, images: productsTable.images, sellingPrice: productsTable.sellingPrice })
+        .from(productsTable)
+        .where(eq(productsTable.merchantId, merchantId));
+
+      if (merchantProducts.length === 0) {
+        res.json([]);
+        return;
+      }
+
+      const productIds = merchantProducts.map(p => p.id);
+
+      // Find booking_products that have those products
+      const bookingProductRows = await database
+        .select()
+        .from(bookingProductsTable)
+        .where(inArray(bookingProductsTable.productId, productIds));
+
+      if (bookingProductRows.length === 0) {
+        res.json([]);
+        return;
+      }
+
+      const bookingIds = [...new Set(bookingProductRows.map(bp => bp.bookingId))];
+
+      // Get those bookings
+      const bookings = await database
+        .select()
+        .from(bookingsTable)
+        .where(inArray(bookingsTable.id, bookingIds))
+        .orderBy(desc(bookingsTable.createdAt));
+
+      const productMap = new Map(merchantProducts.map(p => [p.id, p]));
+      const bpMap = new Map<number, typeof bookingProductRows>();
+      for (const bp of bookingProductRows) {
+        if (!bpMap.has(bp.bookingId)) bpMap.set(bp.bookingId, []);
+        bpMap.get(bp.bookingId)!.push(bp);
+      }
+
+      const result = bookings.map(b => ({
+        id: b.id,
+        bookingCode: b.bookingCode,
+        status: b.status,
+        name: b.name,
+        phone: b.phone,
+        email: b.email,
+        addressText: b.addressText,
+        preferredDate: b.preferredDate,
+        preferredTime: b.preferredTime,
+        createdAt: b.createdAt,
+        // Only show THIS merchant's products from this booking
+        myProducts: (bpMap.get(b.id) || [])
+          .filter(bp => productIds.includes(bp.productId))
+          .map(bp => ({
+            id: bp.id,
+            productId: bp.productId,
+            status: bp.status,
+            priceAtSale: bp.priceAtSale,
+            product: productMap.get(bp.productId),
+          })),
+      }));
+
+      res.json(result);
+    } catch (err: any) {
+      console.error("GET /merchants/my-bookings error:", err);
+      res.status(500).json({ error: "Failed to fetch merchant bookings" });
+    }
+  }
+);
+
 export default router;
