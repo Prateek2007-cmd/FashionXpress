@@ -7,7 +7,6 @@ import {
   ShoppingBag, Sparkles, ChevronRight, MapPin,
   CheckCircle2, Flame, Award, Users
 } from 'lucide-react';
-import heroBg from '@assets/generated_images/hero.jpg';
 
 const EASE: [number, number, number, number] = [0.25, 0.46, 0.45, 0.94];
 
@@ -56,9 +55,16 @@ export function LandingPage() {
       {/* ── HERO SECTION ── */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
 
-        {/* Background image */}
+        {/* Background image — LCP element: stable URL, eager, high priority */}
         <div className="absolute inset-0 z-0">
-          <img src={heroBg} alt="Luxury home fashion" className="w-full h-full object-cover opacity-30" />
+          <img
+            src="/hero.jpg"
+            alt="Luxury home fashion"
+            className="w-full h-full object-cover opacity-30"
+            fetchpriority="high"
+            loading="eager"
+            decoding="sync"
+          />
           <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/50 to-background" />
           <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-transparent to-background/80" />
         </div>

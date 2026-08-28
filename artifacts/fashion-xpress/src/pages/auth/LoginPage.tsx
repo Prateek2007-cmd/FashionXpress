@@ -166,7 +166,7 @@ export function LoginPage() {
         {/* Brand badge centered */}
         <div className="flex justify-center mb-8">
           <div className="inline-flex items-center gap-3 bg-card border border-border px-5 py-2.5 rounded-2xl shadow-xl">
-            <img src="/logo.png" alt="TFX" className="w-9 h-9 object-contain rounded-lg" />
+            <img src="/logo.jpg" alt="TFX" className="w-9 h-9 object-contain rounded-lg" />
             <span className="font-brand font-bold text-sm uppercase tracking-[0.18em] text-foreground">
               The Fashion Xpress
             </span>

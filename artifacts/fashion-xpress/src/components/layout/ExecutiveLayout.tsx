@@ -24,7 +24,7 @@ export function ExecutiveLayout({ children }: { children: React.ReactNode }) {
       <aside className="w-64 border-r border-white/5 bg-card/30 flex flex-col">
         <div className="h-20 flex items-center px-6 border-b border-white/5">
           <div className="flex items-center gap-2">
-            <img src="/logo.png" alt="TFX Logo" className="h-8 w-auto object-contain" style={{ mixBlendMode: 'screen' }} />
+            <img src="/logo.jpg" alt="TFX Logo" className="h-8 w-auto object-contain" style={{ mixBlendMode: 'screen' }} />
             <span className="font-serif font-bold text-sm tracking-widest uppercase text-primary">EXECUTIVE</span>
           </div>
         </div>

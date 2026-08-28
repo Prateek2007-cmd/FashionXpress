@@ -65,7 +65,7 @@ export function CustomerNavbar() {
         {/* Logo + Brand Name */}
         <Link href="/" className="flex items-center gap-2.5 sm:gap-3 group" aria-label="The Fashion Xpress Home">
           <img
-            src="/logo.png"
+            src="/logo.jpg"
             alt=""
             aria-hidden="true"
             className="h-11 w-11 sm:h-12 sm:w-12 object-contain rounded-xl shrink-0 group-hover:scale-105 transition-transform"
