@@ -90,6 +90,7 @@ export function CustomerNavbar() {
           {/* Theme toggle */}
           <button
             onClick={toggleTheme}
+            aria-label={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
             className="p-2 rounded-lg hover:bg-foreground/5 transition-colors"
             title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
           >
@@ -175,6 +176,7 @@ export function CustomerNavbar() {
           {/* Theme toggle */}
           <button
             onClick={toggleTheme}
+            aria-label={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
             className="p-2 rounded-lg text-foreground hover:bg-foreground/5 transition-colors"
           >
             {theme === 'dark'
