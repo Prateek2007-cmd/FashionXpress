@@ -1,2 +1,15 @@
 User-agent: *
 Allow: /
+
+# Block admin and private pages from indexing
+Disallow: /admin
+Disallow: /merchant
+Disallow: /executive
+Disallow: /account
+Disallow: /login
+Disallow: /register
+Disallow: /home-visit-cart
+Disallow: /wishlist
+
+# Sitemap
+Sitemap: https://www.thefashionxpress.com/sitemap.xml
