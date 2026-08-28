@@ -1,0 +1,28 @@
+# The Fashion Xpress
+
+> The Fashion Xpress is a premium home fashion visit service. Our Fashion Executives bring designer outfits directly to your doorstep — try them, buy what you love.
+
+## About
+
+The Fashion Xpress offers personalised home fashion consultations across India. Customers book a visit, choose their preferred styles and sizes, and a trained Fashion Executive arrives with a curated selection of garments for trial.
+
+## Services
+
+- [Book a Home Visit](https://www.thefashionxpress.com/book-visit): Schedule a personal fashion consultation at your home
+- [Browse Products](https://www.thefashionxpress.com/products): Explore our curated collection of designer dresses and outfits
+- [How It Works](https://www.thefashionxpress.com/how-it-works): Learn about our home visit process
+- [Partner With Us](https://www.thefashionxpress.com/partner): Become a merchant or fashion executive partner
+- [FAQ](https://www.thefashionxpress.com/faq): Frequently asked questions
+
+## Contact
+
+- Website: [https://www.thefashionxpress.com](https://www.thefashionxpress.com)
+- Email: [snehil@fashionxpress.com](mailto:snehil@fashionxpress.com)
+
+## Key Features
+
+- Personal styling at home
+- Try before you buy
+- Premium designer brands
+- Trained Fashion Executives
+- Available across major Indian cities

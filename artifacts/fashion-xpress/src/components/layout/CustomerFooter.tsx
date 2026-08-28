@@ -17,13 +17,13 @@ export function CustomerFooter() {
             The store comes to you. Experience premium luxury fashion consultations in the comfort of your own home.
           </p>
           <div className="flex gap-4">
-            <a href="#" className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-white/70 hover:text-primary hover:border-primary transition-colors">
+            <a href="https://www.instagram.com" target="_blank" rel="noreferrer" aria-label="Follow us on Instagram" className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-white/70 hover:text-primary hover:border-primary transition-colors">
               <Instagram className="w-4 h-4" />
             </a>
-            <a href="#" className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-white/70 hover:text-primary hover:border-primary transition-colors">
+            <a href="https://www.twitter.com" target="_blank" rel="noreferrer" aria-label="Follow us on Twitter" className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-white/70 hover:text-primary hover:border-primary transition-colors">
               <Twitter className="w-4 h-4" />
             </a>
-            <a href="#" className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-white/70 hover:text-primary hover:border-primary transition-colors">
+            <a href="https://www.facebook.com" target="_blank" rel="noreferrer" aria-label="Follow us on Facebook" className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-white/70 hover:text-primary hover:border-primary transition-colors">
               <Facebook className="w-4 h-4" />
             </a>
           </div>
