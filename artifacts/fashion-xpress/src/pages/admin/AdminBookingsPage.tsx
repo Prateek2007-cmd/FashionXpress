@@ -233,9 +233,15 @@ export function AdminBookingsPage() {
                           </>
                         )}
                       </div>
-                      
-                      {isExpanded ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
                     </div>
+
+                    {/* Chevron toggle — outside stopPropagation so click always expands */}
+                    <button
+                      onClick={() => setExpandedId(isExpanded ? null : b.id)}
+                      className="p-1.5 rounded-lg hover:bg-white/10 transition-colors"
+                    >
+                      {isExpanded ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+                    </button>
                   </div>
                 </div>
 
