@@ -61,38 +61,32 @@ export function CustomerNavbar() {
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 glass">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between gap-3">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between gap-4">
 
-        {/* Logo + Pincode Picker */}
-        <div className="flex items-center gap-3 sm:gap-4 shrink-0">
-          <Link href="/" className="flex items-center gap-2.5 sm:gap-3 group shrink-0" aria-label="The Fashion Xpress Home">
-            <img
-              src="/logo.webp"
-              alt=""
-              aria-hidden="true"
-              width="48"
-              height="48"
-              className="h-11 w-11 sm:h-12 sm:w-12 object-contain rounded-xl shrink-0 group-hover:scale-105 transition-transform"
-            />
-            <div className="leading-tight shrink-0">
-              <span className="font-brand text-xs sm:text-sm xl:text-base font-bold uppercase tracking-[0.12em] sm:tracking-[0.16em] text-foreground block whitespace-nowrap">
-                The Fashion Xpress
-              </span>
-            </div>
-          </Link>
-          {/* Pincode picker — visible on desktop */}
-          <div className="hidden sm:block shrink-0">
-            <PincodePicker />
+        {/* Left: Brand Logo & Title */}
+        <Link href="/" className="flex items-center gap-2.5 sm:gap-3 group shrink-0" aria-label="The Fashion Xpress Home">
+          <img
+            src="/logo.webp"
+            alt=""
+            aria-hidden="true"
+            width="48"
+            height="48"
+            className="h-11 w-11 sm:h-12 sm:w-12 object-contain rounded-xl shrink-0 group-hover:scale-105 transition-transform"
+          />
+          <div className="leading-tight shrink-0">
+            <span className="font-brand text-xs sm:text-sm xl:text-base font-bold uppercase tracking-[0.14em] sm:tracking-[0.18em] text-foreground block whitespace-nowrap">
+              The Fashion Xpress
+            </span>
           </div>
-        </div>
+        </Link>
 
-        {/* Desktop Links */}
-        <div className="hidden md:flex items-center gap-4 lg:gap-6 xl:gap-8 shrink-0">
+        {/* Center: Desktop Navigation Links (Properly Spaced & Single Line) */}
+        <div className="hidden lg:flex items-center gap-5 xl:gap-8">
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className={`text-xs xl:text-sm tracking-wider xl:tracking-widest uppercase font-medium whitespace-nowrap shrink-0 transition-colors ${
+              className={`text-xs xl:text-sm tracking-wider xl:tracking-widest uppercase font-medium whitespace-nowrap transition-colors ${
                 location === link.href ? 'text-primary font-bold' : 'text-muted-foreground hover:text-primary'
               }`}
             >
@@ -101,8 +95,10 @@ export function CustomerNavbar() {
           ))}
         </div>
 
-        {/* Desktop Actions */}
-        <div className="hidden md:flex items-center gap-2 xl:gap-3 shrink-0">
+        {/* Right: Location Selector + Action Icons + Sign In */}
+        <div className="hidden md:flex items-center gap-2.5 lg:gap-3.5 shrink-0">
+          {/* Pincode / Location Badge */}
+          <PincodePicker />
           {/* Theme toggle */}
           <button
             onClick={toggleTheme}
@@ -214,6 +210,11 @@ export function CustomerNavbar() {
       {/* Mobile Drawer Menu */}
       {isMobileMenuOpen && (
         <div className="md:hidden bg-background border-b border-border px-6 py-5 flex flex-col gap-4 shadow-2xl">
+          {/* Location Selector in Mobile Menu */}
+          <div className="pb-3 border-b border-border">
+            <PincodePicker />
+          </div>
+
           {navLinks.map((link) => (
             <Link key={link.href} href={link.href} className={`text-sm tracking-widest uppercase font-medium block ${location === link.href ? 'text-primary font-bold' : 'text-foreground'}`} onClick={() => setIsMobileMenuOpen(false)}>
               {link.label}
