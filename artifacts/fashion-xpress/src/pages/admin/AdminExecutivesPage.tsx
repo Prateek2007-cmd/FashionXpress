@@ -202,7 +202,8 @@ export function AdminExecutivesPage() {
                 <tr>
                   <th className="p-4 pl-6">Executive Name</th>
                   <th className="p-4">Login Email & Phone</th>
-                  <th className="p-4 text-center">Active Leads</th>
+                  <th className="p-4 text-center">Pending Leads</th>
+                  <th className="p-4 text-center">Completed Leads</th>
                   <th className="p-4 text-center">Rating</th>
                   <th className="p-4 pr-6 text-right">Actions</th>
                 </tr>
@@ -210,6 +211,8 @@ export function AdminExecutivesPage() {
               <tbody className="divide-y divide-border">
                 {executives?.map((exec: any) => {
                   const isEditing = editingId === exec.id;
+                  const pendingCount = exec.pendingLeads ?? exec.activeBookings ?? 0;
+                  const completedCount = exec.completedLeads ?? 0;
 
                   if (isEditing) {
                     return (
@@ -233,7 +236,8 @@ export function AdminExecutivesPage() {
                             className="h-8 text-xs bg-background"
                           />
                         </td>
-                        <td className="p-4 text-center font-mono text-xs">{exec.activeBookings}</td>
+                        <td className="p-4 text-center font-mono text-xs">{pendingCount}</td>
+                        <td className="p-4 text-center font-mono text-xs">{completedCount}</td>
                         <td className="p-4 text-center font-bold text-xs">{exec.rating}</td>
                         <td className="p-4 pr-6 text-right space-x-1">
                           <Button
@@ -280,11 +284,25 @@ export function AdminExecutivesPage() {
                         </div>
                       </td>
 
+                      {/* Pending Leads */}
                       <td className="p-4 text-center">
                         <span className={`px-2.5 py-1 rounded-full text-xs font-mono font-bold ${
-                          exec.activeBookings > 0 ? 'bg-primary/10 text-primary border border-primary/20' : 'bg-muted text-muted-foreground'
+                          pendingCount > 0
+                            ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+                            : 'bg-muted text-muted-foreground'
                         }`}>
-                          {exec.activeBookings} leads
+                          {pendingCount} pending
+                        </span>
+                      </td>
+
+                      {/* Completed Leads */}
+                      <td className="p-4 text-center">
+                        <span className={`px-2.5 py-1 rounded-full text-xs font-mono font-bold ${
+                          completedCount > 0
+                            ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                            : 'bg-muted text-muted-foreground'
+                        }`}>
+                          {completedCount} completed
                         </span>
                       </td>
 

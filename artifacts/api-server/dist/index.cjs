@@ -89520,6 +89520,8 @@ var ListExecutivesResponseItem = objectType({
   "photoUrl": stringType().nullish(),
   "rating": numberType(),
   "activeBookings": numberType(),
+  "pendingLeads": numberType().optional(),
+  "completedLeads": numberType().optional(),
   "createdAt": coerce.date()
 });
 var ListExecutivesResponse = arrayType(ListExecutivesResponseItem);
@@ -93144,17 +93146,26 @@ router8.get(
   requireAuth("admin"),
   async (_req, res) => {
     const rows = await db.select({ executive: executivesTable, user: usersTable }).from(executivesTable).innerJoin(usersTable, eq(executivesTable.userId, usersTable.id));
-    const activeCounts = await db.select({ executiveId: bookingsTable.executiveId }).from(bookingsTable).where(
+    const pendingCounts = await db.select({ executiveId: bookingsTable.executiveId }).from(bookingsTable).where(
       inArray(bookingsTable.status, [
         "executive_assigned",
+        "en_route",
+        "arrived",
         "in_progress",
-        "confirmed"
+        "confirmed",
+        "pending"
       ])
     );
-    const activeMap = /* @__PURE__ */ new Map();
-    for (const row of activeCounts) {
+    const pendingMap = /* @__PURE__ */ new Map();
+    for (const row of pendingCounts) {
       if (row.executiveId === null) continue;
-      activeMap.set(row.executiveId, (activeMap.get(row.executiveId) ?? 0) + 1);
+      pendingMap.set(row.executiveId, (pendingMap.get(row.executiveId) ?? 0) + 1);
+    }
+    const completedCounts = await db.select({ executiveId: bookingsTable.executiveId }).from(bookingsTable).where(eq(bookingsTable.status, "completed"));
+    const completedMap = /* @__PURE__ */ new Map();
+    for (const row of completedCounts) {
+      if (row.executiveId === null) continue;
+      completedMap.set(row.executiveId, (completedMap.get(row.executiveId) ?? 0) + 1);
     }
     res.json(
       ListExecutivesResponse.parse(
@@ -93166,7 +93177,9 @@ router8.get(
           email: user.email,
           photoUrl: executive.photoUrl,
           rating: parseFloat(executive.rating),
-          activeBookings: activeMap.get(executive.id) ?? 0,
+          activeBookings: pendingMap.get(executive.id) ?? 0,
+          pendingLeads: pendingMap.get(executive.id) ?? 0,
+          completedLeads: completedMap.get(executive.id) ?? 0,
           createdAt: executive.createdAt
         }))
       )

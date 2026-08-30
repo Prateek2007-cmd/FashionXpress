@@ -1480,6 +1480,8 @@ export const ListExecutivesResponseItem = zod.object({
   "photoUrl": zod.string().nullish(),
   "rating": zod.number(),
   "activeBookings": zod.number(),
+  "pendingLeads": zod.number().optional(),
+  "completedLeads": zod.number().optional(),
   "createdAt": zod.coerce.date()
 })
 export const ListExecutivesResponse = zod.array(ListExecutivesResponseItem)

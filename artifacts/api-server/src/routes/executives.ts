@@ -34,20 +34,35 @@ router.get(
       .from(executivesTable)
       .innerJoin(usersTable, eq(executivesTable.userId, usersTable.id));
 
-    const activeCounts = await db
+    // Pending leads assigned to executive
+    const pendingCounts = await db
       .select({ executiveId: bookingsTable.executiveId })
       .from(bookingsTable)
       .where(
         inArray(bookingsTable.status, [
           "executive_assigned",
+          "en_route",
+          "arrived",
           "in_progress",
           "confirmed",
+          "pending",
         ]),
       );
-    const activeMap = new Map<number, number>();
-    for (const row of activeCounts) {
+    const pendingMap = new Map<number, number>();
+    for (const row of pendingCounts) {
       if (row.executiveId === null) continue;
-      activeMap.set(row.executiveId, (activeMap.get(row.executiveId) ?? 0) + 1);
+      pendingMap.set(row.executiveId, (pendingMap.get(row.executiveId) ?? 0) + 1);
+    }
+
+    // Completed leads for executive
+    const completedCounts = await db
+      .select({ executiveId: bookingsTable.executiveId })
+      .from(bookingsTable)
+      .where(eq(bookingsTable.status, "completed"));
+    const completedMap = new Map<number, number>();
+    for (const row of completedCounts) {
+      if (row.executiveId === null) continue;
+      completedMap.set(row.executiveId, (completedMap.get(row.executiveId) ?? 0) + 1);
     }
 
     res.json(
@@ -60,7 +75,9 @@ router.get(
           email: user.email,
           photoUrl: executive.photoUrl,
           rating: parseFloat(executive.rating),
-          activeBookings: activeMap.get(executive.id) ?? 0,
+          activeBookings: pendingMap.get(executive.id) ?? 0,
+          pendingLeads: pendingMap.get(executive.id) ?? 0,
+          completedLeads: completedMap.get(executive.id) ?? 0,
           createdAt: executive.createdAt,
         })),
       ),

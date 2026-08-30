@@ -16,5 +16,7 @@ export interface Executive {
   photoUrl?: string | null;
   rating: number;
   activeBookings: number;
+  pendingLeads?: number;
+  completedLeads?: number;
   createdAt: Date;
 }
