@@ -399,6 +399,55 @@ router.get(
   }
 );
 
+router.post(
+  "/admin/brands",
+  requireAuth("admin"),
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { name, commissionRate } = req.body;
+      if (!name || !name.trim()) {
+        res.status(400).json({ error: "Brand name is required" });
+        return;
+      }
+      const rate = parseFloat(commissionRate || "10");
+      const slug = name.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+
+      const [brand] = await db
+        .insert(brandsTable)
+        .values({
+          name: name.trim(),
+          slug,
+          commissionRate: rate.toFixed(2),
+        })
+        .returning();
+
+      res.status(201).json(brand);
+    } catch (err: any) {
+      console.error("POST /admin/brands error:", err);
+      res.status(500).json({ error: "Failed to create brand" });
+    }
+  }
+);
+
+router.delete(
+  "/admin/brands/:id",
+  requireAuth("admin"),
+  async (req: Request, res: Response): Promise<void> => {
+    const id = Number(req.params.id);
+    if (!id || isNaN(id)) {
+      res.status(400).json({ error: "Invalid brand ID" });
+      return;
+    }
+    try {
+      await db.delete(brandsTable).where(eq(brandsTable.id, id));
+      res.json({ success: true });
+    } catch (err: any) {
+      console.error("DELETE /admin/brands/:id error:", err);
+      res.status(500).json({ error: "Failed to delete brand" });
+    }
+  }
+);
+
 router.patch(
   "/admin/brands/:id/commission",
   requireAuth("admin"),
