@@ -64,39 +64,45 @@ export function CustomerNavbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between gap-3">
 
         {/* Logo + Pincode Picker */}
-        <div className="flex items-center gap-3 sm:gap-4 min-w-0">
-        <Link href="/" className="flex items-center gap-2.5 sm:gap-3 group" aria-label="The Fashion Xpress Home">
-          <img
-            src="/logo.webp"
-            alt=""
-            aria-hidden="true"
-            width="48"
-            height="48"
-            className="h-11 w-11 sm:h-12 sm:w-12 object-contain rounded-xl shrink-0 group-hover:scale-105 transition-transform"
-          />
-          <div className="leading-tight">
-            <span className="font-brand text-xs sm:text-base font-bold uppercase tracking-[0.14em] sm:tracking-[0.18em] text-foreground block">
-              The Fashion Xpress
-            </span>
-          </div>
-        </Link>
+        <div className="flex items-center gap-3 sm:gap-4 shrink-0">
+          <Link href="/" className="flex items-center gap-2.5 sm:gap-3 group shrink-0" aria-label="The Fashion Xpress Home">
+            <img
+              src="/logo.webp"
+              alt=""
+              aria-hidden="true"
+              width="48"
+              height="48"
+              className="h-11 w-11 sm:h-12 sm:w-12 object-contain rounded-xl shrink-0 group-hover:scale-105 transition-transform"
+            />
+            <div className="leading-tight shrink-0">
+              <span className="font-brand text-xs sm:text-sm xl:text-base font-bold uppercase tracking-[0.12em] sm:tracking-[0.16em] text-foreground block whitespace-nowrap">
+                The Fashion Xpress
+              </span>
+            </div>
+          </Link>
           {/* Pincode picker — visible on desktop */}
-          <div className="hidden sm:block">
+          <div className="hidden sm:block shrink-0">
             <PincodePicker />
           </div>
         </div>
 
         {/* Desktop Links */}
-        <div className="hidden md:flex items-center gap-8">
+        <div className="hidden md:flex items-center gap-4 lg:gap-6 xl:gap-8 shrink-0">
           {navLinks.map((link) => (
-            <Link key={link.href} href={link.href} className={`text-sm tracking-widest uppercase font-medium transition-colors ${location === link.href ? 'text-primary font-bold' : 'text-muted-foreground hover:text-primary'}`}>
+            <Link
+              key={link.href}
+              href={link.href}
+              className={`text-xs xl:text-sm tracking-wider xl:tracking-widest uppercase font-medium whitespace-nowrap shrink-0 transition-colors ${
+                location === link.href ? 'text-primary font-bold' : 'text-muted-foreground hover:text-primary'
+              }`}
+            >
               {link.label}
             </Link>
           ))}
         </div>
 
         {/* Desktop Actions */}
-        <div className="hidden md:flex items-center gap-3">
+        <div className="hidden md:flex items-center gap-2 xl:gap-3 shrink-0">
           {/* Theme toggle */}
           <button
             onClick={toggleTheme}
