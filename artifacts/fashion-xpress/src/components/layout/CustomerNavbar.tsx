@@ -61,7 +61,7 @@ export function CustomerNavbar() {
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 glass">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between gap-4">
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-10 h-20 flex items-center justify-between gap-3 lg:gap-6">
 
         {/* Left: Brand Logo & Title */}
         <Link href="/" className="flex items-center gap-2.5 sm:gap-3 group shrink-0" aria-label="The Fashion Xpress Home">
@@ -81,12 +81,12 @@ export function CustomerNavbar() {
         </Link>
 
         {/* Center: Desktop Navigation Links (Properly Spaced & Single Line) */}
-        <div className="hidden lg:flex items-center gap-5 xl:gap-8">
+        <div className="hidden lg:flex items-center gap-4 xl:gap-7 shrink-0">
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className={`text-xs xl:text-sm tracking-wider xl:tracking-widest uppercase font-medium whitespace-nowrap transition-colors ${
+              className={`text-xs xl:text-[13px] tracking-wider xl:tracking-widest uppercase font-medium whitespace-nowrap transition-colors ${
                 location === link.href ? 'text-primary font-bold' : 'text-muted-foreground hover:text-primary'
               }`}
             >
@@ -96,7 +96,7 @@ export function CustomerNavbar() {
         </div>
 
         {/* Right: Location Selector + Action Icons + Sign In */}
-        <div className="hidden md:flex items-center gap-2.5 lg:gap-3.5 shrink-0">
+        <div className="hidden md:flex items-center gap-2 lg:gap-2.5 xl:gap-3 shrink-0">
           {/* Pincode / Location Badge */}
           <PincodePicker />
           {/* Theme toggle */}
@@ -156,8 +156,10 @@ export function CustomerNavbar() {
               </Button>
             </>
           ) : (
-            <Link href="/login">
-              <Button variant="outline" className="uppercase tracking-widest text-xs">Sign In</Button>
+            <Link href="/login" className="shrink-0">
+              <Button variant="outline" className="uppercase tracking-wider text-xs px-4 h-9 font-semibold whitespace-nowrap">
+                Sign In
+              </Button>
             </Link>
           )}
         </div>
