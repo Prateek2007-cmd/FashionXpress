@@ -94,7 +94,7 @@ export function RegisterPage() {
         {/* Brand Header */}
         <div className="text-center space-y-3">
           <div className="inline-flex items-center gap-3 bg-card border border-border p-2 px-4 rounded-2xl shadow-xl">
-            <img src="/logo.jpg" alt="TFX Logo" className="w-10 h-10 object-contain rounded-lg" />
+            <img src="/logo.webp" alt="TFX Logo" className="w-10 h-10 object-contain rounded-lg" />
             <span className="font-brand font-bold text-base uppercase tracking-[0.18em] text-foreground">
               The Fashion Xpress
             </span>

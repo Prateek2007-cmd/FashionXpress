@@ -10,7 +10,7 @@ export function CustomerFooter() {
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
         <div className="md:col-span-1">
           <Link href="/" className="flex items-center gap-3 mb-6" aria-label="The Fashion Xpress Home">
-            <img src="/logo.jpg" alt="" aria-hidden="true" className="h-14 w-auto object-contain" style={{ mixBlendMode: 'screen' }} />
+            <img src="/logo.webp" alt="" aria-hidden="true" width="56" height="56" className="h-14 w-auto object-contain" style={{ mixBlendMode: 'screen' }} />
             <span className="font-serif font-bold text-lg md:text-xl tracking-widest uppercase text-white">THE FASHION XPRESS</span>
           </Link>
           <p className="text-muted-foreground text-sm leading-relaxed mb-6">

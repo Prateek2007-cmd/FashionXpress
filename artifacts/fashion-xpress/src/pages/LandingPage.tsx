@@ -55,16 +55,21 @@ export function LandingPage() {
       {/* ── HERO SECTION ── */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
 
-        {/* Background image — LCP element: stable URL, eager, high priority */}
+        {/* Background image — LCP element: WebP with JPG fallback, eager, high priority */}
         <div className="absolute inset-0 z-0">
-          <img
-            src="/hero.jpg"
-            alt="Luxury home fashion"
-            className="w-full h-full object-cover opacity-30"
-            fetchpriority="high"
-            loading="eager"
-            decoding="sync"
-          />
+          <picture>
+            <source srcSet="/hero.webp" type="image/webp" />
+            <img
+              src="/hero.jpg"
+              alt="Luxury home fashion"
+              width="1024"
+              height="1024"
+              className="w-full h-full object-cover opacity-30"
+              fetchpriority="high"
+              loading="eager"
+              decoding="sync"
+            />
+          </picture>
           <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/50 to-background" />
           <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-transparent to-background/80" />
         </div>

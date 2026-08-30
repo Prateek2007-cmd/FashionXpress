@@ -34,7 +34,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       <header className="h-16 border-b border-white/5 bg-card/50 flex items-center justify-between px-4 md:hidden z-40 w-full shrink-0">
         <div className="flex items-center gap-2">
           <img
-            src="/logo.jpg"
+            src="/logo.webp"
             alt="The Fashion Xpress"
             className="h-9 w-9 object-contain rounded-lg shrink-0"
           />
@@ -64,7 +64,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
         <div className="h-20 flex items-center justify-between px-5 border-b border-white/5 shrink-0">
           <div className="flex items-center gap-3">
             <img
-              src="/logo.jpg"
+              src="/logo.webp"
               alt="The Fashion Xpress"
               className="h-11 w-11 object-contain rounded-xl shrink-0"
             />
