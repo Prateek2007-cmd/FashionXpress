@@ -12,6 +12,7 @@ import {
   cartItemsTable,
   orderItemsTable,
   bookingProductsTable,
+  merchantPincodesTable,
 } from "@workspace/db";
 import {
   ListCategoriesResponse,
@@ -144,6 +145,23 @@ router.get("/products", async (req: Request, res: Response): Promise<void> => {
     conditions.push(sql`${size} = ANY(${productsTable.sizes})`);
   if (merchantId)
     conditions.push(eq(productsTable.merchantId, merchantId));
+
+  // Pincode filter: only show products from merchants who serve this pincode
+  const { pincode } = req.query as { pincode?: string };
+  if (pincode && pincode.trim()) {
+    const merchantsInPincode = await db
+      .select({ merchantId: merchantPincodesTable.merchantId })
+      .from(merchantPincodesTable)
+      .where(eq(merchantPincodesTable.pincode, pincode.trim()));
+    const ids = merchantsInPincode.map((m) => m.merchantId);
+    if (ids.length > 0) {
+      conditions.push(sql`${productsTable.merchantId} = ANY(ARRAY[${sql.join(ids.map(id => sql`${id}`), sql`, `)}]::int[])`);
+    } else {
+      // No merchants in this pincode — return empty
+      res.json({ items: [], total: 0, page, limit });
+      return;
+    }
+  }
 
   const where = conditions.length > 0 ? and(...conditions) : undefined;
 

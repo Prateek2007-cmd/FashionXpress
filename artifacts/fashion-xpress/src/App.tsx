@@ -5,6 +5,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { AuthProvider } from '@/context/AuthContext';
 import { ThemeProvider } from '@/context/ThemeContext';
+import { PincodeProvider } from '@/context/PincodeContext';
 import './setup-fetch';
 
 // ── Always-loaded (critical layouts + not-found) ─────────────────────────────
@@ -43,6 +44,7 @@ const AdminPartnersPage          = lazy(() => import('./pages/admin/AdminPartner
 const AdminContentPage           = lazy(() => import('./pages/admin/AdminContentPage').then(m => ({ default: m.AdminContentPage })));
 const AdminOrdersPage            = lazy(() => import('./pages/admin/AdminOrdersPage').then(m => ({ default: m.AdminOrdersPage })));
 const AdminBrandsCommissionPage  = lazy(() => import('./pages/admin/AdminBrandsCommissionPage').then(m => ({ default: m.AdminBrandsCommissionPage })));
+const AdminPincodesPage          = lazy(() => import('./pages/admin/AdminPincodesPage').then(m => ({ default: m.AdminPincodesPage })));
 
 // Executive & merchant pages
 const ExecutiveVisits    = lazy(() => import('./pages/executive/ExecutiveVisits').then(m => ({ default: m.ExecutiveVisits })));
@@ -125,6 +127,7 @@ function AdminRoutes() {
           <Route path="/admin/products" component={AdminProductsPage} />
           <Route path="/admin/orders" component={AdminOrdersPage} />
           <Route path="/admin/brands" component={AdminBrandsCommissionPage} />
+          <Route path="/admin/pincodes" component={AdminPincodesPage} />
           <Route component={NotFound} />
         </Switch>
       </Suspense>
@@ -183,13 +186,15 @@ function App() {
     <ThemeProvider>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <TooltipProvider>
-            <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
-              <ScrollToTop />
-              <AppRouter />
-            </WouterRouter>
-            <Toaster />
-          </TooltipProvider>
+          <PincodeProvider>
+            <TooltipProvider>
+              <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
+                <ScrollToTop />
+                <AppRouter />
+              </WouterRouter>
+              <Toaster />
+            </TooltipProvider>
+          </PincodeProvider>
         </AuthProvider>
       </QueryClientProvider>
     </ThemeProvider>

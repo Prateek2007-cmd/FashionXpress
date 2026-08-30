@@ -11,6 +11,8 @@ export const usersTable = pgTable("users", {
   role: text("role", { enum: ["customer", "admin", "executive", "merchant"] })
     .notNull()
     .default("customer"),
+  pincode: text("pincode"),
+  address: text("address"),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),

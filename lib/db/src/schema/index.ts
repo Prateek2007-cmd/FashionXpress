@@ -8,3 +8,4 @@ export * from "./notifications";
 export * from "./orders";
 export * from "./cms";
 export * from "./partners";
+export * from "./pincodes";

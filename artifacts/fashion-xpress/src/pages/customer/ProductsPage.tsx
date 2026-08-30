@@ -5,6 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/context/AuthContext';
+import { usePincode } from '@/context/PincodeContext';
+import { PincodePicker } from '@/components/PincodePicker';
+import { MapPin } from 'lucide-react';
 import {
   Search, Loader2, Heart, ShoppingBag, Sparkles, SlidersHorizontal,
   Flame, Tag, Palette, Star, X, ChevronDown, LayoutGrid, Grid3x3, Grid2x2, List, RefreshCw
@@ -21,6 +24,7 @@ const getDiscountPercent = (mrp?: number, sellingPrice?: number) => {
 };
 
 export function ProductsPage() {
+  const { selectedPincode, selectedPincodeInfo } = usePincode();
   const [search, setSearch] = useState('');
   const [categoryId, setCategoryId] = useState<number | undefined>(undefined);
   const [brandId, setBrandId] = useState<number | undefined>(undefined);
@@ -68,6 +72,7 @@ export function ProductsPage() {
     if (brandId) params.append('brandId', brandId.toString());
     if (color) params.append('color', color);
     if (occasion) params.append('occasion', occasion);
+    if (selectedPincode) params.append('pincode', selectedPincode);
     params.append('limit', '100');
 
     const url = `${RENDER_API}/api/products?${params.toString()}`;
@@ -97,7 +102,7 @@ export function ProductsPage() {
 
   useEffect(() => {
     fetchProducts();
-  }, [search, categoryId, brandId, color, occasion]);
+  }, [search, categoryId, brandId, color, occasion, selectedPincode]);
 
   // Sync URL search params on mount
   useEffect(() => {
@@ -240,6 +245,24 @@ export function ProductsPage() {
               </p>
             </>
           )}
+          {/* Location / Pincode banner */}
+          <div className="flex items-center justify-center gap-3 mt-6">
+            <div className="flex items-center gap-2 px-4 py-2 bg-card/60 backdrop-blur border border-border rounded-full text-sm">
+              <MapPin className="w-4 h-4 text-primary shrink-0" />
+              {selectedPincodeInfo ? (
+                <span className="text-foreground">
+                  Showing products for <strong className="text-primary">{selectedPincodeInfo.pincode}</strong> — {selectedPincodeInfo.area}, {selectedPincodeInfo.city}
+                </span>
+              ) : selectedPincode ? (
+                <span className="text-foreground">
+                  Showing products for pincode <strong className="text-primary">{selectedPincode}</strong>
+                </span>
+              ) : (
+                <span className="text-muted-foreground">Showing all available products</span>
+              )}
+            </div>
+            <PincodePicker />
+          </div>
 
           {/* Quick stat strip */}
           <div className="flex items-center justify-center gap-6 mt-8 flex-wrap">

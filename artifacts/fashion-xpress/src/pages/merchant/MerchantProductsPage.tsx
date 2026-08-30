@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useListProducts, useListCategories, useListBrands } from '@workspace/api-client-react';
 import { useQueryClient } from '@tanstack/react-query';
-import { Plus, Trash2, Loader2, Upload, X, Image as ImageIcon, Pencil, Camera } from 'lucide-react';
+import { Plus, Trash2, Loader2, Upload, X, Image as ImageIcon, Pencil, Camera, MapPin, Check } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/context/AuthContext';
 
@@ -80,6 +80,49 @@ export function MerchantProductsPage() {
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [isAdding, setIsAdding] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [activeTab, setActiveTab] = useState<'products' | 'pincodes'>('products');
+
+  // Pincode management state
+  const [allPincodes, setAllPincodes] = useState<{id:number;pincode:string;area:string;city:string;isActive:boolean}[]>([]);
+  const [myPincodes, setMyPincodes] = useState<string[]>([]);
+  const [pincodesLoading, setPincodesLoading] = useState(false);
+  const [pincodesSaving, setPincodesSaving] = useState(false);
+
+  // Fetch pincodes when tab opens
+  React.useEffect(() => {
+    if (activeTab !== 'pincodes') return;
+    setPincodesLoading(true);
+    const headers = { Authorization: `Bearer ${token}` };
+    Promise.all([
+      fetch(`${API_BASE}/api/pincodes`).then(r => r.json()),
+      fetch(`${API_BASE}/api/merchants/my-pincodes`, { headers }).then(r => r.json()),
+    ]).then(([all, mine]) => {
+      setAllPincodes(Array.isArray(all) ? all : []);
+      setMyPincodes(Array.isArray(mine) ? mine : []);
+    }).catch(() => {}).finally(() => setPincodesLoading(false));
+  }, [activeTab]);
+
+  const savePincodes = async () => {
+    setPincodesSaving(true);
+    try {
+      const res = await fetch(`${API_BASE}/api/merchants/my-pincodes`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ pincodes: myPincodes }),
+      });
+      if (!res.ok) throw new Error('Failed to save');
+      toast({ title: 'Service areas saved!', description: `You now serve ${myPincodes.length} pincode(s)` });
+    } catch {
+      toast({ title: 'Failed to save pincodes', variant: 'destructive' });
+    } finally { setPincodesSaving(false); }
+  };
+
+  const toggleMyPincode = (pincode: string) => {
+    setMyPincodes(prev =>
+      prev.includes(pincode) ? prev.filter(p => p !== pincode) : [...prev, pincode]
+    );
+  };
+
   const [uploadedImageUrls, setUploadedImageUrls] = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [formData, setFormData] = useState({
@@ -410,18 +453,102 @@ export function MerchantProductsPage() {
     <div className="p-8 max-w-7xl mx-auto">
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="font-serif text-3xl text-white mb-1">My Dresses</h1>
-          <p className="text-muted-foreground text-sm tracking-widest uppercase">Upload and manage your collection</p>
+          <h1 className="font-serif text-3xl text-white mb-1">My Dashboard</h1>
+          <p className="text-muted-foreground text-sm tracking-widest uppercase">Manage your collection and service areas</p>
         </div>
-        <button
-          onClick={handleOpenAdd}
-          className="bg-primary text-primary-foreground px-5 py-2.5 rounded-md flex items-center gap-2 text-sm font-medium hover:bg-primary/90 transition-colors"
-        >
-          <Plus className="w-4 h-4" /> Add Dress
-        </button>
+        {activeTab === 'products' && (
+          <button
+            onClick={handleOpenAdd}
+            className="bg-primary text-primary-foreground px-5 py-2.5 rounded-md flex items-center gap-2 text-sm font-medium hover:bg-primary/90 transition-colors"
+          >
+            <Plus className="w-4 h-4" /> Add Dress
+          </button>
+        )}
       </div>
 
-      {isAdding && (
+      {/* Tab Navigation */}
+      <div className="flex gap-1 mb-8 bg-card/40 border border-white/10 p-1 rounded-xl w-fit">
+        {([['products', 'My Dresses'], ['pincodes', 'My Service Areas']] as const).map(([tab, label]) => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+              activeTab === tab
+                ? 'bg-primary text-primary-foreground shadow'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            {tab === 'pincodes' && <MapPin className="w-4 h-4" />}
+            {label}
+            {tab === 'pincodes' && myPincodes.length > 0 && (
+              <span className="bg-primary-foreground/20 text-primary-foreground text-xs px-1.5 py-0.5 rounded-full">{myPincodes.length}</span>
+            )}
+          </button>
+        ))}
+      </div>
+
+      {/* Pincodes Tab */}
+      {activeTab === 'pincodes' && (
+        <div className="bg-card border border-white/10 rounded-xl p-6 mb-8">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="font-serif text-xl text-white flex items-center gap-2"><MapPin className="w-5 h-5 text-primary" /> My Service Areas</h2>
+              <p className="text-muted-foreground text-sm mt-1">Select which pincodes you can deliver fashion to. Only your products will show for customers in these areas.</p>
+            </div>
+            <button
+              onClick={savePincodes}
+              disabled={pincodesSaving}
+              className="bg-primary text-primary-foreground px-5 py-2.5 rounded-md flex items-center gap-2 text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
+            >
+              {pincodesSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+              Save Areas
+            </button>
+          </div>
+          {pincodesLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="w-6 h-6 animate-spin text-primary" />
+            </div>
+          ) : allPincodes.length === 0 ? (
+            <div className="text-center py-12 text-muted-foreground">
+              <MapPin className="w-10 h-10 mx-auto mb-3 opacity-30" />
+              <p>No service areas added by admin yet.</p>
+              <p className="text-xs mt-1">Ask your admin to add pincodes in the Admin Panel.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+              {allPincodes.map((p) => {
+                const selected = myPincodes.includes(p.pincode);
+                return (
+                  <button
+                    key={p.id}
+                    onClick={() => toggleMyPincode(p.pincode)}
+                    className={`flex items-center gap-3 p-3 rounded-xl border text-left transition-all ${
+                      selected
+                        ? 'border-primary bg-primary/10 text-foreground'
+                        : 'border-white/10 bg-card/60 text-muted-foreground hover:border-white/30'
+                    }`}
+                  >
+                    <div className={`w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 ${
+                      selected ? 'border-primary bg-primary' : 'border-white/30'
+                    }`}>
+                      {selected && <Check className="w-3 h-3 text-primary-foreground" />}
+                    </div>
+                    <div>
+                      <div className="font-mono font-bold text-sm">{p.pincode}</div>
+                      <div className="text-xs opacity-70">{p.area}, {p.city}</div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Products Tab */}
+      {activeTab === 'products' && (
+        <>
+        {isAdding && (
         <div className="bg-card border border-white/5 rounded-xl p-6 mb-8">
           <h2 className="font-serif text-xl text-white mb-6">Add New Dress</h2>
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -1043,6 +1170,8 @@ export function MerchantProductsPage() {
             </form>
           </div>
         </div>
+      )}
+      </>
       )}
     </div>
   );

@@ -3,7 +3,7 @@ import { Link, useLocation } from 'wouter';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { ShieldCheck, Sparkles, User, Mail, Phone, Lock, Eye, EyeOff, CheckCircle2, Loader2, AlertCircle, ArrowRight, LogIn } from 'lucide-react';
+import { ShieldCheck, Sparkles, User, Mail, Phone, Lock, Eye, EyeOff, CheckCircle2, Loader2, AlertCircle, ArrowRight, LogIn, MapPin, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/context/AuthContext';
@@ -15,6 +15,8 @@ const registerSchema = z.object({
   name: z.string().min(2, 'Name is required'),
   email: z.string().email('Please enter a valid email address'),
   phone: z.string().min(10, 'Valid 10-digit phone number is required'),
+  pincode: z.string().min(6, 'Valid 6-digit pincode is required').max(6, 'Valid 6-digit pincode is required'),
+  address: z.string().min(5, 'Delivery address is required'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
 });
 
@@ -202,6 +204,43 @@ export function RegisterPage() {
                 className={`h-12 rounded-xl bg-background border-border text-foreground placeholder:text-muted-foreground/50 focus:border-primary/50 ${errors.phone ? 'border-destructive' : ''}`}
               />
               {errors.phone && <p className="text-xs text-destructive">{errors.phone.message}</p>}
+            </div>
+
+            {/* Pincode & City Area */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-foreground/80 uppercase tracking-wider flex items-center gap-1.5">
+                <MapPin className="w-3.5 h-3.5 text-primary" /> Delivery Pincode
+              </label>
+              <Input
+                type="text"
+                placeholder="e.g. 504001"
+                {...register('pincode')}
+                inputMode="numeric"
+                maxLength={6}
+                onChange={(e) => {
+                  const digits = e.target.value.replace(/\D/g, '').slice(0, 6);
+                  e.target.value = digits;
+                  register('pincode').onChange(e);
+                  setErrorMsg(null);
+                }}
+                className={`h-12 rounded-xl font-mono tracking-wider bg-background border-border text-foreground placeholder:text-muted-foreground/50 focus:border-primary/50 ${errors.pincode ? 'border-destructive' : ''}`}
+              />
+              {errors.pincode && <p className="text-xs text-destructive">{errors.pincode.message}</p>}
+            </div>
+
+            {/* Complete Address */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-foreground/80 uppercase tracking-wider flex items-center gap-1.5">
+                <Home className="w-3.5 h-3.5 text-primary" /> Delivery Address (House/Flat No, Area, City)
+              </label>
+              <Input
+                type="text"
+                placeholder="e.g. Flat 302, Green Valley Apts, Adilabad"
+                {...register('address')}
+                className={`h-12 rounded-xl bg-background border-border text-foreground placeholder:text-muted-foreground/50 focus:border-primary/50 ${errors.address ? 'border-destructive' : ''}`}
+                onChange={() => setErrorMsg(null)}
+              />
+              {errors.address && <p className="text-xs text-destructive">{errors.address.message}</p>}
             </div>
 
             {/* Password */}

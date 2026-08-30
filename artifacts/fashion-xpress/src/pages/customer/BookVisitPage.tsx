@@ -9,6 +9,7 @@ import {
   Zap, Award, ChevronRight, MessageCircle
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { usePincode } from '@/context/PincodeContext';
 import { useLocation } from 'wouter';
 
 const RENDER_API = 'https://fashionxpress.onrender.com';
@@ -53,6 +54,7 @@ const STEPS_INFO = [
 
 export function BookVisitPage() {
   const { isAuthenticated, token, user } = useAuth();
+  const { selectedPincode, selectedPincodeInfo } = usePincode();
   const [successCode, setSuccessCode] = useState<string | null>(null);
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -70,10 +72,19 @@ export function BookVisitPage() {
 
   useEffect(() => {
     if (user) {
-      setName(user.name || '');
-      setPhone(user.phone || '');
+      if (user.name) setName(user.name);
+      if (user.phone) setPhone(user.phone);
+      const userAddr = (user as any)?.address;
+      const userPin = (user as any)?.pincode || selectedPincode;
+      if (userAddr) {
+        setAddressText(userPin && !userAddr.includes(userPin) ? `${userAddr} - ${userPin}` : userAddr);
+      } else if (userPin) {
+        setAddressText(prev => prev || `Pincode: ${userPin}`);
+      }
+    } else if (selectedPincode) {
+      setAddressText(prev => prev || (selectedPincodeInfo ? `${selectedPincodeInfo.area}, ${selectedPincodeInfo.city} - ${selectedPincode}` : `Pincode: ${selectedPincode}`));
     }
-  }, [user]);
+  }, [user, selectedPincode, selectedPincodeInfo]);
 
   useEffect(() => {
     let timer: NodeJS.Timeout | number | undefined;
@@ -401,9 +412,16 @@ export function BookVisitPage() {
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-xs text-muted-foreground uppercase tracking-widest font-semibold flex items-center gap-1.5">
-                      <MapPin className="w-3.5 h-3.5 text-primary" /> Full Address
-                    </label>
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs text-muted-foreground uppercase tracking-widest font-semibold flex items-center gap-1.5">
+                        <MapPin className="w-3.5 h-3.5 text-primary" /> Full Address
+                      </label>
+                      {((user as any)?.address || selectedPincode) && (
+                        <span className="text-[11px] text-emerald-400 font-medium flex items-center gap-1">
+                          <CheckCircle2 className="w-3 h-3" /> Auto-filled from profile/location
+                        </span>
+                      )}
+                    </div>
                     <Input
                       id="booking-address"
                       value={addressText}

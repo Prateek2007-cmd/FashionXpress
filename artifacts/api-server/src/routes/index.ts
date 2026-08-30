@@ -14,6 +14,7 @@ import partnersRouter from "./partners";
 import contentRouter from "./content";
 import uploadRouter from "./upload";
 import merchantsRouter from "./merchants";
+import pincodesRouter from "./pincodes";
 
 const router: IRouter = Router();
 
@@ -28,6 +29,7 @@ router.use(executivesRouter);
 router.use(notificationsRouter);
 router.use(adminRouter);
 router.use(ordersRouter);
+router.use(pincodesRouter);
 router.use(partnersRouter);
 router.use(contentRouter);
 router.use(uploadRouter);

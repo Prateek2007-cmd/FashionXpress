@@ -19,7 +19,7 @@ router.post("/auth/register", async (req: Request, res: Response): Promise<void>
     res.status(400).json({ error: parsed.error.message });
     return;
   }
-  const { name, email, password, phone } = parsed.data;
+  const { name, email, password, phone, pincode, address } = parsed.data;
 
   const normalizedEmail = email.trim().toLowerCase();
   const cleanPhoneDigits = phone ? phone.replace(/\D/g, "") : "";
@@ -78,6 +78,8 @@ router.post("/auth/register", async (req: Request, res: Response): Promise<void>
         phone: phone ? phone.trim() : null,
         passwordHash,
         role: "customer",
+        pincode: pincode?.trim() || null,
+        address: address?.trim() || null,
       })
       .returning();
     user = inserted;
@@ -96,19 +98,19 @@ router.post("/auth/register", async (req: Request, res: Response): Promise<void>
   }
 
   const token = signToken({ userId: user.id, role: "customer" });
-  res.status(201).json(
-    RegisterCustomerResponse.parse({
-      token,
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        phone: user.phone,
-        role: user.role,
-        createdAt: user.createdAt,
-      },
-    }),
-  );
+  res.status(201).json({
+    token,
+    user: {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      phone: user.phone,
+      role: user.role,
+      pincode: (user as any).pincode ?? null,
+      address: (user as any).address ?? null,
+      createdAt: user.createdAt,
+    },
+  });
 });
 
 router.post("/auth/login", async (req: Request, res: Response): Promise<void> => {
@@ -168,19 +170,19 @@ router.post("/auth/login", async (req: Request, res: Response): Promise<void> =>
   }
 
   const token = signToken({ userId: user.id, role: user.role as "customer" | "admin" | "executive" | "merchant" });
-  res.json(
-    LoginResponse.parse({
-      token,
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        phone: user.phone,
-        role: user.role,
-        createdAt: user.createdAt,
-      },
-    }),
-  );
+  res.json({
+    token,
+    user: {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      phone: user.phone,
+      role: user.role,
+      pincode: (user as any).pincode ?? null,
+      address: (user as any).address ?? null,
+      createdAt: user.createdAt,
+    },
+  });
 });
 
 router.post("/auth/reset-password", async (req: Request, res: Response): Promise<void> => {
@@ -242,6 +244,8 @@ router.post("/auth/reset-password", async (req: Request, res: Response): Promise
       name: user.name,
       phone: user.phone,
       role: user.role,
+      pincode: (user as any).pincode ?? null,
+      address: (user as any).address ?? null,
       createdAt: user.createdAt,
     },
   });
@@ -261,17 +265,53 @@ router.get(
       return;
     }
 
-    res.json(
-      GetCurrentUserResponse.parse({
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        phone: user.phone,
-        role: user.role,
-        createdAt: user.createdAt,
-      }),
-    );
+    res.json({
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      phone: user.phone,
+      role: user.role,
+      pincode: (user as any).pincode ?? null,
+      address: (user as any).address ?? null,
+      createdAt: user.createdAt,
+    });
   },
+);
+
+// ── Update profile (name, phone, pincode, address) ───────────────────────────
+router.put(
+  "/auth/profile",
+  requireAuth(),
+  async (req: AuthedRequest, res: Response): Promise<void> => {
+    try {
+      const userId = req.auth!.userId;
+      const { name, phone, pincode, address } = req.body;
+      const update: any = {};
+      if (name) update.name = name.trim();
+      if (phone !== undefined) update.phone = phone ? phone.trim() : null;
+      if (pincode !== undefined) update.pincode = pincode ? pincode.trim() : null;
+      if (address !== undefined) update.address = address ? address.trim() : null;
+
+      const [updated] = await db
+        .update(usersTable)
+        .set(update)
+        .where(eq(usersTable.id, userId))
+        .returning();
+
+      res.json({
+        id: updated.id,
+        email: updated.email,
+        name: updated.name,
+        phone: updated.phone,
+        role: updated.role,
+        pincode: (updated as any).pincode ?? null,
+        address: (updated as any).address ?? null,
+        createdAt: updated.createdAt,
+      });
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  }
 );
 
 export default router;

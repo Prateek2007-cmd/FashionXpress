@@ -4,6 +4,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
 import { User, LogOut, Heart, ShoppingBag, Menu, X, Sun, Moon, Sparkles } from 'lucide-react';
 import { Button } from '../ui/button';
+import { PincodePicker } from '@/components/PincodePicker';
 
 const RENDER_API = 'https://fashionxpress.onrender.com';
 
@@ -60,9 +61,10 @@ export function CustomerNavbar() {
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 glass">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between gap-3">
 
-        {/* Logo + Brand Name */}
+        {/* Logo + Pincode Picker */}
+        <div className="flex items-center gap-3 sm:gap-4 min-w-0">
         <Link href="/" className="flex items-center gap-2.5 sm:gap-3 group" aria-label="The Fashion Xpress Home">
           <img
             src="/logo.webp"
@@ -78,6 +80,11 @@ export function CustomerNavbar() {
             </span>
           </div>
         </Link>
+          {/* Pincode picker — visible on desktop */}
+          <div className="hidden sm:block">
+            <PincodePicker />
+          </div>
+        </div>
 
         {/* Desktop Links */}
         <div className="hidden md:flex items-center gap-8">
