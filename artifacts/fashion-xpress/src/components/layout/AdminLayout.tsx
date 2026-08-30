@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation, Redirect } from 'wouter';
-import { LayoutDashboard, Calendar, Users, Package, Settings, LogOut, ClipboardList, Menu, X, Sun, Moon, Trophy, MapPin } from 'lucide-react';
+import { LayoutDashboard, Calendar, Users, Package, Settings, LogOut, ClipboardList, Menu, X, Sun, Moon, Trophy, MapPin, UserCheck, Sparkles } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
 
@@ -18,6 +18,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     { label: 'Dashboard', href: '/admin', icon: LayoutDashboard },
     { label: 'Orders', href: '/admin/orders', icon: ClipboardList },
     { label: 'Bookings', href: '/admin/bookings', icon: Calendar },
+    { label: 'Executives', href: '/admin/executives', icon: UserCheck },
     { label: 'Customers', href: '/admin/customers', icon: Users },
     { label: 'Categories', href: '/admin/categories', icon: Package },
     { label: 'Products', href: '/admin/products', icon: Package },

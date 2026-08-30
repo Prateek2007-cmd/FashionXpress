@@ -2,12 +2,16 @@ import React, { useState } from 'react';
 import { useListExecutives, useCreateExecutive } from '@workspace/api-client-react';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { format } from 'date-fns';
-import { Loader2, UserPlus, Star, Pencil, Trash2, Check, X } from 'lucide-react';
+import {
+  Loader2, UserPlus, Star, Pencil, Trash2, Check, X, Shield,
+  KeyRound, UserCheck, ExternalLink, Phone, Mail, ClipboardList
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/context/AuthContext';
 import { getApiBaseUrl } from '@/lib/api-config';
+import { Link } from 'wouter';
 
 type ExecEditState = {
   name: string;
@@ -36,8 +40,6 @@ export function AdminExecutivesPage() {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number; data: Partial<ExecEditState> }) => {
-      console.log("API_BASE:", API_BASE);
-      console.log("Request URL:", `${API_BASE}/api/executives/${id}`);
       const res = await fetch(`${API_BASE}/api/executives/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
@@ -47,7 +49,7 @@ export function AdminExecutivesPage() {
       return res.json();
     },
     onSuccess: () => {
-      toast({ title: 'Success', description: 'Executive updated.' });
+      toast({ title: 'Success', description: 'Executive details updated.' });
       queryClient.invalidateQueries({ queryKey: ['/executives'] });
       setEditingId(null);
     },
@@ -58,8 +60,6 @@ export function AdminExecutivesPage() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
-      console.log("API_BASE:", API_BASE);
-      console.log("Request URL:", `${API_BASE}/api/executives/${id}`);
       const res = await fetch(`${API_BASE}/api/executives/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` },
@@ -68,7 +68,7 @@ export function AdminExecutivesPage() {
       return res.json();
     },
     onSuccess: () => {
-      toast({ title: 'Deleted', description: 'Executive removed.' });
+      toast({ title: 'Deleted', description: 'Executive account removed.' });
       queryClient.invalidateQueries({ queryKey: ['/executives'] });
       setDeletingId(null);
     },
@@ -86,7 +86,7 @@ export function AdminExecutivesPage() {
     e.preventDefault();
     createExecutive.mutate({ data: formData }, {
       onSuccess: () => {
-        toast({ title: 'Success', description: 'Executive account created.' });
+        toast({ title: '🎉 Executive Account Created!', description: `${formData.name} can now log in at /login with their credentials.` });
         queryClient.invalidateQueries({ queryKey: ['/executives'] });
         setIsAdding(false);
         setFormData({ name: '', email: '', phone: '', password: '', photoUrl: '' });
@@ -98,184 +98,226 @@ export function AdminExecutivesPage() {
   };
 
   return (
-    <div className="p-8 max-w-7xl mx-auto text-white">
-      <div className="flex justify-between items-center mb-8">
+    <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-8">
+      
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-border">
         <div>
-          <h1 className="text-3xl font-serif mb-2">Executives</h1>
-          <p className="text-muted-foreground">Manage your stylist and delivery team.</p>
+          <h1 className="text-2xl sm:text-3xl font-serif text-foreground mb-1">Style Executives</h1>
+          <p className="text-muted-foreground text-xs sm:text-sm tracking-widest uppercase">
+            Manage your doorstep styling team, credentials, and lead capacity.
+          </p>
         </div>
-        <Button onClick={() => setIsAdding(true)} className="gap-2">
-          <UserPlus className="w-4 h-4" /> Add Executive
-        </Button>
+        <div className="flex items-center gap-3">
+          <Button onClick={() => setIsAdding(true)} className="gap-2 bg-primary text-primary-foreground font-bold tracking-wider uppercase text-xs h-11 px-5 rounded-xl shadow-lg shadow-primary/20">
+            <UserPlus className="w-4 h-4" /> Add New Executive Login
+          </Button>
+        </div>
       </div>
 
+      {/* Add Executive Form Modal / Drawer */}
       {isAdding && (
-        <div className="bg-card/30 border border-white/10 rounded-xl p-6 mb-8">
-          <h2 className="text-xl font-serif mb-6 text-primary">Create New Executive Account</h2>
-          <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="text-xs uppercase tracking-wider text-muted-foreground">Full Name</label>
-              <Input required value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} className="bg-black/40 border-white/10" placeholder="e.g. Jane Doe" />
+        <div className="bg-card border border-primary/30 rounded-2xl p-6 shadow-xl space-y-6">
+          <div className="flex items-center justify-between pb-3 border-b border-border">
+            <h2 className="text-lg font-serif font-bold text-foreground flex items-center gap-2">
+              <KeyRound className="w-5 h-5 text-primary" /> Create New Executive Login Account
+            </h2>
+            <Button variant="ghost" size="sm" onClick={() => setIsAdding(false)} className="h-8 w-8 p-0">
+              <X className="w-4 h-4" />
+            </Button>
+          </div>
+
+          <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div className="space-y-1.5">
+              <label className="text-xs uppercase tracking-widest font-semibold text-muted-foreground">Full Name *</label>
+              <Input
+                required
+                value={formData.name}
+                onChange={e => setFormData({ ...formData, name: e.target.value })}
+                className="bg-background border-border"
+                placeholder="e.g. Sumair Khan"
+              />
             </div>
-            <div className="space-y-2">
-              <label className="text-xs uppercase tracking-wider text-muted-foreground">Email</label>
-              <Input required type="email" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} className="bg-black/40 border-white/10" placeholder="jane@fashionxpress.com" />
+
+            <div className="space-y-1.5">
+              <label className="text-xs uppercase tracking-widest font-semibold text-muted-foreground">Login Email *</label>
+              <Input
+                required
+                type="email"
+                value={formData.email}
+                onChange={e => setFormData({ ...formData, email: e.target.value })}
+                className="bg-background border-border"
+                placeholder="sumair@fashionxpress.com"
+              />
             </div>
-            <div className="space-y-2">
-              <label className="text-xs uppercase tracking-wider text-muted-foreground">Phone Number</label>
-              <Input required value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} className="bg-black/40 border-white/10" placeholder="+91 9876543210" />
+
+            <div className="space-y-1.5">
+              <label className="text-xs uppercase tracking-widest font-semibold text-muted-foreground">Phone Number *</label>
+              <Input
+                required
+                value={formData.phone}
+                onChange={e => setFormData({ ...formData, phone: e.target.value })}
+                className="bg-background border-border"
+                placeholder="9876543210"
+              />
             </div>
-            <div className="space-y-2">
-              <label className="text-xs uppercase tracking-wider text-muted-foreground">Initial Password</label>
-              <Input required type="password" value={formData.password} onChange={e => setFormData({ ...formData, password: e.target.value })} className="bg-black/40 border-white/10" />
+
+            <div className="space-y-1.5">
+              <label className="text-xs uppercase tracking-widest font-semibold text-muted-foreground">Login Password *</label>
+              <Input
+                required
+                type="password"
+                value={formData.password}
+                onChange={e => setFormData({ ...formData, password: e.target.value })}
+                className="bg-background border-border font-mono"
+                placeholder="••••••••"
+              />
             </div>
-            <div className="space-y-2 md:col-span-2">
-              <label className="text-xs uppercase tracking-wider text-muted-foreground">Photo URL (Optional)</label>
-              <Input value={formData.photoUrl} onChange={e => setFormData({ ...formData, photoUrl: e.target.value })} className="bg-black/40 border-white/10" placeholder="https://..." />
-            </div>
-            <div className="md:col-span-2 flex justify-end gap-3 mt-4">
-              <Button type="button" variant="outline" onClick={() => setIsAdding(false)} className="border-white/20">Cancel</Button>
-              <Button type="submit" disabled={createExecutive.isPending}>
-                {createExecutive.isPending && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
-                Create Account
+
+            <div className="md:col-span-2 flex justify-end gap-3 pt-3 border-t border-border">
+              <Button type="button" variant="outline" onClick={() => setIsAdding(false)} className="text-xs">
+                Cancel
+              </Button>
+              <Button type="submit" disabled={createExecutive.isPending} className="bg-primary text-primary-foreground font-bold uppercase tracking-wider text-xs gap-2">
+                {createExecutive.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserCheck className="w-4 h-4" />}
+                Create Executive Login
               </Button>
             </div>
           </form>
         </div>
       )}
 
-      <div className="bg-card/30 border border-white/10 rounded-xl overflow-hidden">
+      {/* Executives List Table */}
+      <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-lg">
         {isLoading ? (
-          <div className="p-12 flex justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
+          <div className="p-16 flex justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
         ) : executives?.length === 0 ? (
-          <div className="p-12 text-center text-muted-foreground">No executives found. Create one to get started.</div>
+          <div className="p-16 text-center text-muted-foreground text-xs">
+            No executives registered. Click "Add New Executive Login" above to create styling team accounts.
+          </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="bg-white/5 border-b border-white/10 text-muted-foreground uppercase tracking-wider">
+              <thead className="bg-muted/40 border-b border-border text-[10px] uppercase tracking-widest text-muted-foreground font-bold">
                 <tr>
-                  <th className="p-4 font-medium">Executive</th>
-                  <th className="p-4 font-medium">Contact</th>
-                  <th className="p-4 font-medium text-center">Active</th>
-                  <th className="p-4 font-medium text-center">Rating</th>
-                  <th className="p-4 font-medium">Joined</th>
-                  <th className="p-4 font-medium text-right">Actions</th>
+                  <th className="p-4 pl-6">Executive Name</th>
+                  <th className="p-4">Login Email & Phone</th>
+                  <th className="p-4 text-center">Active Leads</th>
+                  <th className="p-4 text-center">Rating</th>
+                  <th className="p-4 pr-6 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/5">
-                {executives?.map((exec) => {
+              <tbody className="divide-y divide-border">
+                {executives?.map((exec: any) => {
                   const isEditing = editingId === exec.id;
-                  const isDeleting = deletingId === exec.id;
 
-                  return (
-                    <tr key={exec.id} className={`transition-colors ${isEditing ? 'bg-primary/5' : 'hover:bg-white/5'}`}>
-                      <td className="p-4">
-                        {isEditing ? (
+                  if (isEditing) {
+                    return (
+                      <tr key={exec.id} className="bg-primary/5">
+                        <td className="p-4 pl-6">
                           <Input
                             value={editState.name}
                             onChange={e => setEditState({ ...editState, name: e.target.value })}
-                            className="bg-black/40 border-white/10 h-9 text-sm w-40"
-                            placeholder="Name"
+                            className="h-8 text-xs bg-background"
                           />
-                        ) : (
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-primary/20 overflow-hidden flex items-center justify-center border border-primary/30 shrink-0">
-                              {exec.photoUrl
-                                ? <img src={exec.photoUrl} alt={exec.name} className="w-full h-full object-cover" />
-                                : <span className="text-primary font-semibold text-lg">{exec.name.charAt(0)}</span>
-                              }
-                            </div>
-                            <span className="font-medium">{exec.name}</span>
+                        </td>
+                        <td className="p-4 space-y-1">
+                          <Input
+                            value={editState.email}
+                            onChange={e => setEditState({ ...editState, email: e.target.value })}
+                            className="h-8 text-xs bg-background"
+                          />
+                          <Input
+                            value={editState.phone}
+                            onChange={e => setEditState({ ...editState, phone: e.target.value })}
+                            className="h-8 text-xs bg-background"
+                          />
+                        </td>
+                        <td className="p-4 text-center font-mono text-xs">{exec.activeBookings}</td>
+                        <td className="p-4 text-center font-bold text-xs">{exec.rating}</td>
+                        <td className="p-4 pr-6 text-right space-x-1">
+                          <Button
+                            size="sm"
+                            onClick={() => updateMutation.mutate({ id: exec.id, data: editState })}
+                            disabled={updateMutation.isPending}
+                            className="h-7 text-xs bg-primary text-primary-foreground font-bold"
+                          >
+                            <Check className="w-3.5 h-3.5" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => setEditingId(null)}
+                            className="h-7 text-xs"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </Button>
+                        </td>
+                      </tr>
+                    );
+                  }
+
+                  return (
+                    <tr key={exec.id} className="hover:bg-muted/20 transition-colors">
+                      <td className="p-4 pl-6">
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/30 flex items-center justify-center font-bold text-xs">
+                            {exec.name.substring(0, 2).toUpperCase()}
                           </div>
-                        )}
-                      </td>
-                      <td className="p-4 text-muted-foreground">
-                        {isEditing ? (
-                          <div className="space-y-1.5">
-                            <Input value={editState.email} onChange={e => setEditState({ ...editState, email: e.target.value })} className="bg-black/40 border-white/10 h-9 text-sm w-48" placeholder="Email" />
-                            <Input value={editState.phone} onChange={e => setEditState({ ...editState, phone: e.target.value })} className="bg-black/40 border-white/10 h-9 text-sm w-48" placeholder="Phone" />
+                          <div>
+                            <div className="font-semibold text-foreground text-sm">{exec.name}</div>
+                            <span className="text-[10px] font-mono text-muted-foreground">ID: #EXEC-{exec.id}</span>
                           </div>
-                        ) : (
-                          <>
-                            <div className="mb-1">{exec.email}</div>
-                            <div>{exec.phone}</div>
-                          </>
-                        )}
-                      </td>
-                      <td className="p-4 text-center">
-                        <div className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-500/10 text-blue-500 font-bold border border-blue-500/20">
-                          {exec.activeBookings}
                         </div>
                       </td>
-                      <td className="p-4 text-center">
-                        <div className="inline-flex items-center gap-1 bg-amber-500/10 text-amber-500 px-2 py-1 rounded-full text-xs font-bold border border-amber-500/20">
-                          <Star className="w-3 h-3 fill-amber-500" /> {exec.rating.toFixed(1)}
-                        </div>
-                      </td>
-                      <td className="p-4 whitespace-nowrap text-muted-foreground">
-                        {isEditing ? (
-                          <Input value={editState.photoUrl} onChange={e => setEditState({ ...editState, photoUrl: e.target.value })} className="bg-black/40 border-white/10 h-9 text-sm w-40" placeholder="Photo URL" />
-                        ) : (
-                          format(new Date(exec.createdAt), 'MMM d, yyyy')
-                        )}
-                      </td>
+
                       <td className="p-4">
-                        <div className="flex items-center justify-end gap-2">
-                          {isEditing ? (
-                            <>
-                              <Button
-                                size="sm" variant="outline"
-                                className="h-8 w-8 p-0 border-green-500/30 text-green-500 hover:bg-green-500/10"
-                                onClick={() => updateMutation.mutate({ id: exec.id, data: editState })}
-                                disabled={updateMutation.isPending}
-                              >
-                                {updateMutation.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
-                              </Button>
-                              <Button
-                                size="sm" variant="outline"
-                                className="h-8 w-8 p-0 border-white/20 text-muted-foreground hover:bg-white/10"
-                                onClick={() => setEditingId(null)}
-                              >
-                                <X className="w-3.5 h-3.5" />
-                              </Button>
-                            </>
-                          ) : isDeleting ? (
-                            <div className="flex items-center gap-2">
-                              <span className="text-xs text-muted-foreground whitespace-nowrap">Sure?</span>
-                              <Button
-                                size="sm" variant="outline"
-                                className="h-8 px-2 border-red-500/30 text-red-500 hover:bg-red-500/10 text-xs"
-                                onClick={() => deleteMutation.mutate(exec.id)}
-                                disabled={deleteMutation.isPending}
-                              >
-                                {deleteMutation.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : 'Delete'}
-                              </Button>
-                              <Button
-                                size="sm" variant="outline"
-                                className="h-8 w-8 p-0 border-white/20 text-muted-foreground hover:bg-white/10"
-                                onClick={() => setDeletingId(null)}
-                              >
-                                <X className="w-3.5 h-3.5" />
-                              </Button>
-                            </div>
-                          ) : (
-                            <>
-                              <Button
-                                size="sm" variant="outline"
-                                className="h-8 w-8 p-0 border-white/10 text-muted-foreground hover:text-primary hover:border-primary/40 hover:bg-primary/5"
-                                onClick={() => startEdit(exec)}
-                              >
-                                <Pencil className="w-3.5 h-3.5" />
-                              </Button>
-                              <Button
-                                size="sm" variant="outline"
-                                className="h-8 w-8 p-0 border-white/10 text-muted-foreground hover:text-red-500 hover:border-red-500/40 hover:bg-red-500/5"
-                                onClick={() => setDeletingId(exec.id)}
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </Button>
-                            </>
-                          )}
+                        <div className="text-xs text-foreground font-medium flex items-center gap-1.5">
+                          <Mail className="w-3 h-3 text-muted-foreground" /> {exec.email}
+                        </div>
+                        <div className="text-xs text-muted-foreground font-mono mt-0.5 flex items-center gap-1.5">
+                          <Phone className="w-3 h-3 text-muted-foreground" /> {exec.phone}
+                        </div>
+                      </td>
+
+                      <td className="p-4 text-center">
+                        <span className={`px-2.5 py-1 rounded-full text-xs font-mono font-bold ${
+                          exec.activeBookings > 0 ? 'bg-primary/10 text-primary border border-primary/20' : 'bg-muted text-muted-foreground'
+                        }`}>
+                          {exec.activeBookings} leads
+                        </span>
+                      </td>
+
+                      <td className="p-4 text-center">
+                        <span className="inline-flex items-center gap-1 text-xs font-bold text-yellow-400">
+                          <Star className="w-3.5 h-3.5 fill-yellow-400" /> {exec.rating || '5.0'}
+                        </span>
+                      </td>
+
+                      <td className="p-4 pr-6 text-right">
+                        <div className="flex items-center justify-end gap-1.5">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => startEdit(exec)}
+                            className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
+                            title="Edit details"
+                          >
+                            <Pencil className="w-3.5 h-3.5" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => {
+                              if (confirm(`Are you sure you want to delete executive ${exec.name}?`)) {
+                                deleteMutation.mutate(exec.id);
+                              }
+                            }}
+                            className="h-8 w-8 p-0 text-muted-foreground hover:text-red-400"
+                            title="Delete executive"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
                         </div>
                       </td>
                     </tr>
@@ -286,6 +328,7 @@ export function AdminExecutivesPage() {
           </div>
         )}
       </div>
+
     </div>
   );
 }

@@ -210,22 +210,25 @@ router.get(
       const rows = await db
         .select({
           name: usersTable.name,
-          totalVisits: sql<number>`count(*)::int`,
-          completedVisits: sql<number>`count(*) filter (where ${bookingsTable.status} = 'completed')::int`,
+          totalVisits: sql<number>`count(distinct ${bookingsTable.id})::int`,
+          completedVisits: sql<number>`count(distinct ${bookingsTable.id}) filter (where ${bookingsTable.status} = 'completed')::int`,
+          totalSales: sql<number>`coalesce(sum(cast(${bookingProductsTable.priceAtSale} as numeric)) filter (where ${bookingProductsTable.status} = 'sold'), 0)::float`,
           rating: executivesTable.rating,
         })
         .from(executivesTable)
         .innerJoin(usersTable, eq(executivesTable.userId, usersTable.id))
         .leftJoin(bookingsTable, eq(bookingsTable.executiveId, executivesTable.id))
+        .leftJoin(bookingProductsTable, eq(bookingProductsTable.bookingId, bookingsTable.id))
         .groupBy(usersTable.name, executivesTable.rating)
-        .orderBy(sql`count(*) desc`)
+        .orderBy(sql`count(distinct ${bookingsTable.id}) desc`)
         .limit(8);
 
       res.json(rows.map((r) => ({
         name: r.name,
         totalVisits: r.totalVisits,
         completedVisits: r.completedVisits,
-        rating: parseFloat(r.rating as string),
+        totalSales: r.totalSales,
+        rating: parseFloat(r.rating as string || "5.0"),
       })));
     } catch (err: any) {
       console.error("GET /admin/dashboard/executive-performance error:", err);
@@ -367,27 +370,45 @@ router.get(
   async (_req: Request, res: Response): Promise<void> => {
     try {
       const brands = await db.select().from(brandsTable);
-      // Get revenue per brand
-      const revenueRows = await db
+
+      // 1. Get product inventory counts per brand
+      const productRows = await db
         .select({
           brandId: productsTable.brandId,
-          revenue: sql<number>`coalesce(sum(cast(${productsTable.sellingPrice} as numeric) * ${productsTable.stock}), 0)::float`,
           productCount: sql<number>`count(${productsTable.id})::int`,
         })
         .from(productsTable)
         .groupBy(productsTable.brandId);
 
-      const revenueMap = new Map(revenueRows.map(r => [r.brandId, r]));
+      const productCountMap = new Map(productRows.map((r) => [r.brandId, r.productCount]));
 
-      const result = brands.map(b => ({
-        id: b.id,
-        name: b.name,
-        slug: b.slug,
-        logoUrl: b.logoUrl,
-        commissionRate: parseFloat(b.commissionRate as string || "10"),
-        revenue: revenueMap.get(b.id)?.revenue ?? 0,
-        productCount: revenueMap.get(b.id)?.productCount ?? 0,
-      }));
+      // 2. Get actual completed sales revenue per brand from sold visit garments
+      const soldRows = await db
+        .select({
+          brandId: productsTable.brandId,
+          soldGmv: sql<number>`coalesce(sum(cast(${bookingProductsTable.priceAtSale} as numeric)), 0)::float`,
+        })
+        .from(bookingProductsTable)
+        .innerJoin(productsTable, eq(bookingProductsTable.productId, productsTable.id))
+        .where(eq(bookingProductsTable.status, "sold"))
+        .groupBy(productsTable.brandId);
+
+      const soldGmvMap = new Map(soldRows.map((r) => [r.brandId, r.soldGmv]));
+
+      const result = brands.map((b) => {
+        const revenue = soldGmvMap.get(b.id) ?? 0;
+        const productCount = productCountMap.get(b.id) ?? 0;
+        const commissionRate = parseFloat((b.commissionRate as string) || "12");
+        return {
+          id: b.id,
+          name: b.name,
+          slug: b.slug,
+          logoUrl: b.logoUrl,
+          commissionRate,
+          revenue,
+          productCount,
+        };
+      });
 
       // Sort by revenue descending
       result.sort((a, b) => b.revenue - a.revenue);

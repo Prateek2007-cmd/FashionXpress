@@ -47,9 +47,11 @@ const AdminBrandsCommissionPage  = lazy(() => import('./pages/admin/AdminBrandsC
 const AdminPincodesPage          = lazy(() => import('./pages/admin/AdminPincodesPage').then(m => ({ default: m.AdminPincodesPage })));
 
 // Executive & merchant pages
-const ExecutiveVisits    = lazy(() => import('./pages/executive/ExecutiveVisits').then(m => ({ default: m.ExecutiveVisits })));
-const MerchantProductsPage = lazy(() => import('./pages/merchant/MerchantProductsPage').then(m => ({ default: m.MerchantProductsPage })));
-const MerchantOrdersPage   = lazy(() => import('./pages/merchant/MerchantOrdersPage').then(m => ({ default: m.MerchantOrdersPage })));
+const ExecutiveLeadsPage          = lazy(() => import('./pages/executive/ExecutiveLeadsPage').then(m => ({ default: m.ExecutiveLeadsPage })));
+const ExecutiveCheckoutPage       = lazy(() => import('./pages/executive/ExecutiveCheckoutPage').then(m => ({ default: m.ExecutiveCheckoutPage })));
+const ExecutiveReconciliationPage = lazy(() => import('./pages/executive/ExecutiveReconciliationPage').then(m => ({ default: m.ExecutiveReconciliationPage })));
+const MerchantProductsPage        = lazy(() => import('./pages/merchant/MerchantProductsPage').then(m => ({ default: m.MerchantProductsPage })));
+const MerchantOrdersPage          = lazy(() => import('./pages/merchant/MerchantOrdersPage').then(m => ({ default: m.MerchantOrdersPage })));
 
 // Simple spinner shown while a lazy chunk loads
 function PageLoader() {
@@ -156,8 +158,11 @@ function ExecutiveRoutes() {
     <ExecutiveLayout>
       <Suspense fallback={<PageLoader />}>
         <Switch>
-          <Route path="/executive" component={ExecutiveVisits} />
-          <Route path="/executive/" component={ExecutiveVisits} />
+          <Route path="/executive" component={ExecutiveLeadsPage} />
+          <Route path="/executive/" component={ExecutiveLeadsPage} />
+          <Route path="/executive/leads" component={ExecutiveLeadsPage} />
+          <Route path="/executive/checkout" component={ExecutiveCheckoutPage} />
+          <Route path="/executive/reconciliation" component={ExecutiveReconciliationPage} />
           <Route component={NotFound} />
         </Switch>
       </Suspense>
