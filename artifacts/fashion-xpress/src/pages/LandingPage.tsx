@@ -117,9 +117,9 @@ export function LandingPage() {
               </button>
             </Link>
 
-            {/* Secondary CTA */}
+            {/* Secondary CTA — min 44px touch target */}
             <Link href="/products">
-              <button className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors font-medium group">
+              <button className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors font-medium group min-h-[44px] px-4 rounded-xl hover:bg-foreground/5">
                 <ShoppingBag className="w-4 h-4" />
                 Browse the Collection
                 <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
