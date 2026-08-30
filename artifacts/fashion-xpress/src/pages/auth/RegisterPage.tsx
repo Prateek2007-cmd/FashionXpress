@@ -7,6 +7,7 @@ import { ShieldCheck, Sparkles, User, Mail, Phone, Lock, Eye, EyeOff, CheckCircl
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/context/AuthContext';
+import { usePincode } from '@/context/PincodeContext';
 import { useToast } from '@/components/ui/use-toast';
 
 const RENDER_API = 'https://fashionxpress.onrender.com';
@@ -25,15 +26,23 @@ type RegisterFormValues = z.infer<typeof registerSchema>;
 export function RegisterPage() {
   const [, setLocation] = useLocation();
   const { login } = useAuth();
+  const { availablePincodes, setPincode: setGlobalPincode } = usePincode();
   const { toast } = useToast();
   const [isRegistering, setIsRegistering] = useState(false);
   const [showPassword, setShowPassword] = React.useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [existingUserEmail, setExistingUserEmail] = useState<string | null>(null);
 
-  const { register, handleSubmit, formState: { errors } } = useForm<RegisterFormValues>({
+  const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema)
   });
+
+  const enteredPincode = watch('pincode') || '';
+  const matchedServiceArea = availablePincodes.find(
+    (p) => p.pincode === enteredPincode.trim() && p.isActive !== false
+  );
+  const isPincodeEntered = enteredPincode.trim().length === 6;
+  const isServiceable = Boolean(matchedServiceArea);
 
   const onSubmit = async (data: RegisterFormValues) => {
     setIsRegistering(true);
@@ -71,6 +80,9 @@ export function RegisterPage() {
       }
 
       login(json.token, json.user);
+      if (data.pincode) {
+        setGlobalPincode(data.pincode);
+      }
       toast({ title: "🎉 Welcome to The Fashion Xpress", description: "Your account has been created successfully." });
       setLocation('/');
     } catch (err: any) {
@@ -226,6 +238,28 @@ export function RegisterPage() {
                 className={`h-12 rounded-xl font-mono tracking-wider bg-background border-border text-foreground placeholder:text-muted-foreground/50 focus:border-primary/50 ${errors.pincode ? 'border-destructive' : ''}`}
               />
               {errors.pincode && <p className="text-xs text-destructive">{errors.pincode.message}</p>}
+
+              {/* Serviceability Live Status Banner */}
+              {isPincodeEntered && isServiceable && (
+                <div className="p-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-300 text-xs flex items-center gap-2 animate-in fade-in slide-in-from-top-1 duration-200">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span>
+                    ✓ <strong>Delivery Available in {matchedServiceArea?.area}, {matchedServiceArea?.city}!</strong> At-home visits active.
+                  </span>
+                </div>
+              )}
+
+              {isPincodeEntered && !isServiceable && (
+                <div className="p-3.5 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-300 text-xs space-y-1.5 animate-in fade-in slide-in-from-top-1 duration-200">
+                  <div className="flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
+                    <span className="font-bold text-amber-200 text-xs">Expanding Soon to {enteredPincode}!</span>
+                  </div>
+                  <p className="text-[11px] text-amber-300/80 leading-relaxed">
+                    We don't deliver to this location yet, but we're expanding rapidly! You can still create your account today to get early access and exclusive perks.
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Complete Address */}
