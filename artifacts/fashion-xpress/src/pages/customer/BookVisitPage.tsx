@@ -6,7 +6,7 @@ import { Link } from 'wouter';
 import {
   Loader2, CheckCircle2, MapPin, Phone, User, Sparkles,
   Clock, Star, Shield, ArrowRight, Home, ShoppingBag,
-  Zap, Award, ChevronRight, MessageCircle
+  Zap, Award, ChevronRight, MessageCircle, AlertCircle
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { usePincode } from '@/context/PincodeContext';
@@ -54,7 +54,7 @@ const STEPS_INFO = [
 
 export function BookVisitPage() {
   const { isAuthenticated, token, user } = useAuth();
-  const { selectedPincode, selectedPincodeInfo } = usePincode();
+  const { selectedPincode, selectedPincodeInfo, availablePincodes, setPincode: setGlobalPincode } = usePincode();
   const [successCode, setSuccessCode] = useState<string | null>(null);
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -65,8 +65,9 @@ export function BookVisitPage() {
   // Form state — plain React state, no react-hook-form
   const [name, setName] = useState(user?.name || '');
   const [phone, setPhone] = useState(user?.phone || '');
-  const [addressText, setAddressText] = useState('');
-  const [errors, setErrors] = useState<{ name?: string; phone?: string; addressText?: string }>({});
+  const [pincode, setPincode] = useState((user as any)?.pincode || selectedPincode || '');
+  const [addressText, setAddressText] = useState((user as any)?.address || '');
+  const [errors, setErrors] = useState<{ name?: string; phone?: string; pincode?: string; addressText?: string }>({});
 
   useEffect(() => { window.scrollTo(0, 0); }, []);
 
@@ -74,17 +75,18 @@ export function BookVisitPage() {
     if (user) {
       if (user.name) setName(user.name);
       if (user.phone) setPhone(user.phone);
-      const userAddr = (user as any)?.address;
-      const userPin = (user as any)?.pincode || selectedPincode;
-      if (userAddr) {
-        setAddressText(userPin && !userAddr.includes(userPin) ? `${userAddr} - ${userPin}` : userAddr);
-      } else if (userPin) {
-        setAddressText(prev => prev || `Pincode: ${userPin}`);
-      }
+      if ((user as any)?.pincode) setPincode((user as any).pincode);
+      if ((user as any)?.address) setAddressText((user as any).address);
     } else if (selectedPincode) {
-      setAddressText(prev => prev || (selectedPincodeInfo ? `${selectedPincodeInfo.area}, ${selectedPincodeInfo.city} - ${selectedPincode}` : `Pincode: ${selectedPincode}`));
+      setPincode(prev => prev || selectedPincode);
     }
-  }, [user, selectedPincode, selectedPincodeInfo]);
+  }, [user, selectedPincode]);
+
+  const activeMatchedPincode = availablePincodes.find(
+    (p) => p.pincode === pincode.trim() && p.isActive !== false
+  );
+  const isPincodeEntered = pincode.trim().length === 6;
+  const isServiceable = Boolean(activeMatchedPincode);
 
   useEffect(() => {
     let timer: NodeJS.Timeout | number | undefined;
@@ -114,9 +116,27 @@ export function BookVisitPage() {
   };
 
   const handleConfirmBooking = async () => {
-    // Validate address
+    const errs: { pincode?: string; addressText?: string } = {};
+
+    if (!pincode || pincode.trim().length !== 6) {
+      errs.pincode = 'Please enter a valid 6-digit delivery pincode';
+    } else if (!isServiceable) {
+      errs.pincode = `Pincode ${pincode} is not currently serviceable. Coming soon!`;
+      toast({
+        title: `Coming Soon to ${pincode}!`,
+        description: "We do not service this location yet. Please select a serviceable area.",
+        variant: "destructive",
+      });
+      setErrors(errs);
+      return;
+    }
+
     if (!addressText || addressText.trim().length < 3) {
-      setErrors(prev => ({ ...prev, addressText: 'Please enter your address' }));
+      errs.addressText = 'Please enter your complete address (House/Street/Area)';
+    }
+
+    if (Object.keys(errs).length > 0) {
+      setErrors(errs);
       return;
     }
     setErrors({});
@@ -136,10 +156,12 @@ export function BookVisitPage() {
       }))
       .filter((item: any) => !isNaN(item.productId) && item.productId > 0);
 
+    const fullAddress = `${addressText.trim()}, Pincode: ${pincode.trim()}${activeMatchedPincode ? ` (${activeMatchedPincode.area}, ${activeMatchedPincode.city})` : ''}`;
+
     const payload = {
       name: name.trim() || user?.name || 'Guest Customer',
       phone: cleanPhone || user?.phone || '9999999999',
-      addressText: addressText.trim(),
+      addressText: fullAddress,
       email: user?.email || 'not-provided@fashion-xpress.com',
       preferredDate: new Date().toISOString().split('T')[0],
       preferredTime: 'As soon as possible',
@@ -408,17 +430,103 @@ export function BookVisitPage() {
                 <div className="space-y-6">
                   <div>
                     <h3 className="text-xl font-serif text-foreground mb-1">Where should we come?</h3>
-                    <p className="text-xs text-muted-foreground">Share your complete address for accurate navigation.</p>
+                    <p className="text-xs text-muted-foreground">Verify your delivery pincode and share your address for navigation.</p>
                   </div>
 
+                  {/* Delivery Pincode Input */}
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between">
                       <label className="text-xs text-muted-foreground uppercase tracking-widest font-semibold flex items-center gap-1.5">
-                        <MapPin className="w-3.5 h-3.5 text-primary" /> Full Address
+                        <MapPin className="w-3.5 h-3.5 text-primary" /> Delivery Pincode *
                       </label>
-                      {((user as any)?.address || selectedPincode) && (
+                      {((user as any)?.pincode || selectedPincode) && (
+                        <span className="text-[11px] text-primary/90 font-medium flex items-center gap-1">
+                          <CheckCircle2 className="w-3 h-3 text-primary" /> Saved location
+                        </span>
+                      )}
+                    </div>
+                    <Input
+                      id="booking-pincode"
+                      value={pincode}
+                      maxLength={6}
+                      inputMode="numeric"
+                      onChange={e => {
+                        const val = e.target.value.replace(/\D/g, '').slice(0, 6);
+                        setPincode(val);
+                        setErrors(prev => ({ ...prev, pincode: undefined }));
+                        if (val.length === 6) {
+                          setGlobalPincode(val);
+                        }
+                      }}
+                      placeholder="Enter 6-digit delivery pincode (e.g. 504001)"
+                      className={`h-12 bg-foreground/5 border-border font-mono tracking-wider text-foreground placeholder:text-muted-foreground/50 focus:border-primary/50 rounded-xl ${errors.pincode ? 'border-destructive' : ''}`}
+                    />
+                    {errors.pincode && <p className="text-xs text-destructive">{errors.pincode}</p>}
+                  </div>
+
+                  {/* Serviceability Live Status Banner */}
+                  {isPincodeEntered && !isServiceable && (
+                    <div className="p-4 rounded-2xl border border-amber-500/30 bg-amber-500/10 text-amber-300 space-y-2.5 animate-in fade-in slide-in-from-top-2 duration-300">
+                      <div className="flex items-start gap-2.5">
+                        <AlertCircle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+                        <div>
+                          <p className="font-bold text-amber-200 text-sm">Coming Soon to {pincode}!</p>
+                          <p className="text-xs text-amber-300/90 mt-0.5 leading-relaxed">
+                            We currently do not service this pincode yet. Our Fashion Executive home visit concierge is expanding rapidly to your area.
+                          </p>
+                        </div>
+                      </div>
+
+                      {availablePincodes.length > 0 && (
+                        <div className="pt-2.5 border-t border-amber-500/20">
+                          <p className="text-[11px] text-amber-200/90 font-bold mb-1.5 uppercase tracking-wider">
+                            Choose from currently serviceable areas:
+                          </p>
+                          <div className="flex flex-wrap gap-1.5">
+                            {availablePincodes.slice(0, 5).map(p => (
+                              <button
+                                key={p.id}
+                                type="button"
+                                onClick={() => {
+                                  setPincode(p.pincode);
+                                  setGlobalPincode(p.pincode);
+                                  setErrors(prev => ({ ...prev, pincode: undefined }));
+                                }}
+                                className="text-xs bg-amber-500/20 hover:bg-amber-500/35 text-amber-100 font-semibold px-2.5 py-1 rounded-lg border border-amber-500/30 transition-all flex items-center gap-1"
+                              >
+                                <span className="font-mono">{p.pincode}</span>
+                                <span className="opacity-70">({p.area})</span>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {isPincodeEntered && isServiceable && (
+                    <div className="p-3.5 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-300 text-xs flex items-start gap-2.5 animate-in fade-in slide-in-from-top-2 duration-300">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                      <div>
+                        <span className="font-bold text-emerald-200 text-sm block">
+                          ✓ Delivery Service Available in {activeMatchedPincode?.area}, {activeMatchedPincode?.city}!
+                        </span>
+                        <span className="text-emerald-300/80 leading-relaxed block mt-0.5">
+                          A dedicated Fashion Executive will arrive with your curated fashion choices in 45–60 mins.
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Full Address Input */}
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs text-muted-foreground uppercase tracking-widest font-semibold flex items-center gap-1.5">
+                        <Home className="w-3.5 h-3.5 text-primary" /> House / Street / Flat / Landmark *
+                      </label>
+                      {(user as any)?.address && (
                         <span className="text-[11px] text-emerald-400 font-medium flex items-center gap-1">
-                          <CheckCircle2 className="w-3 h-3" /> Auto-filled from profile/location
+                          <CheckCircle2 className="w-3 h-3" /> Auto-filled from profile
                         </span>
                       )}
                     </div>
@@ -426,7 +534,7 @@ export function BookVisitPage() {
                       id="booking-address"
                       value={addressText}
                       onChange={e => { setAddressText(e.target.value); setErrors(prev => ({ ...prev, addressText: undefined })); }}
-                      placeholder="House No, Street, Landmark, City, Pincode"
+                      placeholder="e.g. Flat 401, Sapphire Heights, Near Clock Tower"
                       className={`h-12 bg-foreground/5 border-border text-foreground placeholder:text-muted-foreground/50 focus:border-primary/50 rounded-xl ${errors.addressText ? 'border-destructive' : ''}`}
                     />
                     {errors.addressText && <p className="text-xs text-destructive">{errors.addressText}</p>}
@@ -450,12 +558,18 @@ export function BookVisitPage() {
                     </Button>
                     <Button
                       type="button"
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || (isPincodeEntered && !isServiceable)}
                       onClick={handleConfirmBooking}
-                      className="flex-[2] h-14 text-sm tracking-[0.15em] uppercase font-bold rounded-xl bg-green-600 hover:bg-green-700 shadow-lg shadow-green-900/30"
+                      className={`flex-[2] h-14 text-sm tracking-[0.15em] uppercase font-bold rounded-xl shadow-lg transition-all ${
+                        isPincodeEntered && !isServiceable
+                          ? 'bg-amber-600/50 cursor-not-allowed opacity-60 text-white'
+                          : 'bg-green-600 hover:bg-green-700 text-white shadow-green-900/30'
+                      }`}
                     >
                       {isSubmitting ? (
                         <span className="flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Confirming…</span>
+                      ) : isPincodeEntered && !isServiceable ? (
+                        <span>Coming Soon to {pincode}</span>
                       ) : (
                         <span className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4" /> Confirm Booking</span>
                       )}
