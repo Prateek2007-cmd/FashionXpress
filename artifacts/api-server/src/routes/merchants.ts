@@ -1,6 +1,6 @@
 import { Router, type IRouter, type Request, type Response } from "express";
 import { eq, and } from "drizzle-orm";
-import { db, usersTable } from "@workspace/db";
+import { db, usersTable, brandsTable, merchantPincodesTable, serviceablePincodesTable } from "@workspace/db";
 import { requireAuth } from "../middlewares/auth";
 import { hashPassword } from "../lib/auth";
 
@@ -69,6 +69,34 @@ router.post(
         })
         .returning();
 
+      // Auto-create matching brand in brandsTable
+      try {
+        const slug = cleanName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+        const [existingBrand] = await db.select().from(brandsTable).where(eq(brandsTable.slug, slug));
+        if (!existingBrand) {
+          await db.insert(brandsTable).values({
+            name: cleanName,
+            slug,
+            commissionRate: "12.00",
+          });
+        }
+      } catch (err) {
+        console.error("Auto brand sync error:", err);
+      }
+
+      // Auto-map merchant to all active serviceable pincodes
+      try {
+        const activePins = await db.select().from(serviceablePincodesTable).where(eq(serviceablePincodesTable.isActive, true));
+        for (const pin of activePins) {
+          await db.insert(merchantPincodesTable).values({
+            merchantId: user!.id,
+            pincode: pin.pincode,
+          }).onConflictDoNothing?.();
+        }
+      } catch (err) {
+        console.error("Auto pincode sync error:", err);
+      }
+
       res.status(201).json({
         id: user!.id,
         name: user!.name,
@@ -132,6 +160,11 @@ router.delete(
         res.status(404).json({ error: "Merchant not found" });
         return;
       }
+
+      // Delete merchant pincodes & matching brand
+      await db.delete(merchantPincodesTable).where(eq(merchantPincodesTable.merchantId, id));
+      const slug = merchant.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+      await db.delete(brandsTable).where(eq(brandsTable.slug, slug));
 
       await db.delete(usersTable).where(eq(usersTable.id, id));
       res.json({ success: true });
