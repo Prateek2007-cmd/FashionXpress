@@ -19,7 +19,9 @@ router.post("/auth/register", async (req: Request, res: Response): Promise<void>
     res.status(400).json({ error: parsed.error.message });
     return;
   }
-  const { name, email, password, phone, pincode, address } = parsed.data;
+  const { name, email, password, phone } = parsed.data;
+  const pincode = (req.body as any).pincode;
+  const address = (req.body as any).address;
 
   const normalizedEmail = email.trim().toLowerCase();
   const cleanPhoneDigits = phone ? phone.replace(/\D/g, "") : "";

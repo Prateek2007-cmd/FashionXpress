@@ -39,7 +39,7 @@ router.get(
       .select({ executiveId: bookingsTable.executiveId })
       .from(bookingsTable)
       .where(
-        inArray(bookingsTable.status, [
+        inArray(bookingsTable.status as any, [
           "executive_assigned",
           "en_route",
           "arrived",
@@ -215,7 +215,7 @@ router.get(
           customerName: b.name,
           phone: b.phone,
           addressText: b.addressText,
-          pincode: b.pincode,
+          pincode: (b as any).pincode || null,
           preferredDate: b.preferredDate,
           preferredTime: b.preferredTime,
           preferredFit: b.preferredFit,

@@ -72,7 +72,7 @@ router.put(
   requireAuth("admin"),
   async (req: AuthedRequest, res: Response): Promise<void> => {
     try {
-      const id = parseInt(req.params.id);
+      const id = parseInt(Array.isArray(req.params.id) ? req.params.id[0]! : req.params.id!, 10);
       const { area, city, state, isActive } = req.body;
       const update: any = {};
       if (area !== undefined) update.area = area;
@@ -99,7 +99,7 @@ router.delete(
   requireAuth("admin"),
   async (req: AuthedRequest, res: Response): Promise<void> => {
     try {
-      const id = parseInt(req.params.id);
+      const id = parseInt(Array.isArray(req.params.id) ? req.params.id[0]! : req.params.id!, 10);
       await db.delete(serviceablePincodesTable).where(eq(serviceablePincodesTable.id, id));
       res.json({ success: true });
     } catch (e: any) {

@@ -78,7 +78,7 @@ export function BookVisitPage() {
       if ((user as any)?.pincode) setPincode((user as any).pincode);
       if ((user as any)?.address) setAddressText((user as any).address);
     } else if (selectedPincode) {
-      setPincode(prev => prev || selectedPincode);
+      setPincode((prev: string) => prev || selectedPincode);
     }
   }, [user, selectedPincode]);
 

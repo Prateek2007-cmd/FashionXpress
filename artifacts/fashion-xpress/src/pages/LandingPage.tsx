@@ -65,7 +65,7 @@ export function LandingPage() {
               width="1024"
               height="1024"
               className="w-full h-full object-cover opacity-30"
-              fetchpriority="high"
+              fetchPriority="high"
               loading="eager"
               decoding="sync"
             />
