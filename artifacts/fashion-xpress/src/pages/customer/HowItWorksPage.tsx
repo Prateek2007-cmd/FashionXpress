@@ -1,4 +1,5 @@
 import React from 'react';
+import { useSEO } from '@/hooks/useSEO';
 import { Link } from 'wouter';
 import {
   Clock, Shield, Star, ShoppingBag, Sparkles,
@@ -7,6 +8,11 @@ import {
 import { Button } from '@/components/ui/button';
 
 export function HowItWorksPage() {
+  useSEO({
+    title: 'How Home Fashion Trials Work in Adilabad | The Fashion Xpress',
+    description: 'Learn how The Fashion Xpress home trial works in Adilabad. Book online, our executive visits your home with designer outfits, and you pay only for what you love.',
+    path: '/how-it-works',
+  });
   const steps = [
     {
       step: '01',

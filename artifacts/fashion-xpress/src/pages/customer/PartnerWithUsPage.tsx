@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useSEO } from '@/hooks/useSEO';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,6 +10,11 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { getApiBaseUrl } from '@/lib/api-config';
 
 export function PartnerWithUsPage() {
+  useSEO({
+    title: 'Partner With The Fashion Xpress | List Your Boutique in Adilabad',
+    description: 'Partner with The Fashion Xpress to reach customers in Adilabad directly at home. Register your boutique or brand and grow sales through our home fashion visit network.',
+    path: '/partner',
+  });
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({

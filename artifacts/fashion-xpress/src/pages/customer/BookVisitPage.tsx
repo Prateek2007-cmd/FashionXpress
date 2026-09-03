@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSEO } from '@/hooks/useSEO';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
@@ -53,6 +54,11 @@ const STEPS_INFO = [
 ];
 
 export function BookVisitPage() {
+  useSEO({
+    title: 'Book a Home Fashion Visit in Adilabad | The Fashion Xpress',
+    description: 'Schedule a free home fashion visit in Adilabad. Our Fashion Executive brings bridal lehengas, sarees & designer ethnic wear to your doorstep. Try before you buy.',
+    path: '/book-visit',
+  });
   const { isAuthenticated, token, user } = useAuth();
   const { selectedPincode, selectedPincodeInfo, availablePincodes, setPincode: setGlobalPincode } = usePincode();
   const [successCode, setSuccessCode] = useState<string | null>(null);

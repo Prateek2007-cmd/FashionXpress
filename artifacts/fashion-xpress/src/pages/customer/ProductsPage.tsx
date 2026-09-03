@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSEO } from '@/hooks/useSEO';
 import { Link, useLocation } from 'wouter';
 import { formatPrice } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -24,6 +25,11 @@ const getDiscountPercent = (mrp?: number, sellingPrice?: number) => {
 };
 
 export function ProductsPage() {
+  useSEO({
+    title: 'Designer Bridal Lehengas, Sarees & Ethnic Wear Collection | The Fashion Xpress',
+    description: 'Browse The Fashion Xpress collection of designer bridal lehengas, silk sarees & festive ethnic wear in Adilabad. Book a home trial and try outfits at your doorstep.',
+    path: '/products',
+  });
   const { selectedPincode, selectedPincodeInfo } = usePincode();
   const [search, setSearch] = useState('');
   const [categoryId, setCategoryId] = useState<number | undefined>(undefined);

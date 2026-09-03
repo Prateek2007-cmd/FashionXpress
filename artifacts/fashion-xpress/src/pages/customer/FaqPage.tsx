@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useSEO } from '@/hooks/useSEO';
 import { Link } from 'wouter';
 import { motion } from 'framer-motion';
 import {
@@ -52,6 +53,11 @@ const FAQS: FaqItem[] = [
 ];
 
 export function FaqPage() {
+  useSEO({
+    title: 'FAQs — Home Fashion Visits in Adilabad | The Fashion Xpress',
+    description: 'Got questions about home fashion trials in Adilabad? Find answers about bookings, payments, returns, and how The Fashion Xpress brings designer outfits to your door.',
+    path: '/faq',
+  });
   const [activeCategory, setActiveCategory] = useState<string>('All');
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 

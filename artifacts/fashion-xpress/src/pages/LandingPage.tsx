@@ -1,4 +1,5 @@
 import React from 'react';
+import { useSEO } from '@/hooks/useSEO';
 import { Link } from 'wouter';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -32,6 +33,11 @@ const STATS = [
 ];
 
 export function LandingPage() {
+  useSEO({
+    title: 'Bridal Lehenga & Designer Wear Home Trial in Adilabad | The Fashion Xpress',
+    description: 'Book a home fashion visit in Adilabad with The Fashion Xpress. Our stylist brings designer bridal lehengas, sarees & ethnic wear to your door — try before you buy.',
+    path: '/',
+  });
 
   return (
     <div className="flex flex-col overflow-x-hidden">

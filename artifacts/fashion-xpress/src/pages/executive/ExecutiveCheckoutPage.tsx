@@ -337,7 +337,7 @@ export function ExecutiveCheckoutPage() {
 
                       <div className="w-12 h-14 rounded-lg bg-background border border-border overflow-hidden shrink-0 flex items-center justify-center">
                         {item.image ? (
-                          <img src={item.image} alt="" className="w-full h-full object-cover" />
+                          <img src={item.image} alt={item.name || 'Product image'} className="w-full h-full object-cover" />
                         ) : (
                           <Package className="w-5 h-5 text-muted-foreground" />
                         )}

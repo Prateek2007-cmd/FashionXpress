@@ -7,7 +7,7 @@
   <!-- Home -->
   <url>
     <loc>https://www.thefashionxpress.com/</loc>
-    <lastmod>2026-08-29</lastmod>
+    <lastmod>2026-09-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
@@ -15,7 +15,7 @@
   <!-- Book Home Visit -->
   <url>
     <loc>https://www.thefashionxpress.com/book-visit</loc>
-    <lastmod>2026-08-29</lastmod>
+    <lastmod>2026-09-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
@@ -23,7 +23,7 @@
   <!-- Collections / Products -->
   <url>
     <loc>https://www.thefashionxpress.com/products</loc>
-    <lastmod>2026-08-29</lastmod>
+    <lastmod>2026-09-03</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
@@ -31,7 +31,7 @@
   <!-- How It Works -->
   <url>
     <loc>https://www.thefashionxpress.com/how-it-works</loc>
-    <lastmod>2026-08-29</lastmod>
+    <lastmod>2026-09-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -39,15 +39,7 @@
   <!-- Partner With Us -->
   <url>
     <loc>https://www.thefashionxpress.com/partner</loc>
-    <lastmod>2026-08-29</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-
-  <!-- Contact Us -->
-  <url>
-    <loc>https://www.thefashionxpress.com/contact</loc>
-    <lastmod>2026-08-29</lastmod>
+    <lastmod>2026-09-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -55,7 +47,15 @@
   <!-- FAQ -->
   <url>
     <loc>https://www.thefashionxpress.com/faq</loc>
-    <lastmod>2026-08-29</lastmod>
+    <lastmod>2026-09-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Contact Us -->
+  <url>
+    <loc>https://www.thefashionxpress.com/contact</loc>
+    <lastmod>2026-09-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -63,7 +63,7 @@
   <!-- Privacy Policy -->
   <url>
     <loc>https://www.thefashionxpress.com/privacy</loc>
-    <lastmod>2026-08-29</lastmod>
+    <lastmod>2026-09-03</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.4</priority>
   </url>
@@ -71,17 +71,9 @@
   <!-- Terms & Conditions -->
   <url>
     <loc>https://www.thefashionxpress.com/terms</loc>
-    <lastmod>2026-08-29</lastmod>
+    <lastmod>2026-09-03</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.4</priority>
-  </url>
-
-  <!-- Login -->
-  <url>
-    <loc>https://www.thefashionxpress.com/login</loc>
-    <lastmod>2026-08-29</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.3</priority>
   </url>
 
 </urlset>
